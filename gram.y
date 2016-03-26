@@ -21,13 +21,26 @@
 	int	y_int;
 	double	y_double;
 	char *	y_string;
+	//added ->
+	TYPE_SPECIFIER y_type_spec;
+	BUCKET_PTR y_bucket;
+	ST_ID y_ST_ID;
+	ST_DR y_ST_DR;
 	};
+// changed or added
+%type <y_bucket> declaration_specifiers
+%type <y_type_spec> type_specifier
+%type <y_ST_ID> identifier
+%type <y_ST_DR> init_declarator
 
-%token IDENTIFIER INT_CONSTANT DOUBLE_CONSTANT STRING_LITERAL SIZEOF
+// IDENTIFIER made into y_string, moved below
+%token INT_CONSTANT DOUBLE_CONSTANT STRING_LITERAL SIZEOF
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
 %token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
-%token XOR_ASSIGN OR_ASSIGN TYPE_NAME
+%token XOR_ASSIGN OR_ASSIGN
+// changed removed from above lines and put as strings
+%token <y_string> TYPE_NAME IDENTIFIER
 
 %token TYPEDEF EXTERN STATIC AUTO REGISTER
 %token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID
@@ -183,26 +196,26 @@ expr_opt
 
 declaration
 	: declaration_specifiers ';'
-	| declaration_specifiers init_declarator_list ';'
+	| declaration_specifiers init_declarator_list ';' { if(is_error_decl($1)); else {build_base($1)}} // more for else
 	;
 
 declaration_specifiers
-	: storage_class_specifier
-	| storage_class_specifier declaration_specifiers
-	| type_specifier
-	| type_specifier declaration_specifiers
-	| type_qualifier
-	| type_qualifier declaration_specifiers
+	: storage_class_specifier			{}
+	| storage_class_specifier declaration_specifiers {}
+	| type_specifier		{ $$ = update_bucket (NULL, $1, NULL); }
+	| type_specifier declaration_specifiers { $$ = update_bucket ($2, $1, NULL); }
+	| type_qualifier			{}
+	| type_qualifier declaration_specifiers {}
 	;
 
 init_declarator_list
-	: init_declarator
-	| init_declarator_list ',' init_declarator
+	: init_declarator	{ BOOLEAN result; ST_DR dr = stdr_alloc(); dr->tag = GDECL; dr->u.decl.type = $<y_type>0; dr->u.decl.sc = NO_SC; result = st_install($1, dr); if(!result) error("error"); }
+	| init_declarator_list ',' init_declarator {  BOOLEAN result; ST_DR dr = stdr_alloc(); dr->tag = GDECL; dr->u.decl.type = $<y_type>0; dr->u.decl.sc = NO_SC; result = st_install($1, dr); if(!result) error("error"); }
 	;
 
 init_declarator
-	: declarator
-	| declarator '=' initializer
+	: declarator	{ BOOLEAN result; ST_DR dr = stdr_alloc(); dr->tag = GDECL; dr->u.decl.type = $<y_type>0; dr->u.decl.sc = NO_SC; result = st_install($1, dr); if(!result) error("error"); } // might drop moved up to init_declarator_list
+	| declarator '=' initializer {}
 	;
 
 storage_class_specifier
@@ -210,11 +223,18 @@ storage_class_specifier
 	;
 
 type_specifier
-	: VOID | CHAR | SHORT | INT | LONG
-	| FLOAT | DOUBLE | SIGNED | UNSIGNED
-	| struct_or_union_specifier
-	| enum_specifier
-	| TYPE_NAME
+	: VOID		{ $$ = VOID_SPEC;}
+	| CHAR		{ $$ = CHAR_SPEC;}
+	| SHORT		{ $$ = SHORT_SPEC;}
+	| INT		{ $$ = INT_SPEC;}
+	| LONG		{ $$ = LONG_SPEC;}
+	| FLOAT		{ $$ = FLOAT_SPEC;}
+	| DOUBLE	{ $$ = DOUBLE_SPEC;}
+	| SIGNED	{ $$ = UNSIGNED_SPEC;}
+	| UNSIGNED	{ $$ = SIGNED_SPEC;} 
+	| struct_or_union_specifier {}
+	| enum_specifier {}
+	| TYPE_NAME	{}
 	;
 
 struct_or_union_specifier
@@ -278,12 +298,12 @@ type_qualifier
 	;
 
 declarator
-	: direct_declarator
+	: direct_declarator	{ $$ = $1;}
 	| pointer declarator
 	;
 
 direct_declarator
-	: identifier
+	: identifier		{ $$ = $1;}
 	| '(' declarator ')'
 	| direct_declarator '[' ']'
 	| direct_declarator '[' constant_expr ']'
@@ -314,8 +334,8 @@ parameter_declaration
 	;
 
 identifier_list
-	: identifier
-	| identifier_list ',' identifier
+	: identifier				{}
+	| identifier_list ',' identifier	{}
 	;
 
 type_name
@@ -343,7 +363,7 @@ direct_abstract_declarator
 
 initializer
 	: assignment_expr
-	| '{' initializer_list '}'
+	| '{' /*{ check that $0 is an array (ty_query($0) == TYARRAY} */ initializer_list '}'
 	| '{' initializer_list ',' '}'
 	;
 
@@ -435,7 +455,7 @@ function_definition
   *******************************/
 
 identifier
-	: IDENTIFIER
+	: IDENTIFIER		{ $$ = st_enter_id($1);}
 	;
 %%
 
