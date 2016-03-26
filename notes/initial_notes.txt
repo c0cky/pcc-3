@@ -1,0 +1,18 @@
+int x;
+
+0) Upon seeing an ID, ENROLL ID into symtab
+	ST_ID st_id = st_enter_id("x"); // st_id is the symtab version of the ID
+1) DETERMINE the type (possibly a function that does this?) then build that type
+	TYPE type = ty_build_basic(TYSIGNEDINT);
+2) ALLOCATE space for the symtab data record (ST_DR), fill in the fields
+	ST_DR dr = stdr_alloc();
+	dr->tag = GDECL;
+	dr->u.decl.type = type;
+	dr->u.decl.sc = NO_SC;
+	dr->u.decl.err = false;
+3) INSTALL into symtab
+	BOOLEAN success;
+	success = st_install(st_id, dr);
+	if (!success) {
+		error(...);
+	}
