@@ -14,16 +14,13 @@
 
     int yylex();
     int yyerror(char *s);
-	BUCKET_PTR buildBucket(BUCKET_PTR bucketPtr, TYPE_SPECIFIER typeSpec);
+
 %}
 
 %union {
 	int	y_int;
 	double	y_double;
 	char *	y_string;
-	TYPE_SPECIFIER y_typeSpec;
-	BUCKET_PTR y_bucketPtr;
-	ST_ID y_stID;
 	};
 
 %token IDENTIFIER INT_CONSTANT DOUBLE_CONSTANT STRING_LITERAL SIZEOF
@@ -185,87 +182,39 @@ expr_opt
   *******************************/
 
 declaration
-	: declaration_specifiers ';' 
-	| declaration_specifiers init_declarator_list ';' {
-		// Combine the type of declaration_specifiers (held in a bucket)
-		// with the type of init_declarator_list HERE!!!!!
-	}
+	: declaration_specifiers ';'
+	| declaration_specifiers init_declarator_list ';' {msgn("Found declaration #2\n");}
 	;
 
 declaration_specifiers
 	: storage_class_specifier
 	| storage_class_specifier declaration_specifiers
-	| type_specifier { 
-		$<y_bucketPtr>$ = buildBucket(NULL, $<y_typeSpec>1);
-	}
-	| type_specifier declaration_specifiers { 
-		$<y_bucketPtr>$ = buildBucket($<y_bucketPtr>2, $<y_typeSpec>1);
-	}
-	| type_qualifier {
-		$<y_bucketPtr>$ = buildBucket(NULL, $<y_typeSpec>1);
-	}
-	| type_qualifier declaration_specifiers {
-		$<y_bucketPtr>$ = buildBucket($<y_bucketPtr>2, $<y_typeSpec>1);
-	}
+	| type_specifier
+	| type_specifier declaration_specifiers
+	| type_qualifier
+	| type_qualifier declaration_specifiers
 	;
 
 init_declarator_list
-	: init_declarator {
-		ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
-
-		TYPE type = build_base($<y_bucketPtr>0); // Build a TYPE, given the decl specs.
-		dr->tag = GDECL;
-		dr->u.decl.type = type;
-		dr->u.decl.sc = NO_SC;
-		dr->u.decl.err = FALSE;
-
-		// INSTALL
-		BOOLEAN result;
-		result = st_install($<y_stID>1,dr);
-		if (!result) {
-			error("Variable already declared.");
-		}
-	}
-	| init_declarator_list ',' init_declarator {
-		ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
-
-		TYPE type = build_base($<y_bucketPtr>0); // Build a TYPE, given the decl specs.
-		dr->tag = GDECL;
-		dr->u.decl.type = type;
-		dr->u.decl.sc = NO_SC;
-		dr->u.decl.err = FALSE;
-
-		// INSTALL
-		BOOLEAN result;
-		result = st_install($<y_stID>3,dr);
-		if (!result) {
-			error("Variable already declared.");
-		}
-	}
+	: init_declarator
+	| init_declarator_list ',' init_declarator
 	;
 
 init_declarator
-	: declarator 
+	: declarator
 	| declarator '=' initializer
 	;
 
-storage_class_specifier	
+storage_class_specifier
 	: TYPEDEF | EXTERN | STATIC | AUTO | REGISTER
 	;
 
 type_specifier
-	: VOID { $<y_typeSpec>$ = VOID_SPEC;} 
-	| CHAR { $<y_typeSpec>$ = CHAR_SPEC;} 
-	| SHORT { $<y_typeSpec>$ = SHORT_SPEC;} 
-	| INT { $<y_typeSpec>$ = INT_SPEC;} 
-	| LONG { $<y_typeSpec>$ = LONG_SPEC;}
-	| FLOAT { $<y_typeSpec>$ = FLOAT_SPEC;} 
-	| DOUBLE { $<y_typeSpec>$ = DOUBLE_SPEC;} 
-	| SIGNED { $<y_typeSpec>$ = SIGNED_SPEC;} 
-	| UNSIGNED { $<y_typeSpec>$ = UNSIGNED_SPEC;}
-	| struct_or_union_specifier { $<y_typeSpec>$ = STRUCT_SPEC;}
-	| enum_specifier { $<y_typeSpec>$ = ENUM_SPEC;}
-	| TYPE_NAME { $<y_typeSpec>$ = TYPENAME_SPEC;}
+	: VOID | CHAR | SHORT | INT | LONG {msgn("type_spec #1");}
+	| FLOAT | DOUBLE | SIGNED | UNSIGNED
+	| struct_or_union_specifier
+	| enum_specifier
+	| TYPE_NAME
 	;
 
 struct_or_union_specifier
@@ -294,15 +243,8 @@ specifier_qualifier_list
 	;
 
 specifier_qualifier_list_opt
-	: /* null derive */ {
-		msg("Found *");
-/*		TYPE type = ty_build_ptr(NULL, NO_QUAL); // Build a ptr to the type as denoted by $0
-		$<y_type>$ = type;*/
-	}
-	| specifier_qualifier_list {
-/*		TYPE type = ty_build_ptr($<y_type>1, NO_QUAL);
-		$<y_type>$ = type;*/
-	}
+	: /* null derive */
+	| specifier_qualifier_list
 
 struct_declarator_list
 	: struct_declarator
@@ -332,27 +274,19 @@ enumerator
 	;
 
 type_qualifier
-	: CONST { 
-		$<y_typeSpec>$ = CONST_SPEC;
-	}
-	| VOLATILE {
-		$<y_typeSpec>$ = VOLATILE_SPEC;
-	}
+	: CONST | VOLATILE
 	;
 
 declarator
 	: direct_declarator
-	| pointer declarator {
-/*		$<y_typeSpec>$ = $<y_typeSpec>1;
-		$<y_stID>$ = $<y_stID>2;*/
-	}
+	| pointer declarator
 	;
 
 direct_declarator
 	: identifier
-	| '(' declarator ')' { msg("Found ( declarator )");}
+	| '(' declarator ')'
 	| direct_declarator '[' ']'
-	| direct_declarator '[' constant_expr ']' { msg("Found [#]");}
+	| direct_declarator '[' constant_expr ']'
 	| direct_declarator '(' parameter_type_list ')'
 	| direct_declarator '(' ')'
 	| direct_declarator '(' identifier_list ')'
@@ -360,7 +294,7 @@ direct_declarator
 
 pointer
 	: '*' specifier_qualifier_list_opt
-    | '&'
+        | '&'
 	;
 
 parameter_type_list
@@ -501,12 +435,7 @@ function_definition
   *******************************/
 
 identifier
-	: IDENTIFIER { 
-		msg("Enrolling %s",$<y_string>1); 
-		msg("Found ID");
-		ST_ID varName = st_enter_id($<y_string>1);
-		$<y_stID>$ = varName;
-	}
+	: IDENTIFIER {msgn("found IDENTIFIER");}
 	;
 %%
 
@@ -516,13 +445,4 @@ int yyerror(char *s)
 {
 	error("%s (column %d)",s,column);
         return 0;  /* never reached */
-}
-
-BUCKET_PTR buildBucket(BUCKET_PTR bucketPtr, TYPE_SPECIFIER typeSpec) {
-	BUCKET_PTR updatedBucket = update_bucket(bucketPtr, typeSpec, NULL);
-	if (is_error_decl(updatedBucket)) {
-		error("Semantic error");
-	}
-
-	return updatedBucket;
 }

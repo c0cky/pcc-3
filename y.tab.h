@@ -179,9 +179,12 @@ union YYSTYPE
 	int	y_int;
 	double	y_double;
 	char *	y_string;
+	TYPE_SPECIFIER y_typeSpec;
+	BUCKET_PTR y_bucketPtr;
+	ST_ID y_stID;
 	
 
-#line 185 "y.tab.h" /* yacc.c:1909  */
+#line 188 "y.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
