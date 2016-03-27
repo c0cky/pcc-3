@@ -22,7 +22,6 @@ int main()
 	init_bucket_module();
 	st_establish_data_dump_func(stdr_dump);
 	st_establish_tdata_dump_func(stdr_dump);
-	
 #ifdef YYDEBUG
 	yydebug = 1;		/* DEBUG */
 #endif
