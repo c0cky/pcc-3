@@ -70,12 +70,13 @@
 #include "symtab.h"
 #include "bucket.h"
 #include "message.h"
+#include "tree.h"
 
     int yylex();
     int yyerror(char *s);
 	BUCKET_PTR buildBucket(BUCKET_PTR bucketPtr, TYPE_SPECIFIER typeSpec);
 
-#line 79 "y.tab.c" /* yacc.c:339  */
+#line 80 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -239,7 +240,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 20 "gram.y" /* yacc.c:355  */
+#line 21 "gram.y" /* yacc.c:355  */
 
 	int	y_int;
 	double	y_double;
@@ -247,9 +248,9 @@ union YYSTYPE
 	TYPE_SPECIFIER y_typeSpec;
 	BUCKET_PTR y_bucketPtr;
 	ST_ID y_stID;
-	
+	DN y_DN;
 
-#line 253 "y.tab.c" /* yacc.c:355  */
+#line 254 "y.tab.c" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -264,7 +265,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 268 "y.tab.c" /* yacc.c:358  */
+#line 269 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -567,27 +568,27 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    51,    51,    52,    53,    54,    55,    59,    60,    61,
-      62,    63,    64,    65,    68,    70,    74,    75,    79,    80,
-      81,    82,    83,    84,    88,    88,    88,    88,    88,    88,
-      92,    93,    97,    98,    99,   100,   104,   105,   106,   110,
-     111,   112,   116,   117,   118,   119,   120,   124,   125,   126,
-     130,   131,   135,   136,   140,   141,   145,   146,   150,   151,
-     155,   156,   160,   161,   165,   165,   165,   165,   165,   165,
-     166,   166,   166,   166,   166,   170,   171,   175,   178,   180,
-     188,   189,   196,   197,   198,   201,   204,   207,   213,   229,
-     248,   249,   253,   253,   253,   253,   253,   257,   258,   259,
-     260,   261,   262,   263,   264,   265,   266,   267,   268,   272,
-     273,   274,   278,   279,   283,   284,   288,   292,   293,   297,
-     302,   308,   309,   313,   314,   315,   319,   320,   321,   325,
-     326,   330,   331,   335,   338,   344,   345,   352,   353,   354,
-     355,   356,   357,   358,   362,   363,   367,   368,   372,   373,
-     377,   378,   379,   383,   384,   388,   389,   393,   394,   395,
-     399,   400,   401,   402,   403,   404,   405,   406,   407,   411,
-     412,   413,   417,   418,   426,   427,   428,   429,   430,   431,
-     435,   436,   437,   441,   442,   443,   444,   448,   449,   453,
-     454,   458,   462,   463,   464,   468,   469,   470,   474,   475,
-     476,   477,   485,   486,   490,   491,   495,   496,   504
+       0,    53,    53,    54,    55,    56,    57,    61,    62,    63,
+      64,    65,    66,    67,    70,    72,    76,    77,    81,    82,
+      83,    84,    85,    86,    90,    90,    90,    90,    90,    90,
+      94,    95,    99,   100,   101,   102,   106,   107,   108,   112,
+     113,   114,   118,   119,   120,   121,   122,   126,   127,   128,
+     132,   133,   137,   138,   142,   143,   147,   148,   152,   153,
+     157,   158,   162,   163,   167,   167,   167,   167,   167,   167,
+     168,   168,   168,   168,   168,   172,   173,   177,   180,   182,
+     190,   191,   198,   199,   200,   203,   206,   209,   215,   245,
+     264,   265,   269,   269,   269,   269,   269,   273,   274,   275,
+     276,   277,   278,   279,   280,   281,   282,   283,   284,   288,
+     289,   290,   294,   295,   299,   300,   304,   308,   309,   313,
+     321,   327,   328,   332,   333,   334,   338,   339,   340,   344,
+     345,   349,   350,   354,   357,   363,   364,   374,   375,   376,
+     377,   378,   379,   380,   384,   385,   389,   390,   394,   395,
+     399,   400,   401,   405,   406,   410,   411,   415,   416,   417,
+     421,   422,   423,   424,   425,   426,   427,   428,   429,   433,
+     434,   435,   439,   440,   448,   449,   450,   451,   452,   453,
+     457,   458,   459,   463,   464,   465,   466,   470,   471,   475,
+     476,   480,   484,   485,   486,   490,   491,   492,   496,   497,
+     498,   499,   507,   508,   512,   513,   517,   518,   526
 };
 #endif
 
@@ -1787,69 +1788,83 @@ yyreduce:
   switch (yyn)
     {
         case 81:
-#line 189 "gram.y" /* yacc.c:1646  */
+#line 191 "gram.y" /* yacc.c:1646  */
     {
 		// Combine the type of declaration_specifiers (held in a bucket)
 		// with the type of init_declarator_list HERE!!!!!
 	}
-#line 1796 "y.tab.c" /* yacc.c:1646  */
+#line 1797 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 198 "gram.y" /* yacc.c:1646  */
+#line 200 "gram.y" /* yacc.c:1646  */
     { 
 		(yyval.y_bucketPtr) = buildBucket(NULL, (yyvsp[0].y_typeSpec));
 	}
-#line 1804 "y.tab.c" /* yacc.c:1646  */
+#line 1805 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 85:
-#line 201 "gram.y" /* yacc.c:1646  */
+#line 203 "gram.y" /* yacc.c:1646  */
     { 
 		(yyval.y_bucketPtr) = buildBucket((yyvsp[0].y_bucketPtr), (yyvsp[-1].y_typeSpec));
 	}
-#line 1812 "y.tab.c" /* yacc.c:1646  */
+#line 1813 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 86:
-#line 204 "gram.y" /* yacc.c:1646  */
+#line 206 "gram.y" /* yacc.c:1646  */
     {
 		(yyval.y_bucketPtr) = buildBucket(NULL, (yyvsp[0].y_typeSpec));
 	}
-#line 1820 "y.tab.c" /* yacc.c:1646  */
+#line 1821 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 87:
-#line 207 "gram.y" /* yacc.c:1646  */
+#line 209 "gram.y" /* yacc.c:1646  */
     {
 		(yyval.y_bucketPtr) = buildBucket((yyvsp[0].y_bucketPtr), (yyvsp[-1].y_typeSpec));
 	}
-#line 1828 "y.tab.c" /* yacc.c:1646  */
+#line 1829 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 88:
-#line 213 "gram.y" /* yacc.c:1646  */
-    {
+#line 215 "gram.y" /* yacc.c:1646  */
+    { // Note, $<y_DN>1
+		msg("In init_declarator");
+
+		print_tree((yyvsp[0].y_DN));
+
 		ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 
-		TYPE type = build_base((yyvsp[-1].y_bucketPtr)); // Build a TYPE, given the decl specs.
+		TYPE type = build_derived_type((yyvsp[0].y_DN), build_base((yyvsp[-1].y_bucketPtr)));
 		dr->tag = GDECL;
 		dr->u.decl.type = type;
 		dr->u.decl.sc = NO_SC;
 		dr->u.decl.err = FALSE;
 
+		if ((yyvsp[0].y_DN)->tag == ID) {
+			msg("First LL item is ID");
+		}
+
+		// Get the very last node, which holds the identifier node
+		DN dn = (yyvsp[0].y_DN);
+		while (dn->n_node != NULL) {
+			dn = dn->n_node;
+		}
+
 		// INSTALL
 		BOOLEAN result;
-		result = st_install((yyvsp[0].y_stID),dr);
+		result = st_install(dn->u.st_id.i,dr);
 		if (!result) {
-			error("Variable already declared.");
+			error("Error installing into symbol table.");
 		}
 	}
-#line 1849 "y.tab.c" /* yacc.c:1646  */
+#line 1864 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 89:
-#line 229 "gram.y" /* yacc.c:1646  */
+#line 245 "gram.y" /* yacc.c:1646  */
     {
 		ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 
@@ -1866,150 +1881,155 @@ yyreduce:
 			error("Variable already declared.");
 		}
 	}
-#line 1870 "y.tab.c" /* yacc.c:1646  */
+#line 1885 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 97:
-#line 257 "gram.y" /* yacc.c:1646  */
+#line 273 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = VOID_SPEC;}
-#line 1876 "y.tab.c" /* yacc.c:1646  */
+#line 1891 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 98:
-#line 258 "gram.y" /* yacc.c:1646  */
+#line 274 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = CHAR_SPEC;}
-#line 1882 "y.tab.c" /* yacc.c:1646  */
+#line 1897 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 99:
-#line 259 "gram.y" /* yacc.c:1646  */
+#line 275 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = SHORT_SPEC;}
-#line 1888 "y.tab.c" /* yacc.c:1646  */
+#line 1903 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 100:
-#line 260 "gram.y" /* yacc.c:1646  */
+#line 276 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = INT_SPEC;}
-#line 1894 "y.tab.c" /* yacc.c:1646  */
+#line 1909 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 101:
-#line 261 "gram.y" /* yacc.c:1646  */
+#line 277 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = LONG_SPEC;}
-#line 1900 "y.tab.c" /* yacc.c:1646  */
+#line 1915 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 102:
-#line 262 "gram.y" /* yacc.c:1646  */
+#line 278 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = FLOAT_SPEC;}
-#line 1906 "y.tab.c" /* yacc.c:1646  */
+#line 1921 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 103:
-#line 263 "gram.y" /* yacc.c:1646  */
+#line 279 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = DOUBLE_SPEC;}
-#line 1912 "y.tab.c" /* yacc.c:1646  */
+#line 1927 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 104:
-#line 264 "gram.y" /* yacc.c:1646  */
+#line 280 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = SIGNED_SPEC;}
-#line 1918 "y.tab.c" /* yacc.c:1646  */
+#line 1933 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 105:
-#line 265 "gram.y" /* yacc.c:1646  */
+#line 281 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = UNSIGNED_SPEC;}
-#line 1924 "y.tab.c" /* yacc.c:1646  */
+#line 1939 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 106:
-#line 266 "gram.y" /* yacc.c:1646  */
+#line 282 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = STRUCT_SPEC;}
-#line 1930 "y.tab.c" /* yacc.c:1646  */
+#line 1945 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 107:
-#line 267 "gram.y" /* yacc.c:1646  */
+#line 283 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = ENUM_SPEC;}
-#line 1936 "y.tab.c" /* yacc.c:1646  */
+#line 1951 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 108:
-#line 268 "gram.y" /* yacc.c:1646  */
+#line 284 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = TYPENAME_SPEC;}
-#line 1942 "y.tab.c" /* yacc.c:1646  */
+#line 1957 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 119:
-#line 297 "gram.y" /* yacc.c:1646  */
+#line 313 "gram.y" /* yacc.c:1646  */
     {
 		msg("Found *");
+/*		DN dn = makePtrNode(dn);
+		addToDeclList(dn);
+		$<y_DN>$ = dn;*/
 /*		TYPE type = ty_build_ptr(NULL, NO_QUAL); // Build a ptr to the type as denoted by $0
 		$<y_type>$ = type;*/
 	}
-#line 1952 "y.tab.c" /* yacc.c:1646  */
+#line 1970 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 120:
-#line 302 "gram.y" /* yacc.c:1646  */
+#line 321 "gram.y" /* yacc.c:1646  */
     {
 /*		TYPE type = ty_build_ptr($<y_type>1, NO_QUAL);
 		$<y_type>$ = type;*/
 	}
-#line 1961 "y.tab.c" /* yacc.c:1646  */
+#line 1979 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 133:
-#line 335 "gram.y" /* yacc.c:1646  */
+#line 354 "gram.y" /* yacc.c:1646  */
     { 
 		(yyval.y_typeSpec) = CONST_SPEC;
 	}
-#line 1969 "y.tab.c" /* yacc.c:1646  */
+#line 1987 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 134:
-#line 338 "gram.y" /* yacc.c:1646  */
+#line 357 "gram.y" /* yacc.c:1646  */
     {
 		(yyval.y_typeSpec) = VOLATILE_SPEC;
 	}
-#line 1977 "y.tab.c" /* yacc.c:1646  */
+#line 1995 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 136:
-#line 345 "gram.y" /* yacc.c:1646  */
+#line 364 "gram.y" /* yacc.c:1646  */
     {
+		msg("Found 'pointer declarator'");
+		(yyval.y_DN) = makePtrNode((yyvsp[0].y_DN));
+		//$<y_DN>$ =  is a ptrNode
 /*		$<y_typeSpec>$ = $<y_typeSpec>1;
 		$<y_stID>$ = $<y_stID>2;*/
 	}
-#line 1986 "y.tab.c" /* yacc.c:1646  */
+#line 2007 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 138:
-#line 353 "gram.y" /* yacc.c:1646  */
+#line 375 "gram.y" /* yacc.c:1646  */
     { msg("Found ( declarator )");}
-#line 1992 "y.tab.c" /* yacc.c:1646  */
+#line 2013 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 140:
-#line 355 "gram.y" /* yacc.c:1646  */
+#line 377 "gram.y" /* yacc.c:1646  */
     { msg("Found [#]");}
-#line 1998 "y.tab.c" /* yacc.c:1646  */
+#line 2019 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 208:
-#line 504 "gram.y" /* yacc.c:1646  */
+#line 526 "gram.y" /* yacc.c:1646  */
     { 
-		msg("Enrolling %s",(yyvsp[0].y_string)); 
-		msg("Found ID");
+		msg("Found ID; Enrolling %s",(yyvsp[0].y_string)); 
 		ST_ID varName = st_enter_id((yyvsp[0].y_string));
-		(yyval.y_stID) = varName;
+		(yyval.y_DN) = makeIdNode(varName);
 	}
-#line 2009 "y.tab.c" /* yacc.c:1646  */
+#line 2029 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2013 "y.tab.c" /* yacc.c:1646  */
+#line 2033 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2237,7 +2257,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 511 "gram.y" /* yacc.c:1906  */
+#line 532 "gram.y" /* yacc.c:1906  */
 
 
 extern int column;

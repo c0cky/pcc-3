@@ -25,7 +25,8 @@
 	TYPE_SPECIFIER y_typeSpec;
 	BUCKET_PTR y_bucketPtr;
 	ST_ID y_stID;
-	};
+	DN y_DN;
+};
 
 %token IDENTIFIER INT_CONSTANT DOUBLE_CONSTANT STRING_LITERAL SIZEOF
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
@@ -49,7 +50,7 @@
   *******************************/
 
 primary_expr
-	: identifier
+	: identifier 
 	| INT_CONSTANT
 	| DOUBLE_CONSTANT
 	| STRING_LITERAL
@@ -211,20 +212,34 @@ declaration_specifiers
 	;
 
 init_declarator_list
-	: init_declarator {
+	: init_declarator { // Note, $<y_DN>1
+		msg("In init_declarator");
+
+		print_tree($<y_DN>1);
+
 		ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 
-		TYPE type = build_base($<y_bucketPtr>0); // Build a TYPE, given the decl specs.
+		TYPE type = build_derived_type($<y_DN>1, build_base($<y_bucketPtr>0));
 		dr->tag = GDECL;
 		dr->u.decl.type = type;
 		dr->u.decl.sc = NO_SC;
 		dr->u.decl.err = FALSE;
 
+		if ($<y_DN>1->tag == ID) {
+			msg("First LL item is ID");
+		}
+
+		// Get the very last node, which holds the identifier node
+		DN dn = $<y_DN>1;
+		while (dn->n_node != NULL) {
+			dn = dn->n_node;
+		}
+
 		// INSTALL
 		BOOLEAN result;
-		result = st_install($<y_stID>1,dr);
+		result = st_install(dn->u.st_id.i,dr);
 		if (!result) {
-			error("Variable already declared.");
+			error("Error installing into symbol table.");
 		}
 	}
 	| init_declarator_list ',' init_declarator {
@@ -297,6 +312,9 @@ specifier_qualifier_list
 specifier_qualifier_list_opt
 	: /* null derive */ {
 		msg("Found *");
+/*		DN dn = makePtrNode(dn);
+		addToDeclList(dn);
+		$<y_DN>$ = dn;*/
 /*		TYPE type = ty_build_ptr(NULL, NO_QUAL); // Build a ptr to the type as denoted by $0
 		$<y_type>$ = type;*/
 	}
@@ -344,6 +362,9 @@ type_qualifier
 declarator
 	: direct_declarator
 	| pointer declarator {
+		msg("Found 'pointer declarator'");
+		$<y_DN>$ = makePtrNode($<y_DN>2);
+		//$<y_DN>$ =  is a ptrNode
 /*		$<y_typeSpec>$ = $<y_typeSpec>1;
 		$<y_stID>$ = $<y_stID>2;*/
 	}
@@ -503,10 +524,9 @@ function_definition
 
 identifier
 	: IDENTIFIER { 
-		msg("Enrolling %s",$<y_string>1); 
-		msg("Found ID");
+		msg("Found ID; Enrolling %s",$<y_string>1); 
 		ST_ID varName = st_enter_id($<y_string>1);
-		$<y_stID>$ = varName;
+		$<y_DN>$ = makeIdNode(varName);
 	}
 	;
 %%

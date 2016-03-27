@@ -1,4 +1,3 @@
-#
 # pcc3 makefile
 #
 #
@@ -52,6 +51,8 @@ main.o: main.c defs.h types.h symtab.h
 types.o: types.c types.h symtab.h message.h
 
 bucket.o: bucket.c bucket.h
+
+tree.o: tree.c tree.h
 
 symtab.o: symtab.c types.h symtab.h message.h
 

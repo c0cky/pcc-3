@@ -6,6 +6,7 @@
 // Pass the ST_ID that is created from an enrollment; returns a Declarator Type Node
 DN makeIdNode(ST_ID stid)
 {
+	msg("making id node");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = ID;
@@ -17,6 +18,7 @@ DN makeIdNode(ST_ID stid)
 // Pass the dimension for array node, and any previous nodes, return new node
 DN makeArrayNode(DN dn, unsigned int dimension)
 {
+	msg("making array node");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = ARRAY;
@@ -28,6 +30,7 @@ DN makeArrayNode(DN dn, unsigned int dimension)
 // Pass the previous node, return new node
 DN makePtrNode(DN dn)
 {
+	msg("making ptr node");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = PTR;
@@ -38,6 +41,7 @@ DN makePtrNode(DN dn)
 // Pass the previous node, return new node
 DN makeRefNode(DN dn)
 {
+	msg("making ref node");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = REF;
@@ -49,6 +53,7 @@ DN makeRefNode(DN dn)
 // Is PARAM_LIST correct object for this? From types.h
 DN makeFnNode(DN dn, PARAM_LIST pl) 
 {
+	msg("making fn node");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = FUNC;
@@ -57,34 +62,72 @@ DN makeFnNode(DN dn, PARAM_LIST pl)
 	return d;
 }
 
-// Function to Traverse the Declarator's Derived types list, INPUT Top Node of Derived Type Built as First Parameter and Input Type from type_specifiers built from bucket (ty_query) as Second Parameter.
+// Function to Traverse the Declarator's Derived types list, INPUT Top Node of Derived Type Built as 
+// First Parameter and Input Type from type_specifiers built from bucket (ty_query) as Second Parameter.
 
 TYPE build_derived_type(DN dn, TYPE type)
 {
-	//fprintf(stderr, "\n Begin!\n");
+	msg("building_derived_type");
 	while(dn != NULL)
 	{
-	switch(dn->tag) {
-		case ARRAY:
-			type = ty_build_array(type, TRUE, dn->u.array_dim.dim);
+		switch(dn->tag) {
+			case ARRAY:
+				type = ty_build_array(type, TRUE, dn->u.array_dim.dim);
+				break;
+			case PTR:
+				type = ty_build_ptr(type, NO_QUAL);
+				break;
+			case FUNC:
+				type = ty_build_func(type, OLDSTYLE, NULL);
+				break;
+			case REF:
+				bug("Looking for REF \"stdr_dump\"");
+				break;
+			case ID:
+				return type;
+				break;
+		default:
+			bug("where's the tag? \"stdr_dump\"");
+		}
+	
+		dn = dn->n_node;
+	}
+	bug("NULL Ptr but not ID");
+	//return type;
+}
+
+void print_tree(DN dn) {
+	msg("***PRINTING TREE***");
+	int counter = 0;
+	while (dn != NULL) {
+		msg("\t[%d]:\n\t\tTAG: %s",counter, tagToString(dn->tag));
+
+		counter += 1;
+		dn = dn->n_node;
+	}
+}
+
+char* tagToString(DECL_N_TAG tag) {
+	char* strTag;
+	switch(tag) {
+		case ARRAY: 
+			strTag = "ARRAY";
 			break;
 		case PTR:
-			type = ty_build_ptr(type, NO_QUAL);
+			strTag = "PTR";
 			break;
 		case FUNC:
-			type = ty_build_func(type, OLDSTYLE, NULL);
+			strTag = "FUNC";
 			break;
 		case REF:
 			bug("Looking for REF \"stdr_dump\"");
 			break;
 		case ID:
-			return type;
+			strTag = "ID";
 			break;
-	default:
-		bug("where's the tag? \"stdr_dump\"");
+		default:
+			bug("No tag found in tagToString");
 	}
-	dn = dn->n_node;
-	}
-	bug("NULL Ptr but not ID");
-	//return type;
+
+	return strTag;
 }

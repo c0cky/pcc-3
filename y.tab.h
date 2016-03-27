@@ -174,7 +174,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 20 "gram.y" /* yacc.c:1909  */
+#line 21 "gram.y" /* yacc.c:1909  */
 
 	int	y_int;
 	double	y_double;
@@ -182,7 +182,7 @@ union YYSTYPE
 	TYPE_SPECIFIER y_typeSpec;
 	BUCKET_PTR y_bucketPtr;
 	ST_ID y_stID;
-	
+	DN y_DN;
 
 #line 188 "y.tab.h" /* yacc.c:1909  */
 };
