@@ -4,8 +4,6 @@
 #include "bucket.h"
 
 #include <stdio.h>
-// ADD
-#include "tree.h"
 
 FILE *errfp;		/* file to which message.c will write */
 
