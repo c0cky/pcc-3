@@ -11,6 +11,7 @@
 #include "symtab.h"
 #include "bucket.h"
 #include "message.h"
+#include "tree.h"
 
     int yylex();
     int yyerror(char *s);
