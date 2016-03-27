@@ -36,14 +36,20 @@ int main()
 	stdr = stdr_alloc();
 	printf("int (*a[10])()");
 	bp = update_bucket (NULL, INT_SPEC, NULL);
+	bp = update_bucket (bp, UNSIGNED_SPEC, NULL);
+	bp = update_bucket (bp, LONG_SPEC, NULL);
 	type = build_base(bp);
 	new = st_enter_id(id);
 	dn = makeIdNode(new);
 	dn = makeArrayNode(dn, 10);
-	type = ty_build_basic(TYSIGNEDINT);
-	type = ty_build_func(type, OLDSTYLE, NULL);
+	dn = makePtrNode(dn);
+	dn = makeFnNode(dn, NULL);
+	type = ty_build_basic(ty_query(type));
+	/*type = ty_build_func(type, OLDSTYLE, NULL);
 	type = ty_build_ptr(type, NO_QUAL);
 	type = ty_build_array(type, TRUE, 10);
+	*/
+	type = build_derived_type(dn, type);	
 	stdr->tag = GDECL;
 	stdr->u.decl.type = type;
 	stdr->u.decl.sc = NO_SC;

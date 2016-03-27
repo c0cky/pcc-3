@@ -53,5 +53,38 @@ DN makeFnNode(DN dn, PARAM_LIST pl)
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = FUNC;
 	d->u.param_list.pl = pl;
+	d->n_node = dn;
 	return d;
-}	
+}
+
+// Function to Traverse the Declarator's Derived types list, INPUT Top Node of Derived Type Built as First Parameter and Input Type from type_specifiers built from bucket (ty_query) as Second Parameter.
+
+TYPE build_derived_type(DN dn, TYPE type)
+{
+	//fprintf(stderr, "\n Begin!\n");
+	while(dn != NULL)
+	{
+	switch(dn->tag) {
+		case ARRAY:
+			type = ty_build_array(type, TRUE, dn->u.array_dim.dim);
+			break;
+		case PTR:
+			type = ty_build_ptr(type, NO_QUAL);
+			break;
+		case FUNC:
+			type = ty_build_func(type, OLDSTYLE, NULL);
+			break;
+		case REF:
+			bug("Looking for REF \"stdr_dump\"");
+			break;
+		case ID:
+			return type;
+			break;
+	default:
+		bug("where's the tag? \"stdr_dump\"");
+	}
+	dn = dn->n_node;
+	}
+	bug("NULL Ptr but not ID");
+	//return type;
+}

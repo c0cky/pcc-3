@@ -51,4 +51,6 @@ DN makeRefNode(DN dn);
 // Is PARAM_LIST correct object for this? From types.h
 DN makeFnNode(DN dn, PARAM_LIST pl); 
 
+// Function to Traverse the Declarator's Derived types list, INPUT Top Node of Derived Type Built as First Parameter and Input Type from type_specifiers built from bucket (ty_query) as Second Parameter.
+TYPE build_derived_type(DN dn, TYPE type);
 #endif
