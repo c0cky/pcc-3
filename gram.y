@@ -217,56 +217,12 @@ declaration_specifiers
 init_declarator_list
 	: init_declarator { 
 		msg("In init_declarator");
-
-		print_tree($<y_DN>1);
-
-		ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
-
-		TYPE type = build_derived_type($<y_DN>1, build_base($<y_bucketPtr>0));
-		dr->tag = GDECL;
-		dr->u.decl.type = type;
-		dr->u.decl.sc = NO_SC;
-		dr->u.decl.err = FALSE;
-
-		// Get the very last node, which holds the identifier node
-		DN dn = $<y_DN>1;
-		while (dn->n_node != NULL) {
-			dn = dn->n_node;
-		}
-
-		// INSTALL
-		BOOLEAN result;
-		result = st_install(dn->u.st_id.i,dr);
-		if (!result) {
-			error("Error installing into symbol table.");
-		}
+		//print_tree($<y_DN>1);
+		building_derived_type_and_install_st($<y_DN>1, build_base($<y_bucketPtr>0));
 	}
 	| init_declarator_list ',' init_declarator {
 		msg("In init_declarator");
-
-		//print_tree($<y_DN>1);
-
-		ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
-
-		TYPE type = build_derived_type($<y_DN>3, build_base($<y_bucketPtr>0));
-		dr->tag = GDECL;
-		dr->u.decl.type = type;
-		dr->u.decl.sc = NO_SC;
-		dr->u.decl.err = FALSE;
-
-		// Get the very last node, which holds the identifier node
-		DN dn = $<y_DN>3;
-		while (dn->n_node != NULL) {
-			dn = dn->n_node;
-		}
-
-		// INSTALL
-		BOOLEAN result;
-		result = st_install(dn->u.st_id.i,dr);
-		if (!result) {
-			error("Error installing into symbol table.");
-		}
-	}
+		building_derived_type_and_install_st($<y_DN>3, build_base($<y_bucketPtr>0));
 	;
 
 init_declarator

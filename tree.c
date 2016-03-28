@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "symtab.h"
+
 // Pass the ST_ID that is created from an enrollment; returns a Declarator Type Node
 DN makeIdNode(ST_ID stid)
 {
@@ -65,7 +67,7 @@ DN makeFnNode(DN dn, PARAM_LIST pl)
 // Function to Traverse the Declarator's Derived types list, INPUT Top Node of Derived Type Built as 
 // First Parameter and Input Type from type_specifiers built from bucket (ty_query) as Second Parameter.
 
-TYPE build_derived_type(DN dn, TYPE type)
+void building_derived_type_and_install_st(DN dn, TYPE type)
 {
 	msg("building_derived_type");
 	while(dn != NULL)
@@ -83,17 +85,28 @@ TYPE build_derived_type(DN dn, TYPE type)
 			case REF:
 				bug("Looking for REF \"stdr_dump\"");
 				break;
-			case ID:
-				return type;
+			case ID: ;
+				msg("Installing");
+				ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
+
+				dr->tag = GDECL;
+				dr->u.decl.type = type;
+				dr->u.decl.sc = NO_SC;
+				dr->u.decl.err = FALSE;
+				
+				BOOLEAN result; 
+				result = st_install(dn->u.st_id.i,dr);
+				if (!result) {
+					error("Error installing into symbol table.");
+				}
+
 				break;
-		default:
-			bug("where's the tag? \"stdr_dump\"");
+			default:
+				bug("where's the tag? \"stdr_dump\"");
 		}
 	
 		dn = dn->n_node;
 	}
-	bug("NULL Ptr but not ID");
-	//return type;
 }
 
 void print_tree(DN dn) {

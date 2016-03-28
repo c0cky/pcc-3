@@ -13,7 +13,7 @@ typedef enum {ARRAY, PTR, FUNC, REF, ID} DECL_N_TAG;
 // A tree node to hold and build the proper derived types of the declarator given
 typedef struct dn {
 	DECL_N_TAG tag;
-	struct tn *n_node;
+	struct dn *n_node;
 	union{
 		// Dimension of array
 		struct{
@@ -53,7 +53,7 @@ DN makeRefNode(DN dn);
 DN makeFnNode(DN dn, PARAM_LIST pl); 
 
 // Function to Traverse the Declarator's Derived types list, INPUT Top Node of Derived Type Built as First Parameter and Input Type from type_specifiers built from bucket (ty_query) as Second Parameter.
-TYPE build_derived_type(DN dn, TYPE type);
+void building_derived_type_and_install_st(DN dn, TYPE type);
 
 void print_tree(DN dn);
 char* tagToString(DECL_N_TAG tag);
