@@ -218,7 +218,7 @@ init_declarator_list
 	: init_declarator { 
 		msg("In init_declarator");
 
-		//print_tree($<y_DN>1);
+		print_tree($<y_DN>1);
 
 		ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 
@@ -373,6 +373,7 @@ direct_declarator
 	: identifier
 	| '(' declarator ')' { 
 		msg("Found ( declarator )");
+		$<y_DN>$ = $<y_DN>2;
 	}
 	| direct_declarator '[' ']'
 	| direct_declarator '[' constant_expr ']' { 
