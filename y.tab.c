@@ -568,27 +568,27 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    53,    53,    54,    55,    56,    57,    61,    62,    63,
-      64,    65,    66,    67,    70,    72,    76,    77,    81,    82,
-      83,    84,    85,    86,    90,    90,    90,    90,    90,    90,
-      94,    95,    99,   100,   101,   102,   106,   107,   108,   112,
-     113,   114,   118,   119,   120,   121,   122,   126,   127,   128,
-     132,   133,   137,   138,   142,   143,   147,   148,   152,   153,
-     157,   158,   162,   163,   167,   167,   167,   167,   167,   167,
-     168,   168,   168,   168,   168,   172,   173,   177,   180,   182,
-     190,   191,   198,   199,   200,   203,   206,   209,   215,   245,
-     264,   265,   269,   269,   269,   269,   269,   273,   274,   275,
-     276,   277,   278,   279,   280,   281,   282,   283,   284,   288,
-     289,   290,   294,   295,   299,   300,   304,   308,   309,   313,
-     321,   327,   328,   332,   333,   334,   338,   339,   340,   344,
-     345,   349,   350,   354,   357,   363,   364,   374,   375,   376,
-     377,   378,   379,   380,   384,   385,   389,   390,   394,   395,
-     399,   400,   401,   405,   406,   410,   411,   415,   416,   417,
-     421,   422,   423,   424,   425,   426,   427,   428,   429,   433,
-     434,   435,   439,   440,   448,   449,   450,   451,   452,   453,
-     457,   458,   459,   463,   464,   465,   466,   470,   471,   475,
-     476,   480,   484,   485,   486,   490,   491,   492,   496,   497,
-     498,   499,   507,   508,   512,   513,   517,   518,   526
+       0,    53,    53,    54,    58,    59,    60,    64,    65,    66,
+      67,    68,    69,    70,    73,    75,    79,    80,    84,    85,
+      86,    87,    88,    89,    93,    93,    93,    93,    93,    93,
+      97,    98,   102,   103,   104,   105,   109,   110,   111,   115,
+     116,   117,   121,   122,   123,   124,   125,   129,   130,   131,
+     135,   136,   140,   141,   145,   146,   150,   151,   155,   156,
+     160,   161,   165,   166,   170,   170,   170,   170,   170,   170,
+     171,   171,   171,   171,   171,   175,   176,   180,   183,   185,
+     193,   194,   201,   202,   203,   206,   209,   212,   218,   244,
+     273,   274,   278,   278,   278,   278,   278,   282,   283,   284,
+     285,   286,   287,   288,   289,   290,   291,   292,   293,   297,
+     298,   299,   303,   304,   308,   309,   313,   317,   318,   322,
+     325,   329,   330,   334,   335,   336,   340,   341,   342,   346,
+     347,   351,   352,   356,   359,   365,   366,   373,   374,   377,
+     378,   382,   383,   384,   388,   389,   393,   394,   398,   399,
+     403,   404,   405,   409,   410,   414,   415,   419,   420,   421,
+     425,   426,   427,   428,   429,   430,   431,   432,   433,   437,
+     438,   439,   443,   444,   452,   453,   454,   455,   456,   457,
+     461,   462,   463,   467,   468,   469,   470,   474,   475,   479,
+     480,   484,   488,   489,   490,   494,   495,   496,   500,   501,
+     502,   503,   511,   512,   516,   517,   521,   522,   530
 };
 #endif
 
@@ -1787,53 +1787,62 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 81:
-#line 191 "gram.y" /* yacc.c:1646  */
-    {
-		// Combine the type of declaration_specifiers (held in a bucket)
-		// with the type of init_declarator_list HERE!!!!!
+        case 3:
+#line 54 "gram.y" /* yacc.c:1646  */
+    { 
+		msg("INT_CONSTANT is %d", (yyvsp[0].y_int));
+		(yyval.y_int) = (yyvsp[0].y_int);
 	}
 #line 1797 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 81:
+#line 194 "gram.y" /* yacc.c:1646  */
+    {
+		// Combine the type of declaration_specifiers (held in a bucket)
+		// with the type of init_declarator_list HERE!!!!!
+	}
+#line 1806 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 84:
-#line 200 "gram.y" /* yacc.c:1646  */
+#line 203 "gram.y" /* yacc.c:1646  */
     { 
 		(yyval.y_bucketPtr) = buildBucket(NULL, (yyvsp[0].y_typeSpec));
 	}
-#line 1805 "y.tab.c" /* yacc.c:1646  */
+#line 1814 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 85:
-#line 203 "gram.y" /* yacc.c:1646  */
+#line 206 "gram.y" /* yacc.c:1646  */
     { 
 		(yyval.y_bucketPtr) = buildBucket((yyvsp[0].y_bucketPtr), (yyvsp[-1].y_typeSpec));
 	}
-#line 1813 "y.tab.c" /* yacc.c:1646  */
+#line 1822 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 86:
-#line 206 "gram.y" /* yacc.c:1646  */
+#line 209 "gram.y" /* yacc.c:1646  */
     {
 		(yyval.y_bucketPtr) = buildBucket(NULL, (yyvsp[0].y_typeSpec));
 	}
-#line 1821 "y.tab.c" /* yacc.c:1646  */
+#line 1830 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 87:
-#line 209 "gram.y" /* yacc.c:1646  */
+#line 212 "gram.y" /* yacc.c:1646  */
     {
 		(yyval.y_bucketPtr) = buildBucket((yyvsp[0].y_bucketPtr), (yyvsp[-1].y_typeSpec));
 	}
-#line 1829 "y.tab.c" /* yacc.c:1646  */
+#line 1838 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 88:
-#line 215 "gram.y" /* yacc.c:1646  */
-    { // Note, $<y_DN>1
+#line 218 "gram.y" /* yacc.c:1646  */
+    { 
 		msg("In init_declarator");
 
-		print_tree((yyvsp[0].y_DN));
+		//print_tree($<y_DN>1);
 
 		ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 
@@ -1842,10 +1851,6 @@ yyreduce:
 		dr->u.decl.type = type;
 		dr->u.decl.sc = NO_SC;
 		dr->u.decl.err = FALSE;
-
-		if ((yyvsp[0].y_DN)->tag == ID) {
-			msg("First LL item is ID");
-		}
 
 		// Get the very last node, which holds the identifier node
 		DN dn = (yyvsp[0].y_DN);
@@ -1860,176 +1865,174 @@ yyreduce:
 			error("Error installing into symbol table.");
 		}
 	}
-#line 1864 "y.tab.c" /* yacc.c:1646  */
+#line 1869 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 89:
-#line 245 "gram.y" /* yacc.c:1646  */
+#line 244 "gram.y" /* yacc.c:1646  */
     {
+		msg("In init_declarator");
+
+		//print_tree($<y_DN>1);
+
 		ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 
-		TYPE type = build_base((yyvsp[-3].y_bucketPtr)); // Build a TYPE, given the decl specs.
+		TYPE type = build_derived_type((yyvsp[0].y_DN), build_base((yyvsp[-3].y_bucketPtr)));
 		dr->tag = GDECL;
 		dr->u.decl.type = type;
 		dr->u.decl.sc = NO_SC;
 		dr->u.decl.err = FALSE;
 
+		// Get the very last node, which holds the identifier node
+		DN dn = (yyvsp[0].y_DN);
+		while (dn->n_node != NULL) {
+			dn = dn->n_node;
+		}
+
 		// INSTALL
 		BOOLEAN result;
-		result = st_install((yyvsp[0].y_stID),dr);
+		result = st_install(dn->u.st_id.i,dr);
 		if (!result) {
-			error("Variable already declared.");
+			error("Error installing into symbol table.");
 		}
 	}
-#line 1885 "y.tab.c" /* yacc.c:1646  */
+#line 1900 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 97:
-#line 273 "gram.y" /* yacc.c:1646  */
+#line 282 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = VOID_SPEC;}
-#line 1891 "y.tab.c" /* yacc.c:1646  */
+#line 1906 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 98:
-#line 274 "gram.y" /* yacc.c:1646  */
+#line 283 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = CHAR_SPEC;}
-#line 1897 "y.tab.c" /* yacc.c:1646  */
+#line 1912 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 99:
-#line 275 "gram.y" /* yacc.c:1646  */
+#line 284 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = SHORT_SPEC;}
-#line 1903 "y.tab.c" /* yacc.c:1646  */
+#line 1918 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 100:
-#line 276 "gram.y" /* yacc.c:1646  */
+#line 285 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = INT_SPEC;}
-#line 1909 "y.tab.c" /* yacc.c:1646  */
+#line 1924 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 101:
-#line 277 "gram.y" /* yacc.c:1646  */
+#line 286 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = LONG_SPEC;}
-#line 1915 "y.tab.c" /* yacc.c:1646  */
+#line 1930 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 102:
-#line 278 "gram.y" /* yacc.c:1646  */
+#line 287 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = FLOAT_SPEC;}
-#line 1921 "y.tab.c" /* yacc.c:1646  */
+#line 1936 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 103:
-#line 279 "gram.y" /* yacc.c:1646  */
+#line 288 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = DOUBLE_SPEC;}
-#line 1927 "y.tab.c" /* yacc.c:1646  */
+#line 1942 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 104:
-#line 280 "gram.y" /* yacc.c:1646  */
+#line 289 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = SIGNED_SPEC;}
-#line 1933 "y.tab.c" /* yacc.c:1646  */
+#line 1948 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 105:
-#line 281 "gram.y" /* yacc.c:1646  */
+#line 290 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = UNSIGNED_SPEC;}
-#line 1939 "y.tab.c" /* yacc.c:1646  */
+#line 1954 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 106:
-#line 282 "gram.y" /* yacc.c:1646  */
+#line 291 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = STRUCT_SPEC;}
-#line 1945 "y.tab.c" /* yacc.c:1646  */
+#line 1960 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 107:
-#line 283 "gram.y" /* yacc.c:1646  */
+#line 292 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = ENUM_SPEC;}
-#line 1951 "y.tab.c" /* yacc.c:1646  */
+#line 1966 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 108:
-#line 284 "gram.y" /* yacc.c:1646  */
+#line 293 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = TYPENAME_SPEC;}
-#line 1957 "y.tab.c" /* yacc.c:1646  */
+#line 1972 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 119:
-#line 313 "gram.y" /* yacc.c:1646  */
+#line 322 "gram.y" /* yacc.c:1646  */
     {
 		msg("Found *");
-/*		DN dn = makePtrNode(dn);
-		addToDeclList(dn);
-		$<y_DN>$ = dn;*/
-/*		TYPE type = ty_build_ptr(NULL, NO_QUAL); // Build a ptr to the type as denoted by $0
-		$<y_type>$ = type;*/
 	}
-#line 1970 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 120:
-#line 321 "gram.y" /* yacc.c:1646  */
-    {
-/*		TYPE type = ty_build_ptr($<y_type>1, NO_QUAL);
-		$<y_type>$ = type;*/
-	}
-#line 1979 "y.tab.c" /* yacc.c:1646  */
+#line 1980 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 133:
-#line 354 "gram.y" /* yacc.c:1646  */
+#line 356 "gram.y" /* yacc.c:1646  */
     { 
 		(yyval.y_typeSpec) = CONST_SPEC;
 	}
-#line 1987 "y.tab.c" /* yacc.c:1646  */
+#line 1988 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 134:
-#line 357 "gram.y" /* yacc.c:1646  */
+#line 359 "gram.y" /* yacc.c:1646  */
     {
 		(yyval.y_typeSpec) = VOLATILE_SPEC;
 	}
-#line 1995 "y.tab.c" /* yacc.c:1646  */
+#line 1996 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 136:
-#line 364 "gram.y" /* yacc.c:1646  */
+#line 366 "gram.y" /* yacc.c:1646  */
     {
 		msg("Found 'pointer declarator'");
 		(yyval.y_DN) = makePtrNode((yyvsp[0].y_DN));
-		//$<y_DN>$ =  is a ptrNode
-/*		$<y_typeSpec>$ = $<y_typeSpec>1;
-		$<y_stID>$ = $<y_stID>2;*/
 	}
-#line 2007 "y.tab.c" /* yacc.c:1646  */
+#line 2005 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 138:
-#line 375 "gram.y" /* yacc.c:1646  */
-    { msg("Found ( declarator )");}
+#line 374 "gram.y" /* yacc.c:1646  */
+    { 
+		msg("Found ( declarator )");
+	}
 #line 2013 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 140:
-#line 377 "gram.y" /* yacc.c:1646  */
-    { msg("Found [#]");}
-#line 2019 "y.tab.c" /* yacc.c:1646  */
+#line 378 "gram.y" /* yacc.c:1646  */
+    { 
+		msg("Found array");
+		(yyval.y_DN) = makeArrayNode((yyvsp[-3].y_DN), (yyvsp[-1].y_int));
+	}
+#line 2022 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 208:
-#line 526 "gram.y" /* yacc.c:1646  */
+#line 530 "gram.y" /* yacc.c:1646  */
     { 
 		msg("Found ID; Enrolling %s",(yyvsp[0].y_string)); 
 		ST_ID varName = st_enter_id((yyvsp[0].y_string));
 		(yyval.y_DN) = makeIdNode(varName);
 	}
-#line 2029 "y.tab.c" /* yacc.c:1646  */
+#line 2032 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2033 "y.tab.c" /* yacc.c:1646  */
+#line 2036 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2257,7 +2260,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 532 "gram.y" /* yacc.c:1906  */
+#line 536 "gram.y" /* yacc.c:1906  */
 
 
 extern int column;

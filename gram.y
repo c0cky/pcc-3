@@ -51,7 +51,10 @@
 
 primary_expr
 	: identifier 
-	| INT_CONSTANT
+	| INT_CONSTANT { 
+		msg("INT_CONSTANT is %d", $<y_int>1);
+		$<y_int>$ = $<y_int>1;
+	}
 	| DOUBLE_CONSTANT
 	| STRING_LITERAL
 	| '(' expr ')'
@@ -78,7 +81,7 @@ argument_expr_list
 	;
 
 unary_expr
-	: postfix_expr
+	: postfix_expr 
 	| INC_OP unary_expr
 	| DEC_OP unary_expr
 	| unary_operator cast_expr
@@ -91,7 +94,7 @@ unary_operator
 	;
 
 cast_expr
-	: unary_expr
+	: unary_expr 
 	| '(' type_name ')' cast_expr
 	;
 
@@ -115,7 +118,7 @@ shift_expr
 	;
 
 relational_expr
-	: shift_expr
+	: shift_expr 
 	| relational_expr '<' shift_expr
 	| relational_expr '>' shift_expr
 	| relational_expr LE_OP shift_expr
@@ -134,28 +137,28 @@ and_expr
 	;
 
 exclusive_or_expr
-	: and_expr
+	: and_expr 
 	| exclusive_or_expr '^' and_expr
 	;
 
 inclusive_or_expr
-	: exclusive_or_expr
+	: exclusive_or_expr 
 	| inclusive_or_expr '|' exclusive_or_expr
 	;
 
 logical_and_expr
-	: inclusive_or_expr
+	: inclusive_or_expr 
 	| logical_and_expr AND_OP inclusive_or_expr
 	;
 
 logical_or_expr
-	: logical_and_expr
+	: logical_and_expr 
 	| logical_or_expr OR_OP logical_and_expr
 	;
 
 conditional_expr
 	: logical_or_expr
-	| logical_or_expr '?' expr ':' conditional_expr
+	| logical_or_expr '?' expr ':' conditional_expr 
 	;
 
 assignment_expr
@@ -212,10 +215,10 @@ declaration_specifiers
 	;
 
 init_declarator_list
-	: init_declarator { // Note, $<y_DN>1
+	: init_declarator { 
 		msg("In init_declarator");
 
-		print_tree($<y_DN>1);
+		//print_tree($<y_DN>1);
 
 		ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 
@@ -224,10 +227,6 @@ init_declarator_list
 		dr->u.decl.type = type;
 		dr->u.decl.sc = NO_SC;
 		dr->u.decl.err = FALSE;
-
-		if ($<y_DN>1->tag == ID) {
-			msg("First LL item is ID");
-		}
 
 		// Get the very last node, which holds the identifier node
 		DN dn = $<y_DN>1;
@@ -243,19 +242,29 @@ init_declarator_list
 		}
 	}
 	| init_declarator_list ',' init_declarator {
+		msg("In init_declarator");
+
+		//print_tree($<y_DN>1);
+
 		ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 
-		TYPE type = build_base($<y_bucketPtr>0); // Build a TYPE, given the decl specs.
+		TYPE type = build_derived_type($<y_DN>3, build_base($<y_bucketPtr>0));
 		dr->tag = GDECL;
 		dr->u.decl.type = type;
 		dr->u.decl.sc = NO_SC;
 		dr->u.decl.err = FALSE;
 
+		// Get the very last node, which holds the identifier node
+		DN dn = $<y_DN>3;
+		while (dn->n_node != NULL) {
+			dn = dn->n_node;
+		}
+
 		// INSTALL
 		BOOLEAN result;
-		result = st_install($<y_stID>3,dr);
+		result = st_install(dn->u.st_id.i,dr);
 		if (!result) {
-			error("Variable already declared.");
+			error("Error installing into symbol table.");
 		}
 	}
 	;
@@ -312,16 +321,9 @@ specifier_qualifier_list
 specifier_qualifier_list_opt
 	: /* null derive */ {
 		msg("Found *");
-/*		DN dn = makePtrNode(dn);
-		addToDeclList(dn);
-		$<y_DN>$ = dn;*/
-/*		TYPE type = ty_build_ptr(NULL, NO_QUAL); // Build a ptr to the type as denoted by $0
-		$<y_type>$ = type;*/
 	}
-	| specifier_qualifier_list {
-/*		TYPE type = ty_build_ptr($<y_type>1, NO_QUAL);
-		$<y_type>$ = type;*/
-	}
+	| specifier_qualifier_list 
+	;
 
 struct_declarator_list
 	: struct_declarator
@@ -364,17 +366,19 @@ declarator
 	| pointer declarator {
 		msg("Found 'pointer declarator'");
 		$<y_DN>$ = makePtrNode($<y_DN>2);
-		//$<y_DN>$ =  is a ptrNode
-/*		$<y_typeSpec>$ = $<y_typeSpec>1;
-		$<y_stID>$ = $<y_stID>2;*/
 	}
 	;
 
 direct_declarator
 	: identifier
-	| '(' declarator ')' { msg("Found ( declarator )");}
+	| '(' declarator ')' { 
+		msg("Found ( declarator )");
+	}
 	| direct_declarator '[' ']'
-	| direct_declarator '[' constant_expr ']' { msg("Found [#]");}
+	| direct_declarator '[' constant_expr ']' { 
+		msg("Found array");
+		$<y_DN>$ = makeArrayNode($<y_DN>1, $<y_int>3);
+	}
 	| direct_declarator '(' parameter_type_list ')'
 	| direct_declarator '(' ')'
 	| direct_declarator '(' identifier_list ')'
