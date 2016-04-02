@@ -98,7 +98,7 @@ typedef struct type_rec
 } TYPE_REC;
 
 static void print_type_pascal();
-static void print_type_c();
+static void print_type_c(TYPE typein, BOOLEAN recurse_flag);
 static BOOLEAN test_equality();
 static void add_storage_list();
 static TYPE check_object_func();
@@ -771,11 +771,7 @@ void ty_print_type(TYPE typein)
 }
 
 
-static void print_type_c(typein, recurse_flag)
-
-TYPE typein;
-BOOLEAN recurse_flag;
-
+static void print_type_c(TYPE typein, BOOLEAN recurse_flag)
 {
     unsigned int dim;
     DIMFLAG dimflag;
@@ -1176,7 +1172,6 @@ void ty_print_paramstyle(PARAMSTYLE tag)
 /****************************************************************/
 void ty_print_paramlist(PARAM_LIST params)
 {
-
     if (params == NULL)
     {
         msg("");
@@ -1193,6 +1188,8 @@ void ty_print_paramlist(PARAM_LIST params)
 #ifdef PASCAL_LANG
         ty_print_type_pascal((TYPE) params->type);
 #else
+        if (params->is_ref)
+            msgn("reference to ");
         ty_print_type((TYPE) params->type);
 #endif
         params = params->next;
