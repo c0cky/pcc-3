@@ -198,7 +198,7 @@ void b_alloc_gdata ( TYPETAG tag, ... )
 /*       memory model may differ from the compile-time memory   */
 /*       model.  Currently, we assume the 32-bit x86 model.     */
 /****************************************************************/
-int get_size_basic(TYPETAG tag)
+unsigned int get_size_basic(TYPETAG tag)
 {
     switch (tag) {
     case TYSIGNEDCHAR:
@@ -224,6 +224,6 @@ int get_size_basic(TYPETAG tag)
     case TYVOID:
 	return sizeof(void);
     default:
-	bug("get_size_basic: unknown type");
+	bug("get_size_basic: nonbasic or unknown type: %d", tag);
     }
 }

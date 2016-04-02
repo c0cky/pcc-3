@@ -1,4 +1,3 @@
-#
 # pcc3 makefile
 #
 #
@@ -53,6 +52,8 @@ types.o: types.c types.h symtab.h message.h
 
 bucket.o: bucket.c bucket.h
 
+tree.o: tree.c tree.h
+
 symtab.o: symtab.c types.h symtab.h message.h
 
 $(BACKEND).o: $(BACKEND).c $(BACKEND).h message.h defs.h
@@ -74,6 +75,9 @@ scan.o : scan.l gram.o $(PCC3H)
 
 y.output: gram.y
 	$(YACC) -v -y gram.y
+
+run: pcc3
+	./pcc3 < t.txt
 
 clean:
 	-rm -f pcc3 *.o y.tab.h y.output y.tab.c

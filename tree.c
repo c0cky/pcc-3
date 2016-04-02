@@ -3,9 +3,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "symtab.h"
+
 // Pass the ST_ID that is created from an enrollment; returns a Declarator Type Node
 DN makeIdNode(ST_ID stid)
 {
+	//msg("making id node");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = ID;
@@ -17,6 +20,9 @@ DN makeIdNode(ST_ID stid)
 // Pass the dimension for array node, and any previous nodes, return new node
 DN makeArrayNode(DN dn, unsigned int dimension)
 {
+	//msg("making array node");
+	if(dn->tag == FUNC)
+		error("cannot have function returning array");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = ARRAY;
@@ -26,11 +32,14 @@ DN makeArrayNode(DN dn, unsigned int dimension)
 }	
 
 // Pass the previous node, return new node
-DN makePtrNode(DN dn)
+DN makePtrNode(DN dn, BOOLEAN is_ref)
 {
+	//msg("making ptr node");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = PTR;
+	if(is_ref == TRUE)
+		d->tag = REF;
 	d->n_node = dn;
 	return d;
 }	
@@ -38,6 +47,7 @@ DN makePtrNode(DN dn)
 // Pass the previous node, return new node
 DN makeRefNode(DN dn)
 {
+	//msg("making ref node");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = REF;
@@ -49,6 +59,11 @@ DN makeRefNode(DN dn)
 // Is PARAM_LIST correct object for this? From types.h
 DN makeFnNode(DN dn, PARAM_LIST pl) 
 {
+	//msg("making fn node");
+	if(dn->tag == FUNC)
+		error("cannot have function returning function");
+	if(dn->tag == ARRAY)
+		error("cannot have array of functions");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = FUNC;
@@ -57,34 +72,167 @@ DN makeFnNode(DN dn, PARAM_LIST pl)
 	return d;
 }
 
-// Function to Traverse the Declarator's Derived types list, INPUT Top Node of Derived Type Built as First Parameter and Input Type from type_specifiers built from bucket (ty_query) as Second Parameter.
-
-TYPE build_derived_type(DN dn, TYPE type)
+// Function to Traverse the Declarator's Derived types list, INPUT Top Node of Derived Type Built as 
+// First Parameter and Input Type from type_specifiers built from bucket (ty_query) as Second Parameter.
+TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 {
-	//fprintf(stderr, "\n Begin!\n");
+	TYPE type = initialType;
+
+	installSuccessful = FALSE;
+
+	//msg("building_derived_type");
 	while(dn != NULL)
 	{
-	switch(dn->tag) {
-		case ARRAY:
-			type = ty_build_array(type, TRUE, dn->u.array_dim.dim);
+		switch(dn->tag) {
+			case ARRAY:
+				// fprintf(stderr, "Inside of Array Switch: %d\n", ty_query(type));
+				type = ty_build_array(type, TRUE, dn->u.array_dim.dim);
+				// fprintf(stderr, "Leaving of Array Switch: %d\n", ty_query(type));
+				break;
+			case PTR:
+				//fprintf(stderr, "Inside of PTR Switch\n");
+				type = ty_build_ptr(type, NO_QUAL);
+				break;
+			case FUNC:
+				if(dn->u.param_list.pl == NULL)
+				type = ty_build_func(type, PROTOTYPE, NULL);
+				else
+				type = ty_build_func(type, PROTOTYPE, dn->u.param_list.pl->prev);
+				break;
+			case REF:
+				bug("Looking for REF \"stdr_dump\"");
+				break;
+			case ID: ;
+				//msg("Installing");
+				ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
+
+				dr->tag = GDECL;
+				dr->u.decl.type = type;
+				dr->u.decl.sc = NO_SC;
+				dr->u.decl.err = FALSE;
+				
+				BOOLEAN result; 
+				result = st_install(dn->u.st_id.i,dr);
+				if (!result) {
+					error("Error installing into symbol table.");
+				}
+				else
+				{
+					installSuccessful = TRUE;
+				}
+
+				break;
+			default:
+				bug("where's the tag? \"stdr_dump\"");
+		}
+	
+		dn = dn->n_node;
+	}
+
+	return type;
+}
+// Build Parameter type, PARAM_LIST pl not used (only if parameter has its own param list)
+
+PARAM_LIST build_Param(DN dn, TYPE initialType, PARAM_LIST pl)
+{
+	TYPE type = initialType;
+	PARAM_LIST pl1 = plist_alloc();
+	while(dn != NULL)
+	{
+		switch(dn->tag) {
+			case ARRAY:
+				type = ty_build_array(type, TRUE, dn->u.array_dim.dim);
+				break;
+			case PTR:
+				type = ty_build_ptr(type, NO_QUAL);
+				break;
+			case FUNC:
+				// this will have to be fixed
+				type = ty_build_func(type, PROTOTYPE, dn->u.param_list.pl);
+				break;
+			case REF:
+				pl1->is_ref = TRUE;
+				break;
+			case ID: 
+				//ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
+				pl1->id = dn->u.st_id.i;
+				//dr->tag = GDECL;
+				pl1->type = type;
+				pl1->sc = NO_SC;
+				pl1->err = FALSE;
+
+				break;
+			default:
+				bug("where's the tag? in Param\"stdr_dump\"");
+		}
+	
+		dn = dn->n_node;
+	}
+	
+	return pl1;
+}
+
+// Links all Parameters to create PARAM_LIST object, all prev ptrs are head ptr.
+PARAM_LIST linkParams(PARAM_LIST pl1, PARAM_LIST new_pl)
+{
+	while(pl1->next != NULL)
+		pl1 = pl1->next;
+	new_pl->prev = pl1->prev;	
+	pl1->next = new_pl;
+	
+	return pl1->prev; 
+}
+//Returns the ST_ID from the list or 0 if it does not exist.
+ST_ID getSTID(DN dn)
+{
+	ST_ID stId = 0;
+
+	while(dn != NULL)
+	{
+		if(dn->tag == ID) 
+		{
+			stId = dn->u.st_id.i;
+			break;
+		}
+	
+		dn = dn->n_node;
+	}
+
+	return stId;
+}
+
+void print_tree(DN dn) {
+	//msg("***PRINTING TREE***");
+	int counter = 0;
+	while (dn != NULL) {
+		//msg("\t[%d]:\n\t\tTAG: %s",counter, tagToString(dn->tag));
+
+		counter += 1;
+		dn = dn->n_node;
+	}
+}
+
+char* tagToString(DECL_N_TAG tag) {
+	char* strTag;
+	switch(tag) {
+		case ARRAY: 
+			strTag = "ARRAY";
 			break;
 		case PTR:
-			type = ty_build_ptr(type, NO_QUAL);
+			strTag = "PTR";
 			break;
 		case FUNC:
-			type = ty_build_func(type, OLDSTYLE, NULL);
+			strTag = "FUNC";
 			break;
 		case REF:
 			bug("Looking for REF \"stdr_dump\"");
 			break;
 		case ID:
-			return type;
+			strTag = "ID";
 			break;
-	default:
-		bug("where's the tag? \"stdr_dump\"");
+		default:
+			bug("No tag found in tagToString");
 	}
-	dn = dn->n_node;
-	}
-	bug("NULL Ptr but not ID");
-	//return type;
+
+	return strTag;
 }

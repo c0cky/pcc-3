@@ -12,6 +12,7 @@
 #include "symtab.h"
 #include "message.h"
 #include "bucket.h"
+#include "tree.h"
 #include BACKEND_HEADER_FILE
 #include "y.tab.h"
 
