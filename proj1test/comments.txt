@@ -1,0 +1,117 @@
+Comments for self-test -------- Fri Apr 1, 2016 at 11:58:20 EDT
+No illegal files found
+Testing pcc3:
+  Attempting to build pcc3 ... ok
+
+
+LEVEL 80:
+
+Running pcc3 with input T1L80_ok.c ... zero termination status
+  T1L80_ok.err exists
+  Comparing with solution file ... files match
+  T1L80_ok.s exists
+  Comparing with solution file ... files match
+Running pcc3 with input T1L80_err.c ... zero termination status
+  T1L80_err.err exists
+  Comparing with solution file ... Comparing error messages:
+-----Yours:-----
+line 30: ERROR -- no declarator in declaration
+line 31: ERROR -- duplicate declaration for a
+line 31: ERROR -- duplicate definition of `a'
+line 32: ERROR -- illegal array dimension
+-----Mine:------
+line 30: ERROR -- no declarator in declaration
+line 31: ERROR -- duplicate declaration for a
+line 31: ERROR -- duplicate definition of `a'
+line 32: ERROR -- illegal array dimension
+================
+
+
+LEVEL 90:
+
+Running pcc3 with input T1L90_ok.c ... zero termination status
+  T1L90_ok.err exists
+  Comparing with solution file ... files match
+  T1L90_ok.s exists
+  Comparing with solution file ... files match
+Running pcc3 with input T1L90_err.c ... zero termination status
+  T1L90_err.err exists
+  Comparing with solution file ... Comparing error messages:
+-----Yours:-----
+line 11: ERROR -- illegal size specifier
+line 12: ERROR -- illegal size specifier
+line 13: ERROR -- illegal sign specifier
+line 28: ERROR -- cannot have function returning function
+line 29: ERROR -- cannot have function returning array
+line 30: ERROR -- cannot have array of functions
+-----Mine:------
+line 11: ERROR -- illegal size specifier
+line 12: ERROR -- illegal size specifier
+line 13: ERROR -- illegal sign specifier
+line 28: ERROR -- cannot have function returning function
+line 29: ERROR -- cannot have function returning array
+line 30: ERROR -- cannot have array of functions
+================
+
+
+LEVEL 100:
+
+Running pcc3 with input T1L100_ok.c ... zero termination status
+  T1L100_ok.err exists
+  Comparing with solution file ... files match
+  T1L100_ok.s exists
+  Comparing with solution file ... files match
+Running pcc3 with input T1L100_err.c ... zero termination status
+  T1L100_err.err exists
+  Comparing with solution file ... Comparing error messages:
+-----Yours:-----
+line 24: ERROR -- duplicate parameter declaration for `a'
+line 25: ERROR -- no id in parameter list
+line 26: ERROR -- duplicate declaration for a
+line 26: ERROR -- duplicate definition of `a'
+-----Mine:------
+line 24: ERROR -- duplicate parameter declaration for `a'
+line 25: ERROR -- no id in parameter list
+line 26: ERROR -- duplicate declaration for a
+line 26: ERROR -- duplicate definition of `a'
+================
+
+
+LEVEL 110:
+
+Running pcc3 with input T1L110_ok.c ... zero termination status
+  T1L110_ok.err exists
+  Comparing with solution file ... files match
+  T1L110_ok.s exists
+  Comparing with solution file ... files match
+Running pcc3 with input T1L110_err.c ... zero termination status
+  T1L110_err.err exists
+  Comparing with solution file ... Comparing error messages:
+-----Yours:-----
+line 31: ERROR -- too many items in initializer
+line 33: ERROR -- type mismatch in initializer
+line 35: ERROR -- initializer list for non-array type
+line 37: ERROR -- too many items in initializer
+line 39: ERROR -- too many items in initializer
+-----Mine:------
+line 31: ERROR -- too many items in initializer
+line 33: ERROR -- type mismatch in initializer
+line 35: ERROR -- initializer list for non-array type
+line 37: ERROR -- too many items in initializer
+line 39: ERROR -- too many items in initializer
+================
+######################################################
+Summary for self-test:
+  T1L80_ok:  ok
+  T1L80_err:  error message(s) (will check appropriateness by hand)
+  T1L90_ok:  ok
+  T1L90_err:  error message(s) (will check appropriateness by hand)
+  T1L100_err:  error message(s) (will check appropriateness by hand)
+  T1L100_ok:  ok
+  T1L110_err:  error message(s) (will check appropriateness by hand)
+  T1L110_ok:  ok
+  pcc3:  ok
+######################################################
+ 80% level: (supplied by hand)
+ 90% level: (supplied by hand)
+100% level: (supplied by hand)

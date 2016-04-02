@@ -23,6 +23,7 @@
 	double	y_double;
 	char *	y_string;
 	TYPE_SPECIFIER y_typeSpec;
+    TYPE y_type;
 	BUCKET_PTR y_bucketPtr;
 	ST_ID y_stID;
 	DN y_DN;
@@ -224,10 +225,14 @@ init_declarator_list
 		msg("In init_declarator");
 		building_derived_type_and_install_st($<y_DN>3, build_base($<y_bucketPtr>0));
 	;
-
+        }
 init_declarator
-	: declarator 
-	| declarator '=' initializer
+	: declarator {
+      msg("In declarator");
+      //get the type of this decl based on the declarator & bucket $<y_bucket>0
+      $<y_type>$ = build_base($<y_bucketPtr>0);
+    }
+	| declarator '=' {$<y_type>$=build_base($<y_bucketPtr>0);} initializer
 	;
 
 storage_class_specifier	
@@ -391,7 +396,10 @@ direct_abstract_declarator
 	;
 
 initializer
-	: assignment_expr
+	: assignment_expr { 
+      //check to be appropriate base type ie. int or FP
+      b_alloc_gdata($<y_type>0);
+    }
 	| '{' initializer_list '}'
 	| '{' initializer_list ',' '}'
 	;

@@ -1,0 +1,4 @@
+Found ID; Enrolling i
+making id node
+INT_CONSTANT is 19
+BUG: line 4: alloc_gdata: cannot allocate global data of this type

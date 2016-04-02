@@ -1,0 +1,133 @@
+line 11: ERROR -- illegal size specifier
+line 12: ERROR -- illegal size specifier
+line 13: ERROR -- illegal sign specifier
+line 28: ERROR -- cannot have function returning function
+line 29: ERROR -- cannot have function returning array
+line 30: ERROR -- cannot have array of functions
+
+
+        Dump: Id  = a
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = b
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = unsigned int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = c
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = unsigned long int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = d
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = signed short int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = e
+
+
+        Dump: Id  = f
+
+
+        Dump: Id  = g
+
+
+        Dump: Id  = h
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype
+	<parameter list is null>
+		returning signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = i
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype
+	<parameter list is null>
+		returning double
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = j
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype
+	<parameter list is null>
+		returning <no qual> pointer to signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = k
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = <no qual> pointer to function prototype
+	<parameter list is null>
+		returning signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = l
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = array of 10 <no qual> pointer to function prototype
+	<parameter list is null>
+		returning signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = m
+
+
+        Dump: Id  = n
+
+
+        Dump: Id  = o

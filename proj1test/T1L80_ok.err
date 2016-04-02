@@ -1,0 +1,220 @@
+
+
+        Dump: Id  = a
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = b
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = float
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = c
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = double
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = d
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = signed char
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = e
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = double
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = f
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = double
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = g
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = double
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = i
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = p1
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = <no qual> pointer to signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = p2
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = <no qual> pointer to <no qual> pointer to signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = p3
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = <no qual> pointer to <no qual> pointer to <no qual> pointer to signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = p4
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = <no qual> pointer to <no qual> pointer to <no qual> pointer to <no qual> pointer to signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = iaaa
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = array of 10 array of 10 array of 10 signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = x1
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = array of 5 <no qual> pointer to signed char
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = x2
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = array of 5 array of 5 <no qual> pointer to <no qual> pointer to signed char
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = x3
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = <no qual> pointer to array of 5 <no qual> pointer to array of 5 signed char
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = da
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = array of 25 double
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = iaa
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = array of 10 array of 10 signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = fp
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = <no qual> pointer to float
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = ia
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = array of 10 signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE

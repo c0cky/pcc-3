@@ -1,0 +1,250 @@
+line 24: ERROR -- duplicate parameter declaration for `a'
+line 25: ERROR -- no id in parameter list
+line 26: ERROR -- duplicate declaration for a
+line 26: ERROR -- duplicate definition of `a'
+
+
+        Dump: Id  = a
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype
+	<parameter list is null>
+		returning void
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = b
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype
+	<parameter list is null>
+		returning signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = c
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype
+	<parameter list is null>
+		returning double
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = d
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id a; type signed int
+		)		returning signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = e
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id a; type unsigned char
+		)		returning float
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = f
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id a; type double
+		)		returning signed short int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = g
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id a; type signed long int
+	param: id b; type double
+		)		returning double
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = h
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id a; type signed int
+	param: id b; type unsigned int
+	param: id c; type double
+		)		returning void
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = i
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id a; type <no qual> pointer to signed int
+		)		returning void
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = j
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id a; type array of 5 signed int
+		)		returning float
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = k
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id f; type <no qual> pointer to function prototype
+	<parameter list is null>
+		returning signed char
+		)		returning signed long int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = l
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id a; type <no qual> pointer to <no qual> pointer to unsigned char
+	param: id b; type array of 5 signed long int
+	param: id c; type function prototype
+	<parameter list is null>
+		returning <no qual> pointer to double
+		)		returning unsigned short int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = m
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id a; type reference to signed int
+		)		returning void
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = n
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id x; type reference to <no qual> pointer to signed int
+		)		returning signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = o
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id a; type reference to double
+	param: id b; type reference to double
+	param: id c; type signed int
+		)		returning signed int
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = p
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype (
+	param: id a; type signed int
+	param: id b; type reference to signed int
+	param: id c; type reference to array of 4 signed int
+	param: id d; type reference to function prototype
+	<parameter list is null>
+		returning double
+	param: id e; type reference to function prototype
+	<parameter list is null>
+		returning <no qual> pointer to signed char
+		)		returning void
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = q
+
+
+        Dump: Id  = r
+
+        Dump: VAR Stack. 
+            Dump: block num =0
+	GDECL
+		type = function prototype
+	<parameter list is null>
+		returning double
+		storage class = <no storage class>
+		reference parameter = FALSE
+		error = FALSE
+
+
+        Dump: Id  = x

@@ -1,0 +1,6 @@
+Found ID; Enrolling a
+making id node
+In declarator
+In init_declarator
+building_derived_type
+BUG: line 4: where's the tag? "stdr_dump"
