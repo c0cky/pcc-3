@@ -378,7 +378,7 @@ pointer
 	;
 
 parameter_type_list
-	: parameter_list	{ $<y_PL>$ = $<y_PL>1; }
+	: parameter_list	{ checkParam($<y_PL>1); $<y_PL>$ = $<y_PL>1; }
 	| parameter_list ',' ELIPSIS
 	;
 
@@ -393,7 +393,7 @@ parameter_list
 parameter_declaration
 	: declaration_specifiers declarator {
 		TYPE baseType = build_base($<y_bucketPtr>1);
-		ty_print_type(baseType);
+		//ty_print_type(baseType);
 		$<y_PL>$ = build_Param($<y_DN>2, baseType, NULL);
 	}
 	| declaration_specifiers
@@ -648,7 +648,7 @@ int yyerror(char *s)
 BUCKET_PTR buildBucket(BUCKET_PTR bucketPtr, TYPE_SPECIFIER typeSpec) {
 	BUCKET_PTR updatedBucket = update_bucket(bucketPtr, typeSpec, NULL);
 	if (is_error_decl(updatedBucket)) {
-		error("Semantic error");
+		//error("Semantic error");
 	}
 
 	return updatedBucket;
