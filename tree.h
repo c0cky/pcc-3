@@ -63,6 +63,8 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType);
 PARAM_LIST build_Param(DN dn, TYPE initialType, PARAM_LIST pl);
 
 PARAM_LIST linkParams(PARAM_LIST pl1, PARAM_LIST new_pl);
+
+BOOLEAN checkParam(PARAM_LIST pl);
 //Returns the ST_ID from the list or 0 if it does not exist.
 ST_ID getSTID(DN dn);
 

@@ -362,7 +362,21 @@ direct_declarator
 	| direct_declarator '(' parameter_type_list ')' {
 		//fprintf(stderr, "Inside direct_declarator for functions w param\n");
 		//Create Function Node without Parameters
-		$<y_DN>$ = makeFnNode($<y_DN>1, $<y_PL>3);
+		//if($<y_PL>3 == NULL)
+		//	$<y_DN>$ = NULL;
+			
+		//else
+			if(checkParam($<y_PL>3))
+				{ 
+				$<y_DN>$ = makeFnNode($<y_DN>1, $<y_PL>3);
+				//$<y_PL>$ = $<y_PL>1;
+				}
+			else
+			{
+			//	error("Null parameter");
+				$<y_DN>$ = NULL;
+			}
+			//$<y_DN>$ = makeFnNode($<y_DN>1, $<y_PL>3);
 	}
 	| direct_declarator '(' ')' {
 		//fprintf(stderr, "Inside direct_declarator for functions\n");
@@ -378,16 +392,40 @@ pointer
 	;
 
 parameter_type_list
-	: parameter_list	{ checkParam($<y_PL>1); $<y_PL>$ = $<y_PL>1; }
+	: parameter_list	{ 
+		if($<y_PL>1 == NULL)
+			$<y_PL>$ = $<y_PL>1;
+		else {
+			//if(checkParam($<y_PL>1))
+				{ $<y_PL>$ = $<y_PL>1;}
+			//else
+			{
+			//	error("Null parameter");
+			//	$<y_PL>$ = NULL;
+			}
+		}
+	}
 	| parameter_list ',' ELIPSIS
 	;
 
 parameter_list
 	: parameter_declaration	{
-		$<y_PL>$ = $<y_PL>1;
-		$<y_PL>$->prev = $<y_PL>1;
+		if($<y_PL>1 == NULL){
+			error("no id in parameter list");
+			$<y_PL>$ = $<y_PL>1;
+		}
+		else {	
+			$<y_PL>$ = $<y_PL>1;
+			$<y_PL>$->prev = $<y_PL>1;
+		}
 	}
-	| parameter_list ',' parameter_declaration {$<y_PL>$ = linkParams($<y_PL>1, $<y_PL>3);}
+	| parameter_list ',' parameter_declaration {
+		if($<y_PL>3 == NULL)
+			$<y_PL>$ = NULL;
+		else {
+			$<y_PL>$ = linkParams($<y_PL>1, $<y_PL>3);
+		}
+	}
 	;
 
 parameter_declaration
@@ -396,7 +434,7 @@ parameter_declaration
 		//ty_print_type(baseType);
 		$<y_PL>$ = build_Param($<y_DN>2, baseType, NULL);
 	}
-	| declaration_specifiers
+	| declaration_specifiers { error("no id in parameter list"); $<y_PL>$ = NULL; }
 	| declaration_specifiers abstract_declarator
 	;
 

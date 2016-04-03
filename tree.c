@@ -114,7 +114,8 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 				BOOLEAN result; 
 				result = st_install(dn->u.st_id.i,dr);
 				if (!result) {
-					error("Error installing into symbol table.");
+					error("duplicate declaration for %s", st_get_id_str(dn->u.st_id.i));
+					error("duplicate definition of '%s'", st_get_id_str(dn->u.st_id.i));
 				}
 				else
 				{
@@ -135,6 +136,11 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 
 PARAM_LIST build_Param(DN dn, TYPE initialType, PARAM_LIST pl)
 {
+	if(dn == NULL)
+	{
+		error("no id in declaration");
+		return NULL;
+	}
 	TYPE type = initialType;
 	PARAM_LIST pl1 = plist_alloc();
 	while(dn != NULL)
@@ -183,7 +189,7 @@ PARAM_LIST linkParams(PARAM_LIST pl1, PARAM_LIST new_pl)
 	return pl1->prev; 
 }
 
-void checkParam(PARAM_LIST pl)
+BOOLEAN checkParam(PARAM_LIST pl)
 {
 	PARAM_LIST plc = pl;
 	while(pl)
@@ -192,11 +198,15 @@ void checkParam(PARAM_LIST pl)
 		while(plc)
 		{
 			if(pl->id == plc->id)
-				error("duplicate parameter declaration for %s", st_get_id_str(pl->id));
+			{				
+				error("duplicate parameter declaration for '%s'", st_get_id_str(pl->id));
+				return FALSE;
+			}			
 			plc = plc->next;
 		}
 		pl = pl->next;
 	}
+	return TRUE;
 }
 			
 		
