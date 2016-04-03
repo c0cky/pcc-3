@@ -411,7 +411,7 @@ parameter_type_list
 parameter_list
 	: parameter_declaration	{
 		if($<y_PL>1 == NULL){
-			error("no id in parameter list");
+			//error("no id in parameter list");
 			$<y_PL>$ = $<y_PL>1;
 		}
 		else {	
@@ -420,7 +420,7 @@ parameter_list
 		}
 	}
 	| parameter_list ',' parameter_declaration {
-		if($<y_PL>3 == NULL)
+		if(($<y_PL>3 == NULL) || $<y_PL>1 == NULL)
 			$<y_PL>$ = NULL;
 		else {
 			$<y_PL>$ = linkParams($<y_PL>1, $<y_PL>3);
