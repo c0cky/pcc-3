@@ -19,6 +19,7 @@
 
     int sizeOfType(TYPETAG type);
     void globalDecl(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
+	void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
 	BUCKET_PTR buildBucket(BUCKET_PTR bucketPtr, TYPE_SPECIFIER typeSpec);
 %}
 
@@ -233,14 +234,14 @@ init_declarator_list
 
 		TYPE baseType = build_base($<y_bucketPtr>0);
 		TYPE derivedType = building_derived_type_and_install_st($<y_DN>1, baseType);
-		globalDecl($<y_DN>1, baseType, derivedType, installSuccessful);
+		GLD($<y_DN>1, baseType, derivedType, installSuccessful);
 	}
 	| init_declarator_list ',' init_declarator {
 		//msg("In init_declarator");
 		// building_derived_type_and_install_st($<y_DN>3, build_base($<y_bucketPtr>0));
 		TYPE baseType = build_base($<y_bucketPtr>0);
 		TYPE derivedType = building_derived_type_and_install_st($<y_DN>3, baseType);
-		globalDecl($<y_DN>3, baseType, derivedType, installSuccessful);
+		GLD($<y_DN>3, baseType, derivedType, installSuccessful);
 	}
 	;
 
@@ -357,7 +358,13 @@ direct_declarator
 	| direct_declarator '[' ']'
 	| direct_declarator '[' constant_expr ']' { 
 		//msg("Found array");
-		$<y_DN>$ = makeArrayNode($<y_DN>1, $<y_int>3);
+		if($<y_int>3 <= 0)
+		{
+			$<y_DN>$ = NULL;
+			error("illegal array dimension");
+		}
+		else
+			$<y_DN>$ = makeArrayNode($<y_DN>1, $<y_int>3);
 	}
 	| direct_declarator '(' parameter_type_list ')' {
 			if(checkParam($<y_PL>3))
@@ -642,7 +649,61 @@ void globalDecl(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
 
 
 }
-
+void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
+{
+		if(!shouldDeclare)
+			return;
+		BOOLEAN lastptrFlag = FALSE;
+		BOOLEAN ptrFlag = FALSE;
+		BOOLEAN funcFlag = FALSE;
+		int align = sizeOfType(ty_query(baseType));
+		int size = 0;
+		int array_total = 1;
+		char* id; 
+		while(dn != NULL)
+		{
+			switch(dn->tag) {
+			case ARRAY:
+				array_total *= dn->u.array_dim.dim;
+				break;
+			case PTR:
+				if(dn->n_node->tag == ID)
+					lastptrFlag = TRUE;
+				else
+				{	ptrFlag = TRUE; align = 4; size = 4; array_total = 1;
+				}
+				break;
+			case FUNC:
+				if(dn->n_node->tag == ID)
+					funcFlag = TRUE;
+				break;
+			case REF:
+				break;
+			case ID:
+				if(funcFlag)
+					return;
+				else
+				{
+					id = st_get_id_str( getSTID(dn) );
+					if(lastptrFlag)
+					{
+						align = 4;
+						size = 4;
+					}
+					else
+						size = array_total * align;
+				}
+				break;
+			default:
+				bug("where's the tag? \"stdr_dump\"");
+				
+			}
+	
+		dn = dn->n_node;
+		}
+		b_global_decl(id, align, size);
+		b_skip(size);
+}
 int yyerror(char *s)
 {
 	error("%s (column %d)",s,column);
