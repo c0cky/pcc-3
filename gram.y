@@ -653,8 +653,9 @@ void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
 {
 		if(!shouldDeclare)
 			return;
-		BOOLEAN lastptrFlag = FALSE;
-		BOOLEAN ptrFlag = FALSE;
+		// if very last node is a pointer always will return align 4 size 4
+		//BOOLEAN lastptrFlag = FALSE;
+		//BOOLEAN ptrFlag = FALSE;
 		BOOLEAN funcFlag = FALSE;
 		int align = sizeOfType(ty_query(baseType));
 		int size = 0;
@@ -667,11 +668,9 @@ void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
 				array_total *= dn->u.array_dim.dim;
 				break;
 			case PTR:
-				if(dn->n_node->tag == ID)
-					lastptrFlag = TRUE;
-				else
-				{	ptrFlag = TRUE; align = 4; size = 4; array_total = 1;
-				}
+				align = 4;
+				size = 4;
+				array_total = 1;
 				break;
 			case FUNC:
 				if(dn->n_node->tag == ID)
@@ -685,13 +684,7 @@ void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
 				else
 				{
 					id = st_get_id_str( getSTID(dn) );
-					if(lastptrFlag)
-					{
-						align = 4;
-						size = 4;
-					}
-					else
-						size = array_total * align;
+					size = array_total * align;
 				}
 				break;
 			default:
