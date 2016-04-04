@@ -160,9 +160,7 @@ PARAM_LIST build_Param(DN dn, TYPE initialType, PARAM_LIST pl)
 				pl1->is_ref = TRUE;
 				break;
 			case ID: 
-				//ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 				pl1->id = dn->u.st_id.i;
-				//dr->tag = GDECL;
 				pl1->type = type;
 				pl1->sc = NO_SC;
 				pl1->err = FALSE;
