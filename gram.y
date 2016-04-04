@@ -441,8 +441,12 @@ direct_abstract_declarator
 
 initializer
 	: assignment_expr
-	| '{' initializer_list '}'
-	| '{' initializer_list ',' '}'
+	| '{' initializer_list comma_opt '}'
+	;
+
+comma_opt
+	: /* Null derive */
+	| ','
 	;
 
 initializer_list
@@ -654,8 +658,6 @@ void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
 		if(!shouldDeclare)
 			return;
 		// if very last node is a pointer always will return align 4 size 4
-		//BOOLEAN lastptrFlag = FALSE;
-		//BOOLEAN ptrFlag = FALSE;
 		BOOLEAN funcFlag = FALSE;
 		int align = sizeOfType(ty_query(baseType));
 		int size = 0;
