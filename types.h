@@ -261,12 +261,11 @@ TYPE ty_build_func_pascal(TYPE object, PARAM_LIST params, BOOLEAN check_args);
 
 TYPE ty_build_func(TYPE object, PARAMSTYLE paramstyle, PARAM_LIST params);
     /* (C/C++ only)
-    This routine takes 4 parameters: a previously constructed
-    object of type "TYPE", a parameter list for the function,
-    a flag indicating what kind of parameter list is present,
-    and a function qualifier (sync, pure, parallel).
-    The routine builds a "TYPE" for the function and stores the
-    functions parameters. It returns the newly constructed type.
+    This routine takes 3 parameters: a previously constructed object of
+    type "TYPE", a parameter list for the function (3rd param), and a flag
+    indicating what kind of parameter list is present (2nd param).  The
+    routine builds a "TYPE" for the function and stores the function's
+    parameters. It returns the newly constructed type.
     */
 
 TYPE ty_build_subrange(TYPE object, long low, long high);
@@ -455,7 +454,7 @@ void ty_print_indexlist(INDEX_LIST indices);
 /* Utilities (defined in utils.c)                  */
 /***************************************************/
 
-int get_size_basic(TYPETAG tag);
+unsigned int get_size_basic(TYPETAG tag);
     /*
     This function takes 1 parameter, a typetag, and returns the size
     (in bytes) of the basic type corresponding to the typetag.

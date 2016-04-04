@@ -1,4 +1,3 @@
-#
 # pcc3 makefile
 #
 #
@@ -36,9 +35,9 @@ CFLAGS = -g
 #
 BACKEND = backend-x86
 
-PCC3H	= defs.h types.h bucket.h symtab.h $(BACKEND).h
+PCC3H	= defs.h types.h bucket.h symtab.h $(BACKEND).h tree.h
 
-PCC3OBJ = main.o message.o symtab.o types.o bucket.o utils.o gram.o scan.o $(BACKEND).o
+PCC3OBJ = main.o message.o symtab.o types.o bucket.o utils.o gram.o scan.o $(BACKEND).o tree.o
 
 # pcc3 rules
 #
@@ -52,6 +51,8 @@ main.o: main.c defs.h types.h symtab.h
 types.o: types.c types.h symtab.h message.h
 
 bucket.o: bucket.c bucket.h
+
+tree.o: tree.c tree.h
 
 symtab.o: symtab.c types.h symtab.h message.h
 
@@ -74,6 +75,9 @@ scan.o : scan.l gram.o $(PCC3H)
 
 y.output: gram.y
 	$(YACC) -v -y gram.y
+
+run: pcc3
+	./pcc3 < t.txt
 
 clean:
 	-rm -f pcc3 *.o y.tab.h y.output y.tab.c
