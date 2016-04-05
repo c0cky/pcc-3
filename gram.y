@@ -357,13 +357,6 @@ direct_declarator
 	}
 	| direct_declarator '[' ']'
 	| direct_declarator '[' constant_expr ']' { 
-		//msg("Found array");
-		if($<y_int>3 <= 0)
-		{
-			$<y_DN>$ = NULL;
-			error("illegal array dimension");
-		}
-		else
 			$<y_DN>$ = makeArrayNode($<y_DN>1, $<y_int>3);
 	}
 	| direct_declarator '(' parameter_type_list ')' {
@@ -667,6 +660,10 @@ void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
 		{
 			switch(dn->tag) {
 			case ARRAY:
+				if(dn->u.array_dim.dim <= 0)
+				{
+					return;
+				}
 				array_total *= dn->u.array_dim.dim;
 				break;
 			case PTR:
