@@ -77,7 +77,7 @@ DN makeFnNode(DN dn, PARAM_LIST pl)
 TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 {
 	TYPE type = initialType;
-
+	//BOOLEAN val_array = TRUE;
 	installSuccessful = FALSE;
 
 	//msg("building_derived_type");
@@ -85,9 +85,13 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 	{
 		switch(dn->tag) {
 			case ARRAY:
-				// fprintf(stderr, "Inside of Array Switch: %d\n", ty_query(type));
+				if(dn->u.array_dim.dim <= 0)
+				{
+					error("illegal array dimension");
+					return;
+				}
+				else
 				type = ty_build_array(type, TRUE, dn->u.array_dim.dim);
-				// fprintf(stderr, "Leaving of Array Switch: %d\n", ty_query(type));
 				break;
 			case PTR:
 				//fprintf(stderr, "Inside of PTR Switch\n");
