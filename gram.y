@@ -6,14 +6,14 @@
 
 %{
 
-	#include "defs.h"
 	#include "types.h"
 	#include "symtab.h"
 	#include "bucket.h"
 	#include "message.h"
-	#include <stdio.h>
 	#include "tree.h"
 	#include "expr.h"
+	#include <stdio.h>
+	#include "defs.h"
 
     int yylex();
     int yyerror(char *s);
@@ -34,6 +34,11 @@
 	DN y_DN;
 	PARAM_LIST y_PL;
 	BOOLEAN y_ref; // Flag for reference type?
+
+	//Expressions
+	// OP_UNARY y_unop;
+	// EN y_EN;
+
 };
 
 %token IDENTIFIER INT_CONSTANT DOUBLE_CONSTANT STRING_LITERAL SIZEOF
@@ -61,17 +66,32 @@ primary_expr
 	: identifier 
 	| INT_CONSTANT { 
 		//msg("INT_CONSTANT is %d", $<y_int>1);
+		
+		// EN node = createConstantIntExpression($<y_int>1);
+		// $<y_EN>$ = node;
+
+		// printExpression(node);
+
 		$<y_int>$ = $<y_int>1;
 	}
 	| DOUBLE_CONSTANT {
 		// msg("DOUBLE CONSTANT is %f", $<y_double>$1);
+		
+		// EN node = createConstantDoubleExpression($<y_double>1);
+		// $<y_EN>$ = node;
+
+		// printExpression(node);
+
 		$<y_double>$ = $<y_double>1;
 	}
 	| STRING_LITERAL {
 		// msg("STRING LITERAL is %s", $<y_string>$1);
+
 		$<y_string>$ = $<y_string>1;
 	}
-	| '(' expr ')'
+	| '(' expr ')' {
+		// $<y_EN>$ = $<y_EN>2;
+	}
 	;
 
 postfix_expr
@@ -104,7 +124,18 @@ unary_expr
 	;
 
 unary_operator
-	: '&' | '*' | '+' | '-' | '~' | '!'
+	: '&' { //$<y_unop>$ = UNARY_REF; 
+	}
+	| '*' { //$<y_unop>$ = UNARY_DEREF; 
+	} 
+	| '+' { //$<y_unop>$ = UNARY_PLUS; 
+	}
+	| '-' { //$<y_unop>$ = UNARY_MINUS; 
+	}
+	| '~' { //$<y_unop>$ = UNARY_TILDE; 
+	}
+	| '!' { //$<y_unop>$ = UNARY_NOT; 
+	}
 	;
 
 cast_expr
@@ -115,59 +146,113 @@ cast_expr
 multiplicative_expr
 	: cast_expr
 	| multiplicative_expr '*' cast_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_MULT, $<y_EN>1, $<y_EN>3);
+	}
 	| multiplicative_expr '/' cast_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_DIV, $<y_EN>1, $<y_EN>3);
+	}
 	| multiplicative_expr '%' cast_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_MOD, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 additive_expr
 	: multiplicative_expr
 	| additive_expr '+' multiplicative_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_ADD, $<y_EN>1, $<y_EN>3);
+	}
 	| additive_expr '-' multiplicative_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_SUB, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 shift_expr
 	: additive_expr
 	| shift_expr LEFT_OP additive_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_SHIFTL, $<y_EN>1, $<y_EN>3);
+	}
 	| shift_expr RIGHT_OP additive_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_SHIFTR, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 relational_expr
 	: shift_expr 
 	| relational_expr '<' shift_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_LT, $<y_EN>1, $<y_EN>3);
+	}
 	| relational_expr '>' shift_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_GRT, $<y_EN>1, $<y_EN>3);
+	}
 	| relational_expr LE_OP shift_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_LTE, $<y_EN>1, $<y_EN>3);
+	}
 	| relational_expr GE_OP shift_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_GRTE, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 equality_expr
 	: relational_expr
 	| equality_expr EQ_OP relational_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_EQUALS, $<y_EN>1, $<y_EN>3);
+	}
 	| equality_expr NE_OP relational_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_NE, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 and_expr
 	: equality_expr
 	| and_expr '&' equality_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_XAND, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 exclusive_or_expr
 	: and_expr 
 	| exclusive_or_expr '^' and_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_XNOT, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 inclusive_or_expr
 	: exclusive_or_expr 
 	| inclusive_or_expr '|' exclusive_or_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_XOR, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 logical_and_expr
 	: inclusive_or_expr 
 	| logical_and_expr AND_OP inclusive_or_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_AND, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 logical_or_expr
 	: logical_and_expr 
 	| logical_or_expr OR_OP logical_and_expr
+	{
+		// $<y_EN>$ = createBinaryExpression(BINARY_OR, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 conditional_expr
@@ -538,6 +623,7 @@ function_definition
 identifier
 	: IDENTIFIER { 
 		//msg("Found ID; Enrolling %s",$<y_string>1); 
+		
 		ST_ID varName = st_enter_id($<y_string>1);
 		$<y_DN>$ = makeIdNode(varName);
 	}

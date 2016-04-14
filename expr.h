@@ -1,5 +1,5 @@
-#ifndef TREE_H
-#define TREE_H
+#ifndef EXPR_H
+#define EXPR_H
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -27,13 +27,11 @@ typedef enum
 	UNARY_REF,			//&identifier
 	UNARY_PLUS,			//+3
 	UNARY_MINUS,		//-1
-	UNARY_TILDE,		//~ idk what the heck this does
+	UNARY_TILDE,		//~ bitwise not
 	UNARY_INCREMENT,	//i++ or ++i
 	UNARY_DECREMENT,	//i-- or --i
 	
 	UNARY_NOT,			//!true
-	
-	UNARY_ASSIGNMENT,	// a = EXPR
 
 	UNARY_DOT,			//a.b()
 	UNARY_PTR_OP,		//a->b()
@@ -47,6 +45,9 @@ typedef enum
 
 typedef enum
 {
+	BINARY_ASSIGNMENT,	
+					// a = EXPR
+
 	BINARY_MULT, 	// a * b
 	BINARY_DIV,		// a / b
 	BINARY_MOD,		// a % b
@@ -131,5 +132,26 @@ EN createUnaryExpression(OP_UNARY op, EN operand, BOOLEAN prefix);
 
 EN createBinaryExpression(OP_BINARY op, EN left, EN right);
 /***************** Create Functions ***************/
+
+/***************** Eval Expressions ***************/
+EN evaluateExpression(EN expr);
+
+int evalIntExpression(EN node);
+double evalDoubleExpression(EN node);
+ST_ID getIDFromVariableExpression(EN node);
+EN evalVariableExpression(EN node);
+EN evalFunctionExpression(EN node);
+EN evalUnaryExpression(EN node);
+EN evalBinaryExpression(EN node);
+/***************** Eval Expressions ***************/
+
+//Helper Functions
+BOOLEAN isIntExpression(EN node);
+
+BOOLEAN isDoubleExpression(EN node);
+
+BOOLEAN isVariableExpression(EN node);
+
+void printExpression(EN node);
 
 #endif
