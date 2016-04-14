@@ -6,13 +6,14 @@
 
 %{
 
-#include "defs.h"
-#include "types.h"
-#include "symtab.h"
-#include "bucket.h"
-#include "message.h"
-#include <stdio.h>
-#include "tree.h"
+	#include "defs.h"
+	#include "types.h"
+	#include "symtab.h"
+	#include "bucket.h"
+	#include "message.h"
+	#include <stdio.h>
+	#include "tree.h"
+	#include "expr.h"
 
     int yylex();
     int yyerror(char *s);
@@ -176,7 +177,7 @@ conditional_expr
 
 assignment_expr
 	: conditional_expr
-	| unary_expr assignment_operator assignment_expr
+	| unary_expr assignment_operator assignment_expr 
 	;
 
 assignment_operator
