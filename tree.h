@@ -41,6 +41,13 @@ typedef struct dn {
 // Pass the ST_ID that is created from an enrollment; returns a Declarator Type Node
 DN makeIdNode(ST_ID stid);
 
+// Pass the 
+DN makeArrayNode(DN dn, unsigned int dimension);
+
+// DN makePtrNode(DN dn);
+
+DN makeRefNode(DN dn);
+
 // Pass the dimension for array node, and any previous nodes, return new node
 DN makeArrayNode(DN dn, unsigned int dimension);
 
@@ -71,5 +78,44 @@ ST_ID getSTID(DN dn);
 
 void print_tree(DN dn);
 char* tagToString(DECL_N_TAG tag);
+
+// ******************* PROJ 2 ADD
+typedef enum {CONST_EXPR, VAR_EXPR, UNOP_EXPR, BINOP_EXPR} EXPR_TAG_TYPE;
+
+// Unary operators - , #
+typedef enum {UN_MINUS, UN_PLUS, UN_LINE_REF} UNOP_TYPE;
+
+// Binary operators + - * / %
+typedef enum {PLUS, MINUS, MUL, DIV, MOD} BINOP_TYPE;
+
+// Expression Node (en)
+typedef struct en{
+	EXPR_TAG_TYPE tag;
+	union{
+		struct{
+			long val;
+		} const_;
+
+		struct{
+			ST_ID st_id;
+		} var;	
+		 // Unary op has one child
+		struct {
+			UNOP_TYPE op;
+			int line_num;
+			struct en *arg;
+		} unop;
+		// Binary Op has 2 children
+		struct{
+			BINOP_TYPE op;
+			struct en *l_arg, *r_arg;
+		} binop;
+	} u;
+} EXPR_REC, *EXPR;
+
+EXPR makeID_ExprN(ST_ID);
+
+long traverse(EXPR e);
+// ***********************END OF PROJ2 ADD
 
 #endif

@@ -16,11 +16,16 @@
 
     int yylex();
     int yyerror(char *s);
-
+	
     int sizeOfType(TYPETAG type);
     void globalDecl(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
 	void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
 	BUCKET_PTR buildBucket(BUCKET_PTR bucketPtr, TYPE_SPECIFIER typeSpec);
+	
+	// Added for Proj 2
+	void funcDeclCheck(DN dn);
+	BOOLEAN st_IDCheck(ST_ID stid);
+	//
 %}
 
 %union {
@@ -32,6 +37,7 @@
 	ST_ID y_stID;
 	DN y_DN;
 	PARAM_LIST y_PL;
+	EXPR y_EXPR;
 	BOOLEAN y_ref; // Flag for reference type?
 };
 
@@ -57,7 +63,17 @@
   *******************************/
 
 primary_expr
-	: identifier 
+	: identifier // Look up in the ST, if not in ST semantic error; Otherwise Build node (need TYPE)
+	{
+		ST_ID stid = getSTID($<y_DN>1);
+		if(st_IDCheck(stid))
+		{
+			error("making a node");
+			$<y_EXPR>$ = makeID_ExprN(stid);
+		}
+		else
+			error("Semantic error, identifier not declared");
+	}
 	| INT_CONSTANT { 
 		//msg("INT_CONSTANT is %d", $<y_int>1);
 		$<y_int>$ = $<y_int>1;
@@ -76,11 +92,11 @@ primary_expr
 postfix_expr
 	: primary_expr
 	| postfix_expr '[' expr ']'
-	| postfix_expr '(' argument_expr_list_opt ')'
-	| postfix_expr '.' identifier
+	| postfix_expr '(' argument_expr_list_opt ')' { /*function calls PROJ 2*/; }
+	| postfix_expr '.' identifier 
 	| postfix_expr PTR_OP identifier
-	| postfix_expr INC_OP
-	| postfix_expr DEC_OP
+	| postfix_expr INC_OP // PROJ 2
+	| postfix_expr DEC_OP // PROJ 2
 	;
 
 argument_expr_list_opt
@@ -180,7 +196,8 @@ assignment_expr
 	;
 
 assignment_operator
-	: '=' | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | ADD_ASSIGN | SUB_ASSIGN
+	: '=' 	// x = 3 +4;
+	| MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | ADD_ASSIGN | SUB_ASSIGN
 	| LEFT_ASSIGN | RIGHT_ASSIGN | AND_ASSIGN | XOR_ASSIGN | OR_ASSIGN
 	;
 
@@ -365,7 +382,7 @@ direct_declarator
 			else
 				$<y_DN>$ = NULL;
 	}
-	| direct_declarator '(' ')' {
+	| direct_declarator '(' ')' { error("function nod");
 		$<y_DN>$ = makeFnNode($<y_DN>1, NULL);
 	}
 	| direct_declarator '(' identifier_list ')'
@@ -373,6 +390,7 @@ direct_declarator
 
 pointer
 	: '*' specifier_qualifier_list_opt
+		  { $<y_ref>$ = FALSE; }
    	| '&' { $<y_ref>$ = TRUE;}
 	;
 
@@ -454,7 +472,7 @@ initializer_list
 statement
 	: labeled_statement
 	| compound_statement
-	| expression_statement
+	| expression_statement // only legal statement
 	| selection_statement
 	| iteration_statement
 	| jump_statement
@@ -467,8 +485,8 @@ labeled_statement
 	;
 
 compound_statement
-	: '{' '}'
-	| '{' statement_list '}'
+	: '{' '}'			 { error("Empty Function");}
+	| '{' statement_list '}'	 { error("Stmt_list Function");}
 	| '{' declaration_list '}'
 	| '{' declaration_list statement_list '}'
 	;
@@ -484,7 +502,10 @@ statement_list
 	;
 
 expression_statement
-	: expr_opt ';'
+	: expr_opt ';'	// traverse the tree in $1, bottom up, calling approp BE to push va;ies and apply operators
+	{
+		traverse($<y_EXPR>1);
+	}
 	;
 
 selection_statement
@@ -521,11 +542,37 @@ external_declaration
 	;
 
 function_definition
-	: declarator compound_statement {
-		//fprintf(stderr, "inside function_definition w {}\n");
+	: declarator  
+	{ 
+		
+		char *f = st_get_id_str(getSTID($<y_DN>1));
+		//fprintf(stderr, "inside function_definition w {} %s\n", f);
+		funcDeclCheck($<y_DN>1);
+		b_func_prologue (f); 
+		st_enter_block();
+		}
+		compound_statement 
+		{ 
+			char *f = st_get_id_str(getSTID($<y_DN>1));
+			fprintf(stderr, "inside function_definition w {}\n");
+			st_exit_block();
+			b_func_epilogue (f);
 	}
-	| declaration_specifiers declarator compound_statement {
-		//fprintf(stderr, "inside function_definition w {}\n");
+	| declaration_specifiers declarator 
+	{ 
+		TYPE baseType = build_base($<y_bucketPtr>1);
+		TYPE derivedType = building_derived_type_and_install_st($<y_DN>2, baseType);
+		GLD($<y_DN>2, baseType, derivedType, installSuccessful);
+		funcDeclCheck($<y_DN>2);
+		char *f = st_get_id_str(getSTID($<y_DN>2));
+		b_func_prologue (f); 
+		st_enter_block();
+	} 
+	compound_statement {
+		fprintf(stderr, "inside function_definition w {}\n");
+		char *f = st_get_id_str(getSTID($<y_DN>2));
+			st_exit_block();
+			b_func_epilogue (f);
 	}
 	;
 
@@ -535,7 +582,7 @@ function_definition
 
 identifier
 	: IDENTIFIER { 
-		//msg("Found ID; Enrolling %s",$<y_string>1); 
+		msg("Found ID; Enrolling %s",$<y_string>1); 
 		ST_ID varName = st_enter_id($<y_string>1);
 		$<y_DN>$ = makeIdNode(varName);
 	}
@@ -543,56 +590,71 @@ identifier
 %%
 
 extern int column;
+// PROJ 2
+// Used as intermediate action in function_definition production
+void funcDeclCheck(DN dn)
+{
+	int b;
+	ST_ID stid = getSTID(dn);
+	char * id = st_get_id_str(stid);
 
+	ST_DR stdr;
+	stdr = st_lookup(stid, &b);
+	// if STDR is NULL then we build it
+	if(stdr == NULL)			
+	{
+		stdr = stdr_alloc(); // Allocate space for the symtab data record
+				stdr->tag = FDECL;
+				//stdr->u.decl.type = ty_build_basic(TYSIGNEDINT);
+				stdr->u.decl.type = ty_build_func(ty_build_basic(TYSIGNEDINT), PROTOTYPE, NULL);
+				stdr->u.decl.sc = NO_SC;
+				stdr->u.decl.err = FALSE;
+				BOOLEAN result; 
+				result = st_install(stid,stdr);
+				if (!result) {
+					error("duplicate declaration for %s", st_get_id_str(dn->u.st_id.i));
+					error("duplicate definition of '%s'", st_get_id_str(dn->u.st_id.i));
+				}
+	}
+	//ty_print_typetag(ty_query(stdr->u.decl.type));
+
+	if(ty_query(stdr->u.decl.type) != TYFUNC)
+		{ error("Id not a function");  bug("error not a function");}
+	error("Null dn %s", id);
+	if(stdr)
+	{		// need to check if it is a function?!
+		if(stdr->tag == GDECL)
+		{
+			error("Is GDECL switch to FDECL");
+			stdr->tag = FDECL;
+		}
+		else if(stdr->tag == FDECL)
+			error("duplicate or incompatible function declaration '%s'", id);
+		else
+			error("Wrong type(not a function ID)");
+		//stdr->u.decl.type = type;
+	}
+	else
+		error("not built, need to build?");
+}
+
+// stID check, TRUE if it does exist in current block or global, or FALSE it does not exist
+BOOLEAN st_IDCheck(ST_ID stid)
+{
+	int b;
+	int cur_b = st_get_cur_block();
+	ST_DR stdr;
+	stdr = st_lookup(stid, &b);
+	if(stdr)
+		if( b == cur_b || b == 0)
+			return TRUE;
+	else
+		return FALSE;
+}
+// PROJ2
 int sizeOfType(TYPETAG type)
 {
 	int returnedSizeOf = -1;
-
-	// switch(type)
-	// {
-	// 	case TYFLOAT:
-	// 		returnedSizeOf = sizeof(float);
-	// 		break;
-	// 	case TYDOUBLE:
-	// 		returnedSizeOf = sizeof(double);
-	// 		break;
-	// 	case TYLONGDOUBLE:
-	// 		returnedSizeOf = sizeof(long double);
-	// 		break;
-	// 	case TYSIGNEDLONGINT:
-	// 		returnedSizeOf = sizeof(signed long int);
-	// 		break;
- //    	case TYSIGNEDSHORTINT:
- //    		returnedSizeOf = sizeof(signed short int);
- //    		break;
- //    	case TYSIGNEDINT:
- //    		returnedSizeOf = sizeof(signed int);
- //    		break;
- //    	case TYUNSIGNEDLONGINT:
- //    		returnedSizeOf = sizeof(unsigned long int);
- //    		break;
- //  		case TYUNSIGNEDSHORTINT:
- //  			returnedSizeOf = sizeof(unsigned short int);
- //  			break;
- //  		case TYUNSIGNEDINT:
- //  			returnedSizeOf = sizeof(unsigned int);
- //  			break;
- //  		case TYUNSIGNEDCHAR:
- //  			returnedSizeOf = sizeof(unsigned char);
- //  			break;
- //  		case TYSIGNEDCHAR:
- //  			returnedSizeOf = sizeof(signed char);
- //  			break;
- //  		case TYPTR:
- //  			returnedSizeOf = 4; //4 Bytes
- //  			break;
- //  		default:
-	// 	// TYVOID
- //  		// 		TYSTRUCT: TYUNION, TYENUM, TYARRAY, TYSET,
-	//  	//    TYFUNC, TYBITFIELD, TYSUBRANGE, TYERROR
-	//  		break;
-	// }
-
 	returnedSizeOf = get_size_basic(type);
 
 	return returnedSizeOf;
