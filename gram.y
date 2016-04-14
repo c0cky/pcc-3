@@ -65,14 +65,15 @@
 primary_expr
 	: identifier // Look up in the ST, if not in ST semantic error; Otherwise Build node (need TYPE)
 	{
+		// Get the name of ID from node
 		ST_ID stid = getSTID($<y_DN>1);
+		// Checks the Symbol Table for installment, returns True if installed, False if not
 		if(st_IDCheck(stid))
 		{
-			error("making a node");
 			$<y_EXPR>$ = makeID_ExprN(stid);
 		}
 		else
-			error("Semantic error, identifier not declared");
+			error("'%s' is undefined", st_get_id_str(stid));
 	}
 	| INT_CONSTANT { 
 		//msg("INT_CONSTANT is %d", $<y_int>1);
@@ -382,7 +383,8 @@ direct_declarator
 			else
 				$<y_DN>$ = NULL;
 	}
-	| direct_declarator '(' ')' { error("function nod");
+	| direct_declarator '(' ')' { 
+		//error("function node");
 		$<y_DN>$ = makeFnNode($<y_DN>1, NULL);
 	}
 	| direct_declarator '(' identifier_list ')'
@@ -485,8 +487,10 @@ labeled_statement
 	;
 
 compound_statement
-	: '{' '}'			 { error("Empty Function");}
-	| '{' statement_list '}'	 { error("Stmt_list Function");}
+	: '{' '}'			 { //error("Empty Function");
+	}
+	| '{' statement_list '}'	 { //error("Stmt_list Function");
+	}
 	| '{' declaration_list '}'
 	| '{' declaration_list statement_list '}'
 	;
@@ -504,6 +508,7 @@ statement_list
 expression_statement
 	: expr_opt ';'	// traverse the tree in $1, bottom up, calling approp BE to push va;ies and apply operators
 	{
+// traverse function here is from HW2, to test some basic functionality, needs Tyler's Expression nodes
 		traverse($<y_EXPR>1);
 	}
 	;
@@ -544,32 +549,46 @@ external_declaration
 function_definition
 	: declarator  
 	{ 
-		
+		// Get the name of the function, declarator is a Declarator Node $<y_DN>1
 		char *f = st_get_id_str(getSTID($<y_DN>1));
 		//fprintf(stderr, "inside function_definition w {} %s\n", f);
+		// send in node to check stuff
 		funcDeclCheck($<y_DN>1);
+		// Prologue into function and enter block (Back_end and Symbol Table stuff)
 		b_func_prologue (f); 
 		st_enter_block();
 		}
 		compound_statement 
 		{ 
 			char *f = st_get_id_str(getSTID($<y_DN>1));
-			fprintf(stderr, "inside function_definition w {}\n");
+// Actions for Compound_statement here! then exit block and epilogue function
+			//fprintf(stderr, "inside function_definition w {}\n");
 			st_exit_block();
 			b_func_epilogue (f);
 	}
 	| declaration_specifiers declarator 
 	{ 
+// In case of intitial function declaration and definition this production is called
+		int b;
+		ST_ID stid = getSTID($<y_DN>2);
+		char * id = st_get_id_str(stid);
+		BOOLEAN result = FALSE;
+		ST_DR stdr;
+		stdr = st_lookup(stid, &b);
+		if(!stdr)
+		{
 		TYPE baseType = build_base($<y_bucketPtr>1);
 		TYPE derivedType = building_derived_type_and_install_st($<y_DN>2, baseType);
 		GLD($<y_DN>2, baseType, derivedType, installSuccessful);
+		}
 		funcDeclCheck($<y_DN>2);
 		char *f = st_get_id_str(getSTID($<y_DN>2));
 		b_func_prologue (f); 
 		st_enter_block();
 	} 
 	compound_statement {
-		fprintf(stderr, "inside function_definition w {}\n");
+		//fprintf(stderr, "inside function_definition w {}\n");
+// Actions for Compound_statement here! then exit block and epilogue function
 		char *f = st_get_id_str(getSTID($<y_DN>2));
 			st_exit_block();
 			b_func_epilogue (f);
@@ -582,7 +601,7 @@ function_definition
 
 identifier
 	: IDENTIFIER { 
-		msg("Found ID; Enrolling %s",$<y_string>1); 
+		//msg("Found ID; Enrolling %s",$<y_string>1); 
 		ST_ID varName = st_enter_id($<y_string>1);
 		$<y_DN>$ = makeIdNode(varName);
 	}
@@ -597,6 +616,7 @@ void funcDeclCheck(DN dn)
 	int b;
 	ST_ID stid = getSTID(dn);
 	char * id = st_get_id_str(stid);
+	BOOLEAN result = FALSE;
 
 	ST_DR stdr;
 	stdr = st_lookup(stid, &b);
@@ -609,7 +629,7 @@ void funcDeclCheck(DN dn)
 				stdr->u.decl.type = ty_build_func(ty_build_basic(TYSIGNEDINT), PROTOTYPE, NULL);
 				stdr->u.decl.sc = NO_SC;
 				stdr->u.decl.err = FALSE;
-				BOOLEAN result; 
+				
 				result = st_install(stid,stdr);
 				if (!result) {
 					error("duplicate declaration for %s", st_get_id_str(dn->u.st_id.i));
@@ -619,19 +639,21 @@ void funcDeclCheck(DN dn)
 	//ty_print_typetag(ty_query(stdr->u.decl.type));
 
 	if(ty_query(stdr->u.decl.type) != TYFUNC)
-		{ error("Id not a function");  bug("error not a function");}
-	error("Null dn %s", id);
+		{ error("Id not a function");  
+		//bug("error not a function");
+		}
+	//error("A dn %s", id);
 	if(stdr)
 	{		// need to check if it is a function?!
 		if(stdr->tag == GDECL)
 		{
-			error("Is GDECL switch to FDECL");
+			//error("Is GDECL switch to FDECL");
 			stdr->tag = FDECL;
 		}
-		else if(stdr->tag == FDECL)
+		else if(stdr->tag == FDECL && !result)
 			error("duplicate or incompatible function declaration '%s'", id);
 		else
-			error("Wrong type(not a function ID)");
+			;//error("Wrong type(not a function ID)");
 		//stdr->u.decl.type = type;
 	}
 	else
