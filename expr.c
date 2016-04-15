@@ -6,7 +6,9 @@ EN createConstantIntExpression(const int val)
 {
 	msg("Creating const int expr: %d", val);
 
-	EN expression = malloc(sizeof(EN));
+	msg("sizeof EN and EXPR_NODE: %d | %d", sizeof(EN), sizeof(EXPR_NODE));
+
+	EN expression = (EN) malloc(sizeof(EXPR_NODE));
 
 	expression->tag = TAG_CONST_INTEGER;
 	expression->u.valInt = val;
@@ -18,7 +20,7 @@ EN createConstantDoubleExpression(const double val)
 {
 	msg("Creating const double expr: %f", val);
 
-	EN expression = malloc(sizeof(EN));
+	EN expression = (EN) malloc(sizeof(EXPR_NODE));
 
 	expression->tag = TAG_CONST_DOUBLE;
 	expression->u.valDouble = val;
@@ -30,7 +32,7 @@ EN createVariableExpression(ST_ID varStID)
 {
 	msg("Creating variable expr");
 
-	EN expression = malloc(sizeof(EN));
+	EN expression = (EN) malloc(sizeof(EXPR_NODE));
 
 	expression->tag = TAG_VARIABLE;
 	expression->u.varStID = varStID;
@@ -42,7 +44,7 @@ EN createFunctionExpression(ST_ID funStID, PARAM_LIST pl)
 {
 	msg("Creating function expr");
 
-	EN expression = malloc(sizeof(EN));
+	EN expression = (EN) malloc(sizeof(EXPR_NODE));
 
 	expression->tag = TAG_FUNCTION;
 	expression->u.func.id = funStID;
@@ -55,7 +57,7 @@ EN createUnaryExpression(OP_UNARY op, EN operand, BOOLEAN prefix)
 {
 	msg("Creating unary expr");
 
-	EN expression = malloc(sizeof(EN));
+	EN expression = (EN) malloc(sizeof(EXPR_NODE));
 
 	expression->tag = TAG_UNARY;
 	expression->u.unop.op = op;
@@ -71,7 +73,7 @@ EN createBinaryExpression(OP_BINARY op, EN left, EN right)
 {
 	msg("Creating binary expr OP_BINARY: %d", op);
 
-	EN expression = malloc(sizeof(EN));
+	EN expression = (EN) malloc(sizeof(EXPR_NODE));
 
 	expression->tag = TAG_BINARY;
 	expression->u.binop.op = op;
