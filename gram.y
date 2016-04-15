@@ -23,7 +23,7 @@
 	BUCKET_PTR buildBucket(BUCKET_PTR bucketPtr, TYPE_SPECIFIER typeSpec);
 	
 	// Added for Proj 2
-	void funcDeclCheck(DN dn);
+	BOOLEAN funcDeclCheck(DN dn);
 	BOOLEAN st_IDCheck(ST_ID stid);
 	//
 %}
@@ -93,7 +93,7 @@ primary_expr
 postfix_expr
 	: primary_expr
 	| postfix_expr '[' expr ']'
-	| postfix_expr '(' argument_expr_list_opt ')' { /*function calls PROJ 2*/; }
+	| postfix_expr '(' argument_expr_list_opt ')' /*function calls PROJ 2*/
 	| postfix_expr '.' identifier 
 	| postfix_expr PTR_OP identifier
 	| postfix_expr INC_OP // PROJ 2
@@ -548,50 +548,67 @@ external_declaration
 
 function_definition
 	: declarator  
-	{ 
-		// Get the name of the function, declarator is a Declarator Node $<y_DN>1
+		{ 
+			// Get the name of the function, declarator is a Declarator Node $<y_DN>1
 		char *f = st_get_id_str(getSTID($<y_DN>1));
-		//fprintf(stderr, "inside function_definition w {} %s\n", f);
-		// send in node to check stuff
-		funcDeclCheck($<y_DN>1);
-		// Prologue into function and enter block (Back_end and Symbol Table stuff)
-		b_func_prologue (f); 
-		st_enter_block();
+			// send in node to check stuff
+		BOOLEAN result = funcDeclCheck($<y_DN>1);
+			// Prologue into function and enter block (Back_end and Symbol Table stuff)
+		if(result)
+			{
+				b_func_prologue (f); 
+				st_enter_block();
+			}
+		$<y_ref>$ = result;
 		}
 		compound_statement 
 		{ 
 			char *f = st_get_id_str(getSTID($<y_DN>1));
 // Actions for Compound_statement here! then exit block and epilogue function
-			//fprintf(stderr, "inside function_definition w {}\n");
-			st_exit_block();
-			b_func_epilogue (f);
-	}
+			if($<y_ref>2)
+			{
+				st_exit_block();
+				b_func_epilogue (f);
+			}
+//			printf("'$2 is %s'\n", $<y_string>2);
+		}
 	| declaration_specifiers declarator 
 	{ 
 // In case of intitial function declaration and definition this production is called
 		int b;
 		ST_ID stid = getSTID($<y_DN>2);
-		char * id = st_get_id_str(stid);
-		BOOLEAN result = FALSE;
+		char *f = st_get_id_str(stid);
 		ST_DR stdr;
+		BOOLEAN result = FALSE;
+		TYPE baseType = build_base($<y_bucketPtr>1);
 		stdr = st_lookup(stid, &b);
 		if(!stdr)
 		{
-		TYPE baseType = build_base($<y_bucketPtr>1);
-		TYPE derivedType = building_derived_type_and_install_st($<y_DN>2, baseType);
-		GLD($<y_DN>2, baseType, derivedType, installSuccessful);
+			TYPE derivedType = building_derived_type_and_install_st($<y_DN>2, baseType);
+			GLD($<y_DN>2, baseType, derivedType, installSuccessful);
+			result = funcDeclCheck($<y_DN>2);
 		}
-		funcDeclCheck($<y_DN>2);
-		char *f = st_get_id_str(getSTID($<y_DN>2));
-		b_func_prologue (f); 
-		st_enter_block();
+		else if(stdr->u.decl.type == build_base($<y_bucketPtr>1))
+		{
+			result = funcDeclCheck($<y_DN>2);
+		}
+		else
+			error("duplicate or incompatible function declaration '%s'", f);
+		if(result)
+			{
+				b_func_prologue (f); 
+				st_enter_block();
+			}
+		$<y_ref>$ = result;
 	} 
 	compound_statement {
-		//fprintf(stderr, "inside function_definition w {}\n");
 // Actions for Compound_statement here! then exit block and epilogue function
 		char *f = st_get_id_str(getSTID($<y_DN>2));
-			st_exit_block();
-			b_func_epilogue (f);
+			if($<y_ref>3)
+			{
+				st_exit_block();
+				b_func_epilogue (f);
+			}
 	}
 	;
 
@@ -611,11 +628,12 @@ identifier
 extern int column;
 // PROJ 2
 // Used as intermediate action in function_definition production
-void funcDeclCheck(DN dn)
+BOOLEAN funcDeclCheck(DN dn)
 {
 	int b;
 	ST_ID stid = getSTID(dn);
 	char * id = st_get_id_str(stid);
+	//error("Function %s\n", id);
 	BOOLEAN result = FALSE;
 
 	ST_DR stdr;
@@ -624,40 +642,50 @@ void funcDeclCheck(DN dn)
 	if(stdr == NULL)			
 	{
 		stdr = stdr_alloc(); // Allocate space for the symtab data record
-				stdr->tag = FDECL;
+		stdr->tag = FDECL;
 				//stdr->u.decl.type = ty_build_basic(TYSIGNEDINT);
-				stdr->u.decl.type = ty_build_func(ty_build_basic(TYSIGNEDINT), PROTOTYPE, NULL);
-				stdr->u.decl.sc = NO_SC;
-				stdr->u.decl.err = FALSE;
+		stdr->u.decl.type = ty_build_func(ty_build_basic(TYSIGNEDINT), PROTOTYPE, NULL);
+		stdr->u.decl.sc = NO_SC;
+		stdr->u.decl.err = FALSE;
 				
-				result = st_install(stid,stdr);
-				if (!result) {
-					error("duplicate declaration for %s", st_get_id_str(dn->u.st_id.i));
-					error("duplicate definition of '%s'", st_get_id_str(dn->u.st_id.i));
-				}
+		result = st_install(stid,stdr);
+		if (!result) 
+		{
+			error("duplicate declaration for %s in Function Decl Check", st_get_id_str(dn->u.st_id.i));
+			error("duplicate definition of '%s' Function Decl Check", st_get_id_str(dn->u.st_id.i));
+			return FALSE;
+		}
+		return TRUE;
 	}
+// ELSE it is in the Symbol Table, check to make sure it is a Function first, if so check tags.
+	else
+	{
 	//ty_print_typetag(ty_query(stdr->u.decl.type));
 
-	if(ty_query(stdr->u.decl.type) != TYFUNC)
-		{ error("Id not a function");  
-		//bug("error not a function");
+		if(ty_query(stdr->u.decl.type) != TYFUNC)
+		{ error("duplicate or incompatible function declaration '%s' FuncDeclCheck not TYFUNC", id);  
+			return FALSE;		//bug("error not a function"); 
 		}
-	//error("A dn %s", id);
-	if(stdr)
-	{		// need to check if it is a function?!
-		if(stdr->tag == GDECL)
-		{
-			//error("Is GDECL switch to FDECL");
-			stdr->tag = FDECL;
-		}
-		else if(stdr->tag == FDECL && !result)
-			error("duplicate or incompatible function declaration '%s'", id);
 		else
-			;//error("Wrong type(not a function ID)");
-		//stdr->u.decl.type = type;
+		{
+			if(stdr->tag == GDECL)
+			{
+				//error("Is GDECL switch to FDECL");
+				stdr->tag = FDECL;
+				return TRUE;
+			}
+			else if(stdr->tag == FDECL && !result)
+			{
+				error("duplicate or incompatible function declaration '%s'", id);
+				return FALSE;
+			}
+			else
+			{	error("Wrong type(not a function ID)"); return FALSE; }
+			//stdr->u.decl.type = type;
+		}
 	}
-	else
-		error("not built, need to build?");
+	//else
+		error("How did we get here in FuncDeclCheck not built, need to build?");
 }
 
 // stID check, TRUE if it does exist in current block or global, or FALSE it does not exist
