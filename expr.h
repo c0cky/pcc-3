@@ -7,7 +7,7 @@
 #include "symtab.h"
 #include "message.h"
 
-// The Declarator's Derived Types Tags for each node in the tree
+// All the expression types we can have
 typedef enum 
 {
 	//All Expressions get typecasted to int or double
@@ -134,22 +134,35 @@ EN createBinaryExpression(OP_BINARY op, EN left, EN right);
 /***************** Create Functions ***************/
 
 /***************** Eval Expressions ***************/
+
+//Main Evaluation Function
 EN evaluateExpression(EN expr);
 
+//Helper Evaluating Functions
 int evalIntExpression(EN node);
 double evalDoubleExpression(EN node);
-ST_ID getIDFromVariableExpression(EN node);
+//Return an EN that holds the Integer or Double from the variable's value.
 EN evalVariableExpression(EN node);
 EN evalFunctionExpression(EN node);
 EN evalUnaryExpression(EN node);
 EN evalBinaryExpression(EN node);
+
+ST_ID getIDFromVariableExpression(EN node);
+
+//Returns the casted int from the integer or double part of the expression
+int getIntFromExpression(EN node);
+//Returns the casted double from the integer or double part of the expression
+double getDoubleFromExpression(EN node);
 /***************** Eval Expressions ***************/
 
-//Helper Functions
+
+//Returns true if this expression is a constant integer expression
 BOOLEAN isIntExpression(EN node);
 
+//Returns true if this expression is a constant double expression
 BOOLEAN isDoubleExpression(EN node);
 
+//Returns true if this expression is a variable expression
 BOOLEAN isVariableExpression(EN node);
 
 void printExpression(EN node);

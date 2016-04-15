@@ -69,7 +69,7 @@ EN createUnaryExpression(OP_UNARY op, EN operand, BOOLEAN prefix)
 
 EN createBinaryExpression(OP_BINARY op, EN left, EN right)
 {
-	msg("Creating binary expr");
+	msg("Creating binary expr OP_BINARY: %d", op);
 
 	EN expression = malloc(sizeof(EN));
 
@@ -158,7 +158,7 @@ EN evalUnaryExpression(EN node)
 			break;
 
 		case UNARY_PLUS:		//+3
-			returnedNode = evaluateExpression(node);
+			returnedNode = evaluateExpression(node->u.unop.operand);
 			break;
 
 		case UNARY_MINUS:		//-1
@@ -188,6 +188,18 @@ EN evalUnaryExpression(EN node)
 			break;
 		
 		case UNARY_NOT:			//!true
+			expr = evaluateExpression(node->u.unop.operand);
+			if(isIntExpression(expr) == TRUE)
+			{
+				if(getIntFromExpression(expr) == 0) //!false == true
+					expr->u.valInt = TRUE;	
+				else								//!true == false
+					expr->u.valInt = FALSE;
+			}
+			else
+			{
+				error("Cannot Perform !(expr) becuase of invalid type");
+			}
 			break;
 
 		case UNARY_TILDE:		//~ bitwise not
@@ -215,15 +227,358 @@ EN evalUnaryExpression(EN node)
 
 EN evalBinaryExpression(EN node)
 {
+	EN evaluated = NULL;
+	EN evalLeft = NULL;
+	EN evalRight = NULL;
+
 	switch(node->u.binop.op)
 	{
+		case BINARY_ASSIGNMENT:  // a = EXPR
+		//TODO: Complete the rest of the logic
+		//Set the left operand to be the evlauted expression of the right operand
+
+
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
+			
+			//Lookup left operand: node->u.binop.leftOperand..
+			//set that value to be == the evalRight...
+
+			printExpression(evalRight);
+			evaluated = evalRight;
+			break;
+
+		case BINARY_MULT: 	// a * b
+
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
+			{
+				//Make evaluated be Double Expression After Multiplying.
+				evalLeft->u.valDouble = getDoubleFromExpression(evalLeft) 
+											* getDoubleFromExpression(evalRight);
+				evalLeft->tag = TAG_CONST_DOUBLE;
+				evaluated = evalLeft;
+
+			}
+			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
+			{
+				//Make evaluated be Integer Expression after Multiplying.
+				evalLeft->u.valInt = getIntFromExpression(evalLeft)
+											* getIntFromExpression(evalRight);
+				evaluated = evalLeft;
+			}
+			else
+			{
+				error("Cannot multiply these two expressions");
+			}
+				
+
+			break;
+
+		case BINARY_DIV:		// a / 
+
+
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+			msg("%d, %d Doubles?", isDoubleExpression(evalLeft), isDoubleExpression(evalRight));
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
+			{
+				// msg("%f, %f vals?", evalLeft->u.valInt, evalRight->u.valDouble);
+				msg("%f, %f vals?", getDoubleFromExpression(evalLeft), getDoubleFromExpression(evalRight));
+				//Make evaluated be Double Expression After Multiplying.
+				evalLeft->u.valDouble = getDoubleFromExpression(evalLeft) 
+											/ getDoubleFromExpression(evalRight);
+				evalLeft->tag = TAG_CONST_DOUBLE;
+				evaluated = evalLeft;
+
+			}
+			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
+			{
+				//Make evaluated be Integer Expression after Multiplying.
+				evalLeft->u.valInt = getIntFromExpression(evalLeft)
+											/ getIntFromExpression(evalRight);
+				evaluated = evalLeft;
+			}
+			else
+			{
+				error("Cannot divide these two expressions");
+			}
+			break;
+
+		case BINARY_MOD:		// a % b
+
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+
+			if(isIntExpression(evalLeft) && isIntExpression(evalRight))
+			{
+				//Make evaluated be Integer Expression after Modulo Operator.
+			}
+			else
+			{
+				error("Cannot mod these two expressions");
+			}
+
+			break;
+
+		case BINARY_ADD:		// a + b
+			
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
+			{
+				//Make evaluated be Double Expression After Multiplying.
+				evalLeft->u.valDouble = getDoubleFromExpression(evalLeft) 
+											+ getDoubleFromExpression(evalRight);
+				evalLeft->tag = TAG_CONST_DOUBLE;
+				evaluated = evalLeft;
+
+			}
+			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
+			{
+				//Make evaluated be Integer Expression after Multiplying.
+				evalLeft->u.valInt = getIntFromExpression(evalLeft)
+											+ getIntFromExpression(evalRight);
+				evaluated = evalLeft;
+			}
+			else
+			{
+				error("Cannot add these two expressions");
+			}
+
+			break;
+
+		case BINARY_SUB:		// a - b
+
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
+			{
+				//Make evaluated be Double Expression After Multiplying.
+				evalLeft->u.valDouble = getDoubleFromExpression(evalLeft) 
+											- getDoubleFromExpression(evalRight);
+				evalLeft->tag = TAG_CONST_DOUBLE;
+				evaluated = evalLeft;
+
+			}
+			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
+			{
+				//Make evaluated be Integer Expression after Multiplying.
+				evalLeft->u.valInt = getIntFromExpression(evalLeft)
+											- getIntFromExpression(evalRight);
+				evaluated = evalLeft;
+			}
+			else
+			{
+				error("Cannot sub these two expressions");
+			}
+
+			break;
+
+		case BINARY_SHIFTL:	// a << b
+		case BINARY_SHIFTR:	// a >> b
+			break;
+
+		//Boolean Comparators
+		case BINARY_LT:		// a < b
+			
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+			//Make evaluated be int Expression After comparing
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
+			{
+				evalLeft->u.valInt = getDoubleFromExpression(evalLeft) 
+											< getDoubleFromExpression(evalRight);
+				evalLeft->tag = TAG_CONST_INTEGER;
+				evaluated = evalLeft;
+
+			}
+			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
+			{
+				evalLeft->u.valInt = getIntFromExpression(evalLeft)
+											< getIntFromExpression(evalRight);
+				evaluated = evalLeft;
+			}
+			else
+			{
+				error("Cannot compare '<' with these two expressions");
+			}
+			break;
+
+		case BINARY_GRT:		// a > b
+
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+			//Make evaluated be int Expression After comparing
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
+			{
+				evalLeft->u.valInt = getDoubleFromExpression(evalLeft) 
+											> getDoubleFromExpression(evalRight);
+				evalLeft->tag = TAG_CONST_INTEGER;
+				evaluated = evalLeft;
+
+			}
+			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
+			{
+				evalLeft->u.valInt = getIntFromExpression(evalLeft)
+											> getIntFromExpression(evalRight);
+				evaluated = evalLeft;
+			}
+			else
+			{
+				error("Cannot compare '>' with these two expressions");
+			}
+			break;
+
+		case BINARY_LTE:		// a <= b
+
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+			//Make evaluated be int Expression After comparing
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
+			{
+				evalLeft->u.valInt = getDoubleFromExpression(evalLeft) 
+											<= getDoubleFromExpression(evalRight);
+				evalLeft->tag = TAG_CONST_INTEGER;
+				evaluated = evalLeft;
+
+			}
+			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
+			{
+				evalLeft->u.valInt = getIntFromExpression(evalLeft)
+											<= getIntFromExpression(evalRight);
+				evaluated = evalLeft;
+			}
+			else
+			{
+				error("Cannot compare '<=' with these two expressions");
+			}
+			break;
+
+		case BINARY_GRTE: 	// a >= b
+
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+			//Make evaluated be int Expression After comparing
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
+			{
+				evalLeft->u.valInt = getDoubleFromExpression(evalLeft) 
+											>= getDoubleFromExpression(evalRight);
+				evalLeft->tag = TAG_CONST_INTEGER;
+				evaluated = evalLeft;
+
+			}
+			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
+			{
+				evalLeft->u.valInt = getIntFromExpression(evalLeft)
+											>= getIntFromExpression(evalRight);
+				evaluated = evalLeft;
+			}
+			else
+			{
+				error("Cannot compare '>=' with these two expressions");
+			}
+			break;
+
+		case BINARY_EQUALS:	// a == b
+
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+			//Make evaluated be int Expression After comparing
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
+			{
+				evalLeft->u.valInt = getDoubleFromExpression(evalLeft) 
+											== getDoubleFromExpression(evalRight);
+				evalLeft->tag = TAG_CONST_INTEGER;
+				evaluated = evalLeft;
+
+			}
+			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
+			{
+				evalLeft->u.valInt = getIntFromExpression(evalLeft)
+											== getIntFromExpression(evalRight);
+				evaluated = evalLeft;
+			}
+			else
+			{
+				error("Cannot compare '==' with these two expressions");
+			}
+			break;
+
+		case BINARY_NE:		// a != b
+
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+			//Make evaluated be int Expression After comparing
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
+			{
+				evalLeft->u.valInt = getDoubleFromExpression(evalLeft) 
+											!= getDoubleFromExpression(evalRight);
+				evalLeft->tag = TAG_CONST_INTEGER;
+				evaluated = evalLeft;
+
+			}
+			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
+			{
+				evalLeft->u.valInt = getIntFromExpression(evalLeft)
+											!= getIntFromExpression(evalRight);
+				evaluated = evalLeft;
+			}
+			else
+			{
+				error("Cannot compare '!=' with these two expressions");
+			}
+			break;
+
+		case BINARY_AND:		// a && b
+		case BINARY_OR:		// a || b
+		case BINARY_TERNARY:	// a ? a1 : a2, Technically not a binary op, will we use?
+			break;
+		//End Boolean Comparators
+
+		case BINARY_XAND:	// a & b
+		case BINARY_XOR:		// a | b
+		case BINARY_XNOT:		// a ^ b
+			break;
+
 		default:
-			bug("Where the binary operator in the expression?");
+			bug("Where's the binary operator tag in the expression?");
 
 	}
 
-	return NULL;
+	return evaluated;
 }
+
+int getIntFromExpression(EN node)
+{
+	if(isIntExpression(node))
+		return node->u.valInt;
+	else
+		return (int) node->u.valDouble;
+}
+
+double getDoubleFromExpression(EN node)
+{
+	if(isIntExpression(node))
+		return (double) node->u.valInt;
+	else
+		return node->u.valDouble;
+}
+
 
 ST_ID getIDFromVariableExpression(EN node)
 {
