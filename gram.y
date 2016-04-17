@@ -63,8 +63,9 @@
   *******************************/
 
 primary_expr
-	: identifier 
+	: identifier { msg("primary_expr 1"); }
 	| INT_CONSTANT { 
+		msg("primary_expr 2");
 		//msg("INT_CONSTANT is %d", $<y_int>1);
 		
 		EN node = createConstantIntExpression($<y_int>1);
@@ -75,6 +76,7 @@ primary_expr
 		// $<y_int>$ = $<y_int>1;
 	}
 	| DOUBLE_CONSTANT {
+		msg("primary_expr 3");
 		// msg("DOUBLE CONSTANT is %f", $<y_double>$1);
 		
 		EN node = createConstantDoubleExpression($<y_double>1);
@@ -85,23 +87,23 @@ primary_expr
 		// $<y_double>$ = $<y_double>1;
 	}
 	| STRING_LITERAL {
+		msg("primary_expr 4");
 		// msg("STRING LITERAL is %s", $<y_string>$1);
-
-		$<y_string>$ = $<y_string>1;
 	}
 	| '(' expr ')' {
+		msg("primary_expr 5");
 		$<y_EN>$ = $<y_EN>2;
 	}
 	;
 
 postfix_expr
-	: primary_expr
-	| postfix_expr '[' expr ']'
-	| postfix_expr '(' argument_expr_list_opt ')'
-	| postfix_expr '.' identifier
-	| postfix_expr PTR_OP identifier
-	| postfix_expr INC_OP
-	| postfix_expr DEC_OP
+	: primary_expr { msg("postfix_expr 1"); }
+	| postfix_expr '[' expr ']' { msg("postfix_expr 2"); }
+	| postfix_expr '(' argument_expr_list_opt ')' { msg("postfix_expr 3"); }
+	| postfix_expr '.' identifier { msg("postfix_expr 4"); }
+	| postfix_expr PTR_OP identifier { msg("postfix_expr 5"); }
+	| postfix_expr INC_OP { msg("postfix_expr 6"); }
+	| postfix_expr DEC_OP { msg("postfix_expr 7"); }
 	;
 
 argument_expr_list_opt
@@ -115,14 +117,15 @@ argument_expr_list
 	;
 
 unary_expr
-	: postfix_expr 
-	| INC_OP unary_expr
-	| DEC_OP unary_expr
+	: postfix_expr { msg("unary_expr 1"); }
+	| INC_OP unary_expr { msg("unary_expr 2"); }
+	| DEC_OP unary_expr { msg("unary_expr 3"); }
 	| unary_operator cast_expr {
+		msg("unary_expr 4"); 
 		$<y_EN>$ = createUnaryExpression($<y_unop>1, $<y_EN>2, TRUE);
 	}
-	| SIZEOF unary_expr
-	| SIZEOF '(' type_name ')'
+	| SIZEOF unary_expr { msg("unary_expr 5"); }
+	| SIZEOF '(' type_name ')' { msg("unary_expr 6"); }
 	;
 
 unary_operator
@@ -263,10 +266,22 @@ conditional_expr
 	;
 
 assignment_expr
-	: conditional_expr { $<y_EN>$ = evaluateExpression($<y_EN>1); 
-						 printExpression($<y_EN>$);
+	: conditional_expr { 
+		msg("assignment_expr expr 1");
+		$<y_EN>$ = evaluateExpression($<y_EN>1); 
+		printExpression($<y_EN>$);
 					   }
-	| unary_expr assignment_operator assignment_expr 
+	| unary_expr assignment_operator assignment_expr {
+		// Note: for x=5, unary_expr is $<y_DN>1, operator is '=', and assignment_expr should be a $<y_EN>3.
+		// Convert $<y_DN>1 to $<y_EN>1 ?
+
+
+		// Do a symbol table lookup to ensure x has already been defined
+		char* s = st_get_id_str($<y_DN>1->u.st_id.i);
+
+		//st_lookup_id(st_get_id_str($<y_DN>1
+		msg("Found assignment_expr 2. variable is %s",s);
+	}
 	;
 
 assignment_operator
@@ -275,8 +290,8 @@ assignment_operator
 	;
 
 expr
-	: assignment_expr
-	| expr ',' assignment_expr
+	: assignment_expr {msg("found expr 1");}
+	| expr ',' assignment_expr {msg("found expr 2");}
 	;
 
 constant_expr
@@ -304,21 +319,26 @@ declaration_specifiers
 	: storage_class_specifier
 	| storage_class_specifier declaration_specifiers
 	| type_specifier { 
+		
 		$<y_bucketPtr>$ = buildBucket(NULL, $<y_typeSpec>1);
 	}
 	| type_specifier declaration_specifiers { 
+		
 		$<y_bucketPtr>$ = buildBucket($<y_bucketPtr>2, $<y_typeSpec>1);
 	}
 	| type_qualifier {
+		
 		$<y_bucketPtr>$ = buildBucket(NULL, $<y_typeSpec>1);
 	}
 	| type_qualifier declaration_specifiers {
+		
 		$<y_bucketPtr>$ = buildBucket($<y_bucketPtr>2, $<y_typeSpec>1);
 	}
 	;
 
 init_declarator_list
 	: init_declarator { 
+		
 		//msg("In init_declarator");
 		// print_tree($<y_DN>1);
 
@@ -327,6 +347,7 @@ init_declarator_list
 		GLD($<y_DN>1, baseType, derivedType, installSuccessful);
 	}
 	| init_declarator_list ',' init_declarator {
+		
 		//msg("In init_declarator");
 		// building_derived_type_and_install_st($<y_DN>3, build_base($<y_bucketPtr>0));
 		TYPE baseType = build_base($<y_bucketPtr>0);
@@ -337,7 +358,9 @@ init_declarator_list
 
 init_declarator
 	: declarator 
-	| declarator '=' initializer
+	| declarator '=' initializer {
+		msg("here1");
+	}
 	;
 
 storage_class_specifier	
@@ -415,7 +438,9 @@ enumerator_list
 
 enumerator
 	: identifier
-	| identifier '=' constant_expr
+	| identifier '=' constant_expr {
+		msg("here2");
+	}
 	;
 
 type_qualifier
@@ -430,6 +455,7 @@ type_qualifier
 declarator
 	: direct_declarator
 	| pointer declarator {
+		
 		//if($<y_ref>1 == TRUE)
 			//msg("Reference passed");
 		//else;
@@ -543,12 +569,12 @@ initializer_list
   *******************************/
 
 statement
-	: labeled_statement
-	| compound_statement
-	| expression_statement
-	| selection_statement
-	| iteration_statement
-	| jump_statement
+	: labeled_statement {msg("found statement 6");}
+	| { st_enter_block(); } compound_statement {msg("found statement 1"); st_exit_block();}
+	| expression_statement {msg("found statement 2");}
+	| selection_statement {msg("found statement 3");}
+	| iteration_statement {msg("found statement 4");}
+	| jump_statement {msg("found statement 5");}
 	;
 
 labeled_statement
@@ -559,9 +585,9 @@ labeled_statement
 
 compound_statement
 	: '{' '}'
-	| '{' statement_list '}'
-	| '{' declaration_list '}'
-	| '{' declaration_list statement_list '}'
+	| '{' statement_list '}' {msg("found compound_statement 1");}
+	| '{' declaration_list '}' {msg("found compound_statement 2");}
+	| '{' declaration_list statement_list '}' {msg("found compound_statement 3");}
 	;
 
 declaration_list
@@ -570,12 +596,14 @@ declaration_list
 	;
 
 statement_list
-	: statement
-	| statement_list statement
+	: statement { msg("found statement_list 1");}
+	| statement_list statement { msg("found statement_list 2");}
 	;
 
 expression_statement
-	: expr_opt ';'
+	: expr_opt ';' {
+		msg("expr_opt ';'");
+	}
 	;
 
 selection_statement
@@ -626,10 +654,25 @@ function_definition
 
 identifier
 	: IDENTIFIER { 
-		//msg("Found ID; Enrolling %s",$<y_string>1); 
+
 		
-		ST_ID varName = st_enter_id($<y_string>1);
-		$<y_DN>$ = makeIdNode(varName);
+		
+		// Do a symbol table lookup to see if identifier has already been defined
+		ST_ID s = st_lookup_id($<y_string>1);
+		if (s != NULL) {
+			// identifier has already been defined in symtab.
+			// Thus simply return a constant expr node
+			msg("Found INDENTIFIER; %s already exists in symtab!", $<y_string>1);
+			$<y_EN>$ = createVariableExpression(s);
+		} 
+		else {
+			msg("Found IDENTIFIER; Enrolling %s",$<y_string>1); 
+			ST_ID varName = st_enter_id($<y_string>1);
+			$<y_DN>$ = makeIdNode(varName);
+		}
+		
+
+
 	}
 	;
 %%
@@ -752,6 +795,7 @@ int yyerror(char *s)
 BUCKET_PTR buildBucket(BUCKET_PTR bucketPtr, TYPE_SPECIFIER typeSpec) {
 	BUCKET_PTR updatedBucket = update_bucket(bucketPtr, typeSpec, NULL);
 	if (is_error_decl(updatedBucket)) {
+
 		//error("Semantic error");
 	}
 

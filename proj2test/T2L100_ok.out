@@ -1,0 +1,6 @@
+print_g: ga = 34; gb = 6.000000; gc = 12.000000; gd = 84; ge = 'T' (84)
+print_p: a = 34; b = 220.000000; c = 12.000000; d = 84; e = 'T' (84)
+print_p: a = 34; b = 232.000000; c = 220.000000; d = 84; e = '' (1)
+print_g: ga = 34; gb = 6.000000; gc = 12.000000; gd = 84; ge = 'T' (84)
+print_g: ga = 84; gb = 12.000000; gc = 6.000000; gd = 34; ge = 'Z' (90)
+this is a debugging message

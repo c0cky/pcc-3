@@ -1,0 +1,12 @@
+line 35: ERROR -- duplicate parameter declaration for `a'
+line 37: ERROR -- `a' is undefined
+line 38: ERROR -- `b' is undefined
+line 44: ERROR -- `b' is undefined
+line 44: ERROR -- `b' is undefined
+line 44: ERROR -- `a' is undefined
+line 46: ERROR -- `a' is undefined
+line 46: ERROR -- `b' is undefined
+line 47: ERROR -- `a' is undefined
+line 47: ERROR -- `b' is undefined
+line 50: ERROR -- duplicate parameter declaration for `b'
+line 50: ERROR -- duplicate parameter declaration for `c'

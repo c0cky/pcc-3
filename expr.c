@@ -86,7 +86,8 @@ EN createBinaryExpression(OP_BINARY op, EN left, EN right)
 EN evaluateExpression(EN expr)
 {
 	//Expr should never be null.
-
+	msg("in eval expression");
+	//printExpression(expr);
 	switch(expr->tag)
 	{
 		case TAG_CONST_INTEGER:
@@ -126,14 +127,18 @@ double evalDoubleExpression(EN node)
 
 EN evalVariableExpression(EN node)
 {
+//TODO:
+
 	//Returns the char* of the id
 	char* identifier = st_get_id_str(node->u.varStID);
 	msg("Evaluating Variable: %s", identifier);
 
 	//TODO:
-	// int block;
-	// ST_DR dR = st_lookup(node->u.varStID, &block);
-
+	int block;
+	ST_DR dR = st_lookup(node->u.varStID, &block);
+	//TYPE type = dr->type;
+	//typetag = ty_query(type);
+	msg("Value of %s from symtab is %d",identifier, dR->u.econst.val);
 
 
 }
@@ -148,20 +153,26 @@ EN evalUnaryExpression(EN node)
 	EN returnedNode = NULL;
 
 	EN expr = NULL;
-
+msg("here");
+	OP_UNARY z = node->u.unop.op;
 	switch(node->u.unop.op)
 	{
 		//TODO:
-		case UNARY_DEREF: 		//*ptr
+		case UNARY_DEREF: 		//*ptr; x; a etc.
+			//
+			msg("here1");
 			break;
 		case UNARY_REF:			//&identifier
+		msg("here2");
 			break;
 
 		case UNARY_PLUS:		//+3
+		msg("here3");
 			returnedNode = evaluateExpression(node->u.unop.operand);
 			break;
 
 		case UNARY_MINUS:		//-1
+		msg("here4");
 			expr = evaluateExpression(node->u.unop.operand);
 			if(isIntExpression(expr) == TRUE)
 			{
@@ -183,11 +194,14 @@ EN evalUnaryExpression(EN node)
 
 		//TODO:
 		case UNARY_INCREMENT:	//i++ or ++i
+		msg("here5");
 			break;
 		case UNARY_DECREMENT:	//i-- or --i
+		msg("here6");
 			break;
 		
 		case UNARY_NOT:			//!true
+		msg("here7");
 			expr = evaluateExpression(node->u.unop.operand);
 			if(isIntExpression(expr) == TRUE)
 			{
@@ -236,7 +250,7 @@ EN evalBinaryExpression(EN node)
 		case BINARY_ASSIGNMENT:  // a = EXPR
 		//TODO: Complete the rest of the logic
 		//Set the left operand to be the evlauted expression of the right operand
-
+msg("here*");
 
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			
