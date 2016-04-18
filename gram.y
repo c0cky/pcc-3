@@ -818,7 +818,7 @@ BOOLEAN funcDeclCheck(DN dn)
 				stdr->tag = FDECL;
 				return TRUE;
 			}
-			else if(stdr->tag == FDECL && !result)
+			else if(stdr->tag == FDECL) //TODO:?>???&& !result)
 			{
 				error("duplicate or incompatible function declaration '%s'", id);
 				return FALSE;
@@ -903,6 +903,7 @@ void globalDecl(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
 
 
 }
+
 void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
 {
 		if(!shouldDeclare)

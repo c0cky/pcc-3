@@ -1,2 +1,11 @@
 void p(int & b);
 
+int x;
+double y;
+double *(z[10]);
+
+
+int main()
+{
+  x = 1;
+}
