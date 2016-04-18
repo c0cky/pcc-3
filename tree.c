@@ -74,7 +74,7 @@ DN makeFnNode(DN dn, PARAM_LIST pl)
 
 // Function to Traverse the Declarator's Derived types list, INPUT Top Node of Derived Type Built as 
 // First Parameter and Input Type from type_specifiers built from bucket (ty_query) as Second Parameter.
-TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
+TYPE building_derived_type_and_install_st(DN dn, TYPE initialType, STDR_TAG stdr_tag)
 {
 	TYPE type = initialType;
 	//BOOLEAN val_array = TRUE;
@@ -110,7 +110,7 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 				//msg("Installing");
 				ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 
-				dr->tag = GDECL;
+				dr->tag = stdr_tag;
 				dr->u.decl.type = type;
 				dr->u.decl.sc = NO_SC;
 				dr->u.decl.err = FALSE;
@@ -121,11 +121,12 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 					error("duplicate declaration for %s", st_get_id_str(dn->u.st_id.i));
 					error("duplicate definition of '%s'", st_get_id_str(dn->u.st_id.i));
 				}
-				else
-				{
-					installSuccessful = TRUE;
+				result = st_tag_install(dn->u.st_id.i,dr);
+				if (!result) {
+					error("duplicate declaration for %s", st_get_id_str(dn->u.st_id.i));
+					error("duplicate definition of '%s'", st_get_id_str(dn->u.st_id.i));
 				}
-
+				
 				break;
 			default:
 				bug("where's the tag? \"stdr_dump\"");

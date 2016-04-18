@@ -174,7 +174,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 27 "gram.y" /* yacc.c:1909  */
+#line 29 "gram.y" /* yacc.c:1909  */
 
 	int	y_int;
 	double	y_double;

@@ -62,7 +62,7 @@ DN makePtrNode(DN dn, BOOLEAN is_ref);
 DN makeFnNode(DN dn, PARAM_LIST pl); 
 
 // Function to Traverse the Declarator's Derived types list, INPUT Top Node of Derived Type Built as First Parameter and Input Type from type_specifiers built from bucket (ty_query) as Second Parameter.
-TYPE building_derived_type_and_install_st(DN dn, TYPE initialType);
+TYPE building_derived_type_and_install_st(DN dn, TYPE initialType, STDR_TAG stdr_tag);
 
 // Build PArameter list, pass the DN, the bucket type, and parameter list, if first param, then NULL)
 // Builds the next parameter and returns it (if null, returns 1st parameter) previous node of all

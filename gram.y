@@ -18,6 +18,8 @@
     int yylex();
     int yyerror(char *s);
 
+    STDR_TAG currentScope = GDECL;
+
     int sizeOfType(TYPETAG type);
     void globalDecl(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
 	void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
@@ -41,6 +43,7 @@
 
 };
 
+
 %token IDENTIFIER INT_CONSTANT DOUBLE_CONSTANT STRING_LITERAL SIZEOF
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
@@ -63,10 +66,12 @@
   *******************************/
 
 primary_expr
-	: identifier { msg("primary_expr 1"); }
+	: identifier { 
+		//msg("primary_expr 1"); 
+	}
 	| INT_CONSTANT { 
-		msg("primary_expr 2");
-		//msg("INT_CONSTANT is %d", $<y_int>1);
+		//msg("primary_expr 2");
+		////msg("INT_CONSTANT is %d", $<y_int>1);
 		
 		EN node = createConstantIntExpression($<y_int>1);
 		$<y_EN>$ = node;
@@ -76,8 +81,8 @@ primary_expr
 		// $<y_int>$ = $<y_int>1;
 	}
 	| DOUBLE_CONSTANT {
-		msg("primary_expr 3");
-		// msg("DOUBLE CONSTANT is %f", $<y_double>$1);
+		//msg("primary_expr 3");
+		// //msg("DOUBLE CONSTANT is %f", $<y_double>$1);
 		
 		EN node = createConstantDoubleExpression($<y_double>1);
 		$<y_EN>$ = node;
@@ -87,23 +92,30 @@ primary_expr
 		// $<y_double>$ = $<y_double>1;
 	}
 	| STRING_LITERAL {
-		msg("primary_expr 4");
-		// msg("STRING LITERAL is %s", $<y_string>$1);
+		//msg("primary_expr 4");
+		// //msg("STRING LITERAL is %s", $<y_string>$1);
 	}
 	| '(' expr ')' {
-		msg("primary_expr 5");
+		//msg("primary_expr 5");
 		$<y_EN>$ = $<y_EN>2;
 	}
 	;
 
 postfix_expr
-	: primary_expr { msg("postfix_expr 1"); }
-	| postfix_expr '[' expr ']' { msg("postfix_expr 2"); }
-	| postfix_expr '(' argument_expr_list_opt ')' { msg("postfix_expr 3"); }
-	| postfix_expr '.' identifier { msg("postfix_expr 4"); }
-	| postfix_expr PTR_OP identifier { msg("postfix_expr 5"); }
-	| postfix_expr INC_OP { msg("postfix_expr 6"); }
-	| postfix_expr DEC_OP { msg("postfix_expr 7"); }
+	: primary_expr { //msg("postfix_expr 1"); 
+	}
+	| postfix_expr '[' expr ']' { //msg("postfix_expr 2"); 
+	}
+	| postfix_expr '(' argument_expr_list_opt ')' { //msg("postfix_expr 3"); 
+	}
+	| postfix_expr '.' identifier { //msg("postfix_expr 4"); 
+	}
+	| postfix_expr PTR_OP identifier { //msg("postfix_expr 5"); 
+	}
+	| postfix_expr INC_OP { //msg("postfix_expr 6"); 
+	}
+	| postfix_expr DEC_OP { //msg("postfix_expr 7"); 
+	}
 	;
 
 argument_expr_list_opt
@@ -117,15 +129,20 @@ argument_expr_list
 	;
 
 unary_expr
-	: postfix_expr { msg("unary_expr 1"); }
-	| INC_OP unary_expr { msg("unary_expr 2"); }
-	| DEC_OP unary_expr { msg("unary_expr 3"); }
+	: postfix_expr { //msg("unary_expr 1"); 
+	}
+	| INC_OP unary_expr { //msg("unary_expr 2"); 
+	}
+	| DEC_OP unary_expr { //msg("unary_expr 3"); 
+	}
 	| unary_operator cast_expr {
-		msg("unary_expr 4"); 
+		//msg("unary_expr 4"); 
 		$<y_EN>$ = createUnaryExpression($<y_unop>1, $<y_EN>2, TRUE);
 	}
-	| SIZEOF unary_expr { msg("unary_expr 5"); }
-	| SIZEOF '(' type_name ')' { msg("unary_expr 6"); }
+	| SIZEOF unary_expr { //msg("unary_expr 5"); 
+	}
+	| SIZEOF '(' type_name ')' { //msg("unary_expr 6"); 
+	}
 	;
 
 unary_operator
@@ -267,20 +284,20 @@ conditional_expr
 
 assignment_expr
 	: conditional_expr { 
-		msg("assignment_expr expr 1");
+		//msg("assignment_expr expr 1");
 		$<y_EN>$ = evaluateExpression($<y_EN>1); 
 		printExpression($<y_EN>$);
 					   }
 	| unary_expr assignment_operator assignment_expr {
-		// Note: for x=5, unary_expr is $<y_DN>1, operator is '=', and assignment_expr should be a $<y_EN>3.
-		// Convert $<y_DN>1 to $<y_EN>1 ?
+		ST_ID left_st_id = $<y_EN>1->u.varStID;
+		//msg("Found assignment_expr 2. unary_expr is %s assigment_expr is: %d", st_get_id_str(left_st_id), $<y_EN>3->u.valInt);
 
+		EN returnNode = $<y_EN>1;
+		returnNode->u.valInt = $<y_EN>3->u.valInt;
+		$<y_EN>$ = returnNode;
 
-		// Do a symbol table lookup to ensure x has already been defined
-		char* s = st_get_id_str($<y_DN>1->u.st_id.i);
-
-		//st_lookup_id(st_get_id_str($<y_DN>1
-		msg("Found assignment_expr 2. variable is %s",s);
+		TYPETAG typeTag = getTypeTagFromExpression($<y_EN>3);
+		b_assign(typeTag);
 	}
 	;
 
@@ -290,8 +307,10 @@ assignment_operator
 	;
 
 expr
-	: assignment_expr {msg("found expr 1");}
-	| expr ',' assignment_expr {msg("found expr 2");}
+	: assignment_expr {//msg("found expr 1");
+	}
+	| expr ',' assignment_expr {//msg("found expr 2");
+	}
 	;
 
 constant_expr
@@ -309,10 +328,7 @@ expr_opt
 
 declaration
 	: declaration_specifiers ';' { error("no declarator in declaration");}
-	| declaration_specifiers init_declarator_list ';' {
-		// Combine the type of declaration_specifiers (held in a bucket)
-		// with the type of init_declarator_list HERE!!!!!
-	}
+	| declaration_specifiers init_declarator_list ';' 
 	;
 
 declaration_specifiers
@@ -339,19 +355,19 @@ declaration_specifiers
 init_declarator_list
 	: init_declarator { 
 		
-		//msg("In init_declarator");
+		////msg("In init_declarator");
 		// print_tree($<y_DN>1);
 
 		TYPE baseType = build_base($<y_bucketPtr>0);
-		TYPE derivedType = building_derived_type_and_install_st($<y_DN>1, baseType);
+		TYPE derivedType = building_derived_type_and_install_st($<y_DN>1, baseType, currentScope);
 		GLD($<y_DN>1, baseType, derivedType, installSuccessful);
 	}
 	| init_declarator_list ',' init_declarator {
 		
-		//msg("In init_declarator");
+		////msg("In init_declarator");
 		// building_derived_type_and_install_st($<y_DN>3, build_base($<y_bucketPtr>0));
 		TYPE baseType = build_base($<y_bucketPtr>0);
-		TYPE derivedType = building_derived_type_and_install_st($<y_DN>3, baseType);
+		TYPE derivedType = building_derived_type_and_install_st($<y_DN>3, baseType, currentScope);
 		GLD($<y_DN>3, baseType, derivedType, installSuccessful);
 	}
 	;
@@ -359,7 +375,7 @@ init_declarator_list
 init_declarator
 	: declarator 
 	| declarator '=' initializer {
-		msg("here1");
+		//msg("here1");
 	}
 	;
 
@@ -409,7 +425,7 @@ specifier_qualifier_list
 
 specifier_qualifier_list_opt
 	: /* null derive */ {
-		//msg("Found *");
+		////msg("Found *");
 	}
 	| specifier_qualifier_list 
 	;
@@ -439,7 +455,7 @@ enumerator_list
 enumerator
 	: identifier
 	| identifier '=' constant_expr {
-		msg("here2");
+		//msg("here2");
 	}
 	;
 
@@ -457,9 +473,9 @@ declarator
 	| pointer declarator {
 		
 		//if($<y_ref>1 == TRUE)
-			//msg("Reference passed");
+			////msg("Reference passed");
 		//else;
-			//msg("Found 'pointer declarator'");
+			////msg("Found 'pointer declarator'");
 		$<y_DN>$ = makePtrNode($<y_DN>2, $<y_ref>1);
 		//}
 	}
@@ -468,7 +484,7 @@ declarator
 direct_declarator
 	: identifier
 	| '(' declarator ')' { 
-		//msg("Found ( declarator )");
+		////msg("Found ( declarator )");
 		$<y_DN>$ = $<y_DN>2;
 	}
 	| direct_declarator '[' ']'
@@ -569,12 +585,18 @@ initializer_list
   *******************************/
 
 statement
-	: labeled_statement {msg("found statement 6");}
-	| { st_enter_block(); } compound_statement {msg("found statement 1"); st_exit_block();}
-	| expression_statement {msg("found statement 2");}
-	| selection_statement {msg("found statement 3");}
-	| iteration_statement {msg("found statement 4");}
-	| jump_statement {msg("found statement 5");}
+	: labeled_statement {//msg("found statement 6");
+	}
+	| { st_enter_block(); } compound_statement {//msg("found statement 1"); currentScope = LDECL; st_exit_block();
+	}
+	| expression_statement {//msg("found statement 2");
+	}
+	| selection_statement {//msg("found statement 3");
+	}
+	| iteration_statement {//msg("found statement 4");
+	}
+	| jump_statement {//msg("found statement 5");
+	}
 	;
 
 labeled_statement
@@ -585,9 +607,12 @@ labeled_statement
 
 compound_statement
 	: '{' '}'
-	| '{' statement_list '}' {msg("found compound_statement 1");}
-	| '{' declaration_list '}' {msg("found compound_statement 2");}
-	| '{' declaration_list statement_list '}' {msg("found compound_statement 3");}
+	| '{' statement_list '}' {//msg("found compound_statement 1");
+	}
+	| '{' declaration_list '}' {//msg("found compound_statement 2");
+	}
+	| '{' declaration_list statement_list '}' {//msg("found compound_statement 3");
+	}
 	;
 
 declaration_list
@@ -596,13 +621,16 @@ declaration_list
 	;
 
 statement_list
-	: statement { msg("found statement_list 1");}
-	| statement_list statement { msg("found statement_list 2");}
+	: statement { //msg("found statement_list 1");
+	}
+	| statement_list statement { //msg("found statement_list 2");
+	}
 	;
 
 expression_statement
 	: expr_opt ';' {
-		msg("expr_opt ';'");
+		// TODO: emit assembly code, output value of expression
+		//msg("expr_opt ';' value is: %d", $<y_EN>1->u.valInt);
 	}
 	;
 
@@ -654,25 +682,23 @@ function_definition
 
 identifier
 	: IDENTIFIER { 
-
-		
-		
 		// Do a symbol table lookup to see if identifier has already been defined
-		ST_ID s = st_lookup_id($<y_string>1);
-		if (s != NULL) {
+		ST_ID st_id = st_lookup_id($<y_string>1);
+		if (st_id != NULL) {
 			// identifier has already been defined in symtab.
-			// Thus simply return a constant expr node
-			msg("Found INDENTIFIER; %s already exists in symtab!", $<y_string>1);
-			$<y_EN>$ = createVariableExpression(s);
+
+			int block;
+			ST_DR dr = st_lookup(st_id, &block);
+			int value = dr->u.econst.val;
+			//msg("Found INDENTIFIER; %s already exists in symtab with value %d !", $<y_string>1, value);
+
+			$<y_EN>$ = createVariableExpression(st_id);
 		} 
 		else {
-			msg("Found IDENTIFIER; Enrolling %s",$<y_string>1); 
+			//msg("Found IDENTIFIER; Enrolling %s",$<y_string>1); 
 			ST_ID varName = st_enter_id($<y_string>1);
 			$<y_DN>$ = makeIdNode(varName);
 		}
-		
-
-
 	}
 	;
 %%

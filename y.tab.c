@@ -77,12 +77,14 @@
     int yylex();
     int yyerror(char *s);
 
+    STDR_TAG currentScope = GDECL;
+
     int sizeOfType(TYPETAG type);
     void globalDecl(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
 	void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
 	BUCKET_PTR buildBucket(BUCKET_PTR bucketPtr, TYPE_SPECIFIER typeSpec);
 
-#line 86 "y.tab.c" /* yacc.c:339  */
+#line 88 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -246,7 +248,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 27 "gram.y" /* yacc.c:355  */
+#line 29 "gram.y" /* yacc.c:355  */
 
 	int	y_int;
 	double	y_double;
@@ -263,7 +265,7 @@ union YYSTYPE
 	EN y_EN;
 
 
-#line 267 "y.tab.c" /* yacc.c:355  */
+#line 269 "y.tab.c" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -278,7 +280,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 282 "y.tab.c" /* yacc.c:358  */
+#line 284 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -581,28 +583,28 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    66,    66,    67,    78,    89,    93,   100,   101,   102,
-     103,   104,   105,   106,   109,   111,   115,   116,   120,   121,
-     122,   123,   127,   128,   132,   134,   136,   138,   140,   142,
-     147,   148,   152,   153,   157,   161,   168,   169,   173,   180,
-     181,   185,   192,   193,   197,   201,   205,   212,   213,   217,
-     224,   225,   232,   233,   240,   241,   248,   249,   256,   257,
-     264,   265,   269,   274,   288,   288,   288,   288,   288,   288,
-     289,   289,   289,   289,   289,   293,   294,   298,   301,   303,
-     311,   312,   319,   320,   321,   325,   329,   333,   340,   349,
-     360,   361,   367,   367,   367,   367,   367,   371,   372,   373,
-     374,   375,   376,   377,   378,   379,   380,   381,   382,   386,
-     387,   388,   392,   393,   397,   398,   402,   406,   407,   411,
-     414,   418,   419,   423,   424,   425,   429,   430,   431,   435,
-     436,   440,   441,   447,   450,   456,   457,   469,   470,   474,
-     475,   478,   484,   487,   491,   493,   497,   498,   502,   506,
-     516,   520,   521,   525,   526,   530,   531,   535,   536,   537,
-     541,   542,   543,   544,   545,   546,   547,   548,   549,   553,
-     554,   557,   559,   563,   564,   572,   573,   573,   574,   575,
-     576,   577,   581,   582,   583,   587,   588,   589,   590,   594,
-     595,   599,   600,   604,   610,   611,   612,   616,   617,   618,
-     622,   623,   624,   625,   633,   634,   638,   639,   643,   646,
-     656
+       0,    69,    69,    72,    83,    94,    98,   105,   107,   109,
+     111,   113,   115,   117,   121,   123,   127,   128,   132,   134,
+     136,   138,   142,   144,   149,   151,   153,   155,   157,   159,
+     164,   165,   169,   170,   174,   178,   185,   186,   190,   197,
+     198,   202,   209,   210,   214,   218,   222,   229,   230,   234,
+     241,   242,   249,   250,   257,   258,   265,   266,   273,   274,
+     281,   282,   286,   291,   305,   305,   305,   305,   305,   305,
+     306,   306,   306,   306,   306,   310,   312,   317,   320,   322,
+     330,   331,   335,   336,   337,   341,   345,   349,   356,   365,
+     376,   377,   383,   383,   383,   383,   383,   387,   388,   389,
+     390,   391,   392,   393,   394,   395,   396,   397,   398,   402,
+     403,   404,   408,   409,   413,   414,   418,   422,   423,   427,
+     430,   434,   435,   439,   440,   441,   445,   446,   447,   451,
+     452,   456,   457,   463,   466,   472,   473,   485,   486,   490,
+     491,   494,   500,   503,   507,   509,   513,   514,   518,   522,
+     532,   536,   537,   541,   542,   546,   547,   551,   552,   553,
+     557,   558,   559,   560,   561,   562,   563,   564,   565,   569,
+     570,   573,   575,   579,   580,   588,   590,   590,   592,   594,
+     596,   598,   603,   604,   605,   609,   610,   612,   614,   619,
+     620,   624,   626,   631,   638,   639,   640,   644,   645,   646,
+     650,   651,   652,   653,   661,   662,   666,   667,   671,   674,
+     684
 };
 #endif
 
@@ -1798,16 +1800,18 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 66 "gram.y" /* yacc.c:1646  */
-    { msg("primary_expr 1"); }
-#line 1804 "y.tab.c" /* yacc.c:1646  */
+#line 69 "gram.y" /* yacc.c:1646  */
+    { 
+		//msg("primary_expr 1"); 
+	}
+#line 1808 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 67 "gram.y" /* yacc.c:1646  */
+#line 72 "gram.y" /* yacc.c:1646  */
     { 
-		msg("primary_expr 2");
-		//msg("INT_CONSTANT is %d", $<y_int>1);
+		//msg("primary_expr 2");
+		////msg("INT_CONSTANT is %d", $<y_int>1);
 		
 		EN node = createConstantIntExpression((yyvsp[0].y_int));
 		(yyval.y_EN) = node;
@@ -1816,14 +1820,14 @@ yyreduce:
 
 		// $<y_int>$ = $<y_int>1;
 	}
-#line 1820 "y.tab.c" /* yacc.c:1646  */
+#line 1824 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 78 "gram.y" /* yacc.c:1646  */
+#line 83 "gram.y" /* yacc.c:1646  */
     {
-		msg("primary_expr 3");
-		// msg("DOUBLE CONSTANT is %f", $<y_double>$1);
+		//msg("primary_expr 3");
+		// //msg("DOUBLE CONSTANT is %f", $<y_double>$1);
 		
 		EN node = createConstantDoubleExpression((yyvsp[0].y_double));
 		(yyval.y_EN) = node;
@@ -1832,607 +1836,612 @@ yyreduce:
 
 		// $<y_double>$ = $<y_double>1;
 	}
-#line 1836 "y.tab.c" /* yacc.c:1646  */
+#line 1840 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 89 "gram.y" /* yacc.c:1646  */
+#line 94 "gram.y" /* yacc.c:1646  */
     {
-		msg("primary_expr 4");
-		// msg("STRING LITERAL is %s", $<y_string>$1);
+		//msg("primary_expr 4");
+		// //msg("STRING LITERAL is %s", $<y_string>$1);
 	}
-#line 1845 "y.tab.c" /* yacc.c:1646  */
+#line 1849 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 93 "gram.y" /* yacc.c:1646  */
+#line 98 "gram.y" /* yacc.c:1646  */
     {
-		msg("primary_expr 5");
+		//msg("primary_expr 5");
 		(yyval.y_EN) = (yyvsp[-1].y_EN);
 	}
-#line 1854 "y.tab.c" /* yacc.c:1646  */
+#line 1858 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 100 "gram.y" /* yacc.c:1646  */
-    { msg("postfix_expr 1"); }
-#line 1860 "y.tab.c" /* yacc.c:1646  */
+#line 105 "gram.y" /* yacc.c:1646  */
+    { //msg("postfix_expr 1"); 
+	}
+#line 1865 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 101 "gram.y" /* yacc.c:1646  */
-    { msg("postfix_expr 2"); }
-#line 1866 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 9:
-#line 102 "gram.y" /* yacc.c:1646  */
-    { msg("postfix_expr 3"); }
+#line 107 "gram.y" /* yacc.c:1646  */
+    { //msg("postfix_expr 2"); 
+	}
 #line 1872 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 9:
+#line 109 "gram.y" /* yacc.c:1646  */
+    { //msg("postfix_expr 3"); 
+	}
+#line 1879 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 10:
-#line 103 "gram.y" /* yacc.c:1646  */
-    { msg("postfix_expr 4"); }
-#line 1878 "y.tab.c" /* yacc.c:1646  */
+#line 111 "gram.y" /* yacc.c:1646  */
+    { //msg("postfix_expr 4"); 
+	}
+#line 1886 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 104 "gram.y" /* yacc.c:1646  */
-    { msg("postfix_expr 5"); }
-#line 1884 "y.tab.c" /* yacc.c:1646  */
+#line 113 "gram.y" /* yacc.c:1646  */
+    { //msg("postfix_expr 5"); 
+	}
+#line 1893 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 105 "gram.y" /* yacc.c:1646  */
-    { msg("postfix_expr 6"); }
-#line 1890 "y.tab.c" /* yacc.c:1646  */
+#line 115 "gram.y" /* yacc.c:1646  */
+    { //msg("postfix_expr 6"); 
+	}
+#line 1900 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 106 "gram.y" /* yacc.c:1646  */
-    { msg("postfix_expr 7"); }
-#line 1896 "y.tab.c" /* yacc.c:1646  */
+#line 117 "gram.y" /* yacc.c:1646  */
+    { //msg("postfix_expr 7"); 
+	}
+#line 1907 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 120 "gram.y" /* yacc.c:1646  */
-    { msg("unary_expr 1"); }
-#line 1902 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 19:
-#line 121 "gram.y" /* yacc.c:1646  */
-    { msg("unary_expr 2"); }
-#line 1908 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 20:
-#line 122 "gram.y" /* yacc.c:1646  */
-    { msg("unary_expr 3"); }
+#line 132 "gram.y" /* yacc.c:1646  */
+    { //msg("unary_expr 1"); 
+	}
 #line 1914 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 19:
+#line 134 "gram.y" /* yacc.c:1646  */
+    { //msg("unary_expr 2"); 
+	}
+#line 1921 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 20:
+#line 136 "gram.y" /* yacc.c:1646  */
+    { //msg("unary_expr 3"); 
+	}
+#line 1928 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 21:
-#line 123 "gram.y" /* yacc.c:1646  */
+#line 138 "gram.y" /* yacc.c:1646  */
     {
-		msg("unary_expr 4"); 
+		//msg("unary_expr 4"); 
 		(yyval.y_EN) = createUnaryExpression((yyvsp[-1].y_unop), (yyvsp[0].y_EN), TRUE);
 	}
-#line 1923 "y.tab.c" /* yacc.c:1646  */
+#line 1937 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 127 "gram.y" /* yacc.c:1646  */
-    { msg("unary_expr 5"); }
-#line 1929 "y.tab.c" /* yacc.c:1646  */
+#line 142 "gram.y" /* yacc.c:1646  */
+    { //msg("unary_expr 5"); 
+	}
+#line 1944 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 128 "gram.y" /* yacc.c:1646  */
-    { msg("unary_expr 6"); }
-#line 1935 "y.tab.c" /* yacc.c:1646  */
+#line 144 "gram.y" /* yacc.c:1646  */
+    { //msg("unary_expr 6"); 
+	}
+#line 1951 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 132 "gram.y" /* yacc.c:1646  */
+#line 149 "gram.y" /* yacc.c:1646  */
     { (yyval.y_unop) = UNARY_REF; 
 	}
-#line 1942 "y.tab.c" /* yacc.c:1646  */
+#line 1958 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 134 "gram.y" /* yacc.c:1646  */
+#line 151 "gram.y" /* yacc.c:1646  */
     { (yyval.y_unop) = UNARY_DEREF; 
 	}
-#line 1949 "y.tab.c" /* yacc.c:1646  */
+#line 1965 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 136 "gram.y" /* yacc.c:1646  */
+#line 153 "gram.y" /* yacc.c:1646  */
     { (yyval.y_unop) = UNARY_PLUS; 
 	}
-#line 1956 "y.tab.c" /* yacc.c:1646  */
+#line 1972 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 138 "gram.y" /* yacc.c:1646  */
+#line 155 "gram.y" /* yacc.c:1646  */
     { (yyval.y_unop) = UNARY_MINUS; 
 	}
-#line 1963 "y.tab.c" /* yacc.c:1646  */
+#line 1979 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 140 "gram.y" /* yacc.c:1646  */
+#line 157 "gram.y" /* yacc.c:1646  */
     { (yyval.y_unop) = UNARY_TILDE; 
 	}
-#line 1970 "y.tab.c" /* yacc.c:1646  */
+#line 1986 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 142 "gram.y" /* yacc.c:1646  */
+#line 159 "gram.y" /* yacc.c:1646  */
     { (yyval.y_unop) = UNARY_NOT; 
-	}
-#line 1977 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 33:
-#line 154 "gram.y" /* yacc.c:1646  */
-    {
-		(yyval.y_EN) = createBinaryExpression(BINARY_MULT, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
-	}
-#line 1985 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 34:
-#line 158 "gram.y" /* yacc.c:1646  */
-    {
-		(yyval.y_EN) = createBinaryExpression(BINARY_DIV, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 1993 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 35:
-#line 162 "gram.y" /* yacc.c:1646  */
+  case 33:
+#line 171 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_MOD, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_MULT, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2001 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 37:
-#line 170 "gram.y" /* yacc.c:1646  */
+  case 34:
+#line 175 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_ADD, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_DIV, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2009 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 38:
-#line 174 "gram.y" /* yacc.c:1646  */
+  case 35:
+#line 179 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_SUB, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_MOD, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2017 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 40:
-#line 182 "gram.y" /* yacc.c:1646  */
+  case 37:
+#line 187 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_SHIFTL, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_ADD, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2025 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 41:
-#line 186 "gram.y" /* yacc.c:1646  */
+  case 38:
+#line 191 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_SHIFTR, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_SUB, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2033 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 43:
-#line 194 "gram.y" /* yacc.c:1646  */
+  case 40:
+#line 199 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_LT, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_SHIFTL, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2041 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 44:
-#line 198 "gram.y" /* yacc.c:1646  */
+  case 41:
+#line 203 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_GRT, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_SHIFTR, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2049 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 45:
-#line 202 "gram.y" /* yacc.c:1646  */
+  case 43:
+#line 211 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_LTE, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_LT, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2057 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 46:
-#line 206 "gram.y" /* yacc.c:1646  */
+  case 44:
+#line 215 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_GRTE, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_GRT, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2065 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 48:
-#line 214 "gram.y" /* yacc.c:1646  */
+  case 45:
+#line 219 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_EQUALS, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_LTE, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2073 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 49:
-#line 218 "gram.y" /* yacc.c:1646  */
+  case 46:
+#line 223 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_NE, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_GRTE, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2081 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 51:
-#line 226 "gram.y" /* yacc.c:1646  */
+  case 48:
+#line 231 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_XAND, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_EQUALS, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2089 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 53:
-#line 234 "gram.y" /* yacc.c:1646  */
+  case 49:
+#line 235 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_XNOT, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_NE, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2097 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 55:
-#line 242 "gram.y" /* yacc.c:1646  */
+  case 51:
+#line 243 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_XOR, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_XAND, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2105 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 57:
-#line 250 "gram.y" /* yacc.c:1646  */
+  case 53:
+#line 251 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_AND, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_XNOT, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2113 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 59:
-#line 258 "gram.y" /* yacc.c:1646  */
+  case 55:
+#line 259 "gram.y" /* yacc.c:1646  */
     {
-		(yyval.y_EN) = createBinaryExpression(BINARY_OR, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+		(yyval.y_EN) = createBinaryExpression(BINARY_XOR, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
 	}
 #line 2121 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 57:
+#line 267 "gram.y" /* yacc.c:1646  */
+    {
+		(yyval.y_EN) = createBinaryExpression(BINARY_AND, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+	}
+#line 2129 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 59:
+#line 275 "gram.y" /* yacc.c:1646  */
+    {
+		(yyval.y_EN) = createBinaryExpression(BINARY_OR, (yyvsp[-2].y_EN), (yyvsp[0].y_EN));
+	}
+#line 2137 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 62:
-#line 269 "gram.y" /* yacc.c:1646  */
+#line 286 "gram.y" /* yacc.c:1646  */
     { 
-		msg("assignment_expr expr 1");
+		//msg("assignment_expr expr 1");
 		(yyval.y_EN) = evaluateExpression((yyvsp[0].y_EN)); 
 		printExpression((yyval.y_EN));
 					   }
-#line 2131 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 63:
-#line 274 "gram.y" /* yacc.c:1646  */
-    {
-		// Note: for x=5, unary_expr is $<y_DN>1, operator is '=', and assignment_expr should be a $<y_EN>3.
-		// Convert $<y_DN>1 to $<y_EN>1 ?
-
-
-		// Do a symbol table lookup to ensure x has already been defined
-		char* s = st_get_id_str((yyvsp[-2].y_DN)->u.st_id.i);
-
-		//st_lookup_id(st_get_id_str($<y_DN>1
-		msg("Found assignment_expr 2. variable is %s",s);
-	}
 #line 2147 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 63:
+#line 291 "gram.y" /* yacc.c:1646  */
+    {
+		ST_ID left_st_id = (yyvsp[-2].y_EN)->u.varStID;
+		//msg("Found assignment_expr 2. unary_expr is %s assigment_expr is: %d", st_get_id_str(left_st_id), $<y_EN>3->u.valInt);
+
+		EN returnNode = (yyvsp[-2].y_EN);
+		returnNode->u.valInt = (yyvsp[0].y_EN)->u.valInt;
+		(yyval.y_EN) = returnNode;
+
+		TYPETAG typeTag = getTypeTagFromExpression((yyvsp[0].y_EN));
+		b_assign(typeTag);
+	}
+#line 2163 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 75:
-#line 293 "gram.y" /* yacc.c:1646  */
-    {msg("found expr 1");}
-#line 2153 "y.tab.c" /* yacc.c:1646  */
+#line 310 "gram.y" /* yacc.c:1646  */
+    {//msg("found expr 1");
+	}
+#line 2170 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 294 "gram.y" /* yacc.c:1646  */
-    {msg("found expr 2");}
-#line 2159 "y.tab.c" /* yacc.c:1646  */
+#line 312 "gram.y" /* yacc.c:1646  */
+    {//msg("found expr 2");
+	}
+#line 2177 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 311 "gram.y" /* yacc.c:1646  */
+#line 330 "gram.y" /* yacc.c:1646  */
     { error("no declarator in declaration");}
-#line 2165 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 81:
-#line 312 "gram.y" /* yacc.c:1646  */
-    {
-		// Combine the type of declaration_specifiers (held in a bucket)
-		// with the type of init_declarator_list HERE!!!!!
-	}
-#line 2174 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 84:
-#line 321 "gram.y" /* yacc.c:1646  */
-    { 
-		
-		(yyval.y_bucketPtr) = buildBucket(NULL, (yyvsp[0].y_typeSpec));
-	}
 #line 2183 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 85:
-#line 325 "gram.y" /* yacc.c:1646  */
+  case 84:
+#line 337 "gram.y" /* yacc.c:1646  */
     { 
 		
-		(yyval.y_bucketPtr) = buildBucket((yyvsp[0].y_bucketPtr), (yyvsp[-1].y_typeSpec));
+		(yyval.y_bucketPtr) = buildBucket(NULL, (yyvsp[0].y_typeSpec));
 	}
 #line 2192 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 86:
-#line 329 "gram.y" /* yacc.c:1646  */
-    {
+  case 85:
+#line 341 "gram.y" /* yacc.c:1646  */
+    { 
 		
-		(yyval.y_bucketPtr) = buildBucket(NULL, (yyvsp[0].y_typeSpec));
+		(yyval.y_bucketPtr) = buildBucket((yyvsp[0].y_bucketPtr), (yyvsp[-1].y_typeSpec));
 	}
 #line 2201 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 87:
-#line 333 "gram.y" /* yacc.c:1646  */
+  case 86:
+#line 345 "gram.y" /* yacc.c:1646  */
     {
 		
-		(yyval.y_bucketPtr) = buildBucket((yyvsp[0].y_bucketPtr), (yyvsp[-1].y_typeSpec));
+		(yyval.y_bucketPtr) = buildBucket(NULL, (yyvsp[0].y_typeSpec));
 	}
 #line 2210 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 88:
-#line 340 "gram.y" /* yacc.c:1646  */
-    { 
-		
-		//msg("In init_declarator");
-		// print_tree($<y_DN>1);
-
-		TYPE baseType = build_base((yyvsp[-1].y_bucketPtr));
-		TYPE derivedType = building_derived_type_and_install_st((yyvsp[0].y_DN), baseType);
-		GLD((yyvsp[0].y_DN), baseType, derivedType, installSuccessful);
-	}
-#line 2224 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 89:
+  case 87:
 #line 349 "gram.y" /* yacc.c:1646  */
     {
 		
-		//msg("In init_declarator");
-		// building_derived_type_and_install_st($<y_DN>3, build_base($<y_bucketPtr>0));
-		TYPE baseType = build_base((yyvsp[-3].y_bucketPtr));
-		TYPE derivedType = building_derived_type_and_install_st((yyvsp[0].y_DN), baseType);
+		(yyval.y_bucketPtr) = buildBucket((yyvsp[0].y_bucketPtr), (yyvsp[-1].y_typeSpec));
+	}
+#line 2219 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 88:
+#line 356 "gram.y" /* yacc.c:1646  */
+    { 
+		
+		////msg("In init_declarator");
+		// print_tree($<y_DN>1);
+
+		TYPE baseType = build_base((yyvsp[-1].y_bucketPtr));
+		TYPE derivedType = building_derived_type_and_install_st((yyvsp[0].y_DN), baseType, currentScope);
 		GLD((yyvsp[0].y_DN), baseType, derivedType, installSuccessful);
 	}
-#line 2237 "y.tab.c" /* yacc.c:1646  */
+#line 2233 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 89:
+#line 365 "gram.y" /* yacc.c:1646  */
+    {
+		
+		////msg("In init_declarator");
+		// building_derived_type_and_install_st($<y_DN>3, build_base($<y_bucketPtr>0));
+		TYPE baseType = build_base((yyvsp[-3].y_bucketPtr));
+		TYPE derivedType = building_derived_type_and_install_st((yyvsp[0].y_DN), baseType, currentScope);
+		GLD((yyvsp[0].y_DN), baseType, derivedType, installSuccessful);
+	}
+#line 2246 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 91:
-#line 361 "gram.y" /* yacc.c:1646  */
+#line 377 "gram.y" /* yacc.c:1646  */
     {
-		msg("here1");
+		//msg("here1");
 	}
-#line 2245 "y.tab.c" /* yacc.c:1646  */
+#line 2254 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 97:
-#line 371 "gram.y" /* yacc.c:1646  */
+#line 387 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = VOID_SPEC;}
-#line 2251 "y.tab.c" /* yacc.c:1646  */
+#line 2260 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 98:
-#line 372 "gram.y" /* yacc.c:1646  */
+#line 388 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = CHAR_SPEC;}
-#line 2257 "y.tab.c" /* yacc.c:1646  */
+#line 2266 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 99:
-#line 373 "gram.y" /* yacc.c:1646  */
+#line 389 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = SHORT_SPEC;}
-#line 2263 "y.tab.c" /* yacc.c:1646  */
+#line 2272 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 100:
-#line 374 "gram.y" /* yacc.c:1646  */
+#line 390 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = INT_SPEC;}
-#line 2269 "y.tab.c" /* yacc.c:1646  */
+#line 2278 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 101:
-#line 375 "gram.y" /* yacc.c:1646  */
+#line 391 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = LONG_SPEC;}
-#line 2275 "y.tab.c" /* yacc.c:1646  */
+#line 2284 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 102:
-#line 376 "gram.y" /* yacc.c:1646  */
+#line 392 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = FLOAT_SPEC;}
-#line 2281 "y.tab.c" /* yacc.c:1646  */
+#line 2290 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 103:
-#line 377 "gram.y" /* yacc.c:1646  */
+#line 393 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = DOUBLE_SPEC;}
-#line 2287 "y.tab.c" /* yacc.c:1646  */
+#line 2296 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 104:
-#line 378 "gram.y" /* yacc.c:1646  */
+#line 394 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = SIGNED_SPEC;}
-#line 2293 "y.tab.c" /* yacc.c:1646  */
+#line 2302 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 105:
-#line 379 "gram.y" /* yacc.c:1646  */
+#line 395 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = UNSIGNED_SPEC;}
-#line 2299 "y.tab.c" /* yacc.c:1646  */
+#line 2308 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 106:
-#line 380 "gram.y" /* yacc.c:1646  */
+#line 396 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = STRUCT_SPEC;}
-#line 2305 "y.tab.c" /* yacc.c:1646  */
+#line 2314 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 107:
-#line 381 "gram.y" /* yacc.c:1646  */
+#line 397 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = ENUM_SPEC;}
-#line 2311 "y.tab.c" /* yacc.c:1646  */
+#line 2320 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 108:
-#line 382 "gram.y" /* yacc.c:1646  */
+#line 398 "gram.y" /* yacc.c:1646  */
     { (yyval.y_typeSpec) = TYPENAME_SPEC;}
-#line 2317 "y.tab.c" /* yacc.c:1646  */
+#line 2326 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 119:
-#line 411 "gram.y" /* yacc.c:1646  */
+#line 427 "gram.y" /* yacc.c:1646  */
     {
-		//msg("Found *");
+		////msg("Found *");
 	}
-#line 2325 "y.tab.c" /* yacc.c:1646  */
+#line 2334 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 132:
-#line 441 "gram.y" /* yacc.c:1646  */
+#line 457 "gram.y" /* yacc.c:1646  */
     {
-		msg("here2");
+		//msg("here2");
 	}
-#line 2333 "y.tab.c" /* yacc.c:1646  */
+#line 2342 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 133:
-#line 447 "gram.y" /* yacc.c:1646  */
+#line 463 "gram.y" /* yacc.c:1646  */
     { 
 		(yyval.y_typeSpec) = CONST_SPEC;
 	}
-#line 2341 "y.tab.c" /* yacc.c:1646  */
+#line 2350 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 134:
-#line 450 "gram.y" /* yacc.c:1646  */
+#line 466 "gram.y" /* yacc.c:1646  */
     {
 		(yyval.y_typeSpec) = VOLATILE_SPEC;
 	}
-#line 2349 "y.tab.c" /* yacc.c:1646  */
+#line 2358 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 136:
-#line 457 "gram.y" /* yacc.c:1646  */
+#line 473 "gram.y" /* yacc.c:1646  */
     {
 		
 		//if($<y_ref>1 == TRUE)
-			//msg("Reference passed");
+			////msg("Reference passed");
 		//else;
-			//msg("Found 'pointer declarator'");
+			////msg("Found 'pointer declarator'");
 		(yyval.y_DN) = makePtrNode((yyvsp[0].y_DN), (yyvsp[-1].y_ref));
 		//}
-	}
-#line 2363 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 138:
-#line 470 "gram.y" /* yacc.c:1646  */
-    { 
-		//msg("Found ( declarator )");
-		(yyval.y_DN) = (yyvsp[-1].y_DN);
 	}
 #line 2372 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 140:
-#line 475 "gram.y" /* yacc.c:1646  */
+  case 138:
+#line 486 "gram.y" /* yacc.c:1646  */
     { 
-			(yyval.y_DN) = makeArrayNode((yyvsp[-3].y_DN), (yyvsp[-1].y_int));
+		////msg("Found ( declarator )");
+		(yyval.y_DN) = (yyvsp[-1].y_DN);
 	}
-#line 2380 "y.tab.c" /* yacc.c:1646  */
+#line 2381 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 140:
+#line 491 "gram.y" /* yacc.c:1646  */
+    { 
+			(yyval.y_DN) = makeArrayNode((yyvsp[-3].y_DN), getIntFromExpression((yyvsp[-1].y_EN)));
+	}
+#line 2389 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 141:
-#line 478 "gram.y" /* yacc.c:1646  */
+#line 494 "gram.y" /* yacc.c:1646  */
     {
 			if(checkParam((yyvsp[-1].y_PL)))
 				(yyval.y_DN) = makeFnNode((yyvsp[-3].y_DN), (yyvsp[-1].y_PL));
 			else
 				(yyval.y_DN) = NULL;
 	}
-#line 2391 "y.tab.c" /* yacc.c:1646  */
+#line 2400 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 142:
-#line 484 "gram.y" /* yacc.c:1646  */
+#line 500 "gram.y" /* yacc.c:1646  */
     {
 		(yyval.y_DN) = makeFnNode((yyvsp[-2].y_DN), NULL);
 	}
-#line 2399 "y.tab.c" /* yacc.c:1646  */
+#line 2408 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 144:
-#line 492 "gram.y" /* yacc.c:1646  */
+#line 508 "gram.y" /* yacc.c:1646  */
     { (yyval.y_ref) = FALSE; }
-#line 2405 "y.tab.c" /* yacc.c:1646  */
+#line 2414 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 145:
-#line 493 "gram.y" /* yacc.c:1646  */
+#line 509 "gram.y" /* yacc.c:1646  */
     { (yyval.y_ref) = TRUE;}
-#line 2411 "y.tab.c" /* yacc.c:1646  */
+#line 2420 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 146:
-#line 497 "gram.y" /* yacc.c:1646  */
+#line 513 "gram.y" /* yacc.c:1646  */
     { (yyval.y_PL) = (yyvsp[0].y_PL);}
-#line 2417 "y.tab.c" /* yacc.c:1646  */
+#line 2426 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 147:
-#line 498 "gram.y" /* yacc.c:1646  */
+#line 514 "gram.y" /* yacc.c:1646  */
     { error("Elipsis not allowed"); }
-#line 2423 "y.tab.c" /* yacc.c:1646  */
+#line 2432 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 148:
-#line 502 "gram.y" /* yacc.c:1646  */
+#line 518 "gram.y" /* yacc.c:1646  */
     {
 			(yyval.y_PL) = (yyvsp[0].y_PL);
 			(yyval.y_PL)->prev = (yyvsp[0].y_PL);
 	}
-#line 2432 "y.tab.c" /* yacc.c:1646  */
+#line 2441 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 149:
-#line 506 "gram.y" /* yacc.c:1646  */
+#line 522 "gram.y" /* yacc.c:1646  */
     {
 		if(((yyvsp[0].y_PL) == NULL) || (yyvsp[-2].y_PL) == NULL)
 			(yyval.y_PL) = NULL;
@@ -2440,148 +2449,158 @@ yyreduce:
 			(yyval.y_PL) = linkParams((yyvsp[-2].y_PL), (yyvsp[0].y_PL));
 		}
 	}
-#line 2444 "y.tab.c" /* yacc.c:1646  */
+#line 2453 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 150:
-#line 516 "gram.y" /* yacc.c:1646  */
+#line 532 "gram.y" /* yacc.c:1646  */
     {
 		TYPE baseType = build_base((yyvsp[-1].y_bucketPtr));
 		(yyval.y_PL) = build_Param((yyvsp[0].y_DN), baseType, NULL);
 	}
-#line 2453 "y.tab.c" /* yacc.c:1646  */
+#line 2462 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 151:
-#line 520 "gram.y" /* yacc.c:1646  */
+#line 536 "gram.y" /* yacc.c:1646  */
     { error("no id in parameter list"); (yyval.y_PL) = NULL; }
-#line 2459 "y.tab.c" /* yacc.c:1646  */
+#line 2468 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 175:
-#line 572 "gram.y" /* yacc.c:1646  */
-    {msg("found statement 6");}
-#line 2465 "y.tab.c" /* yacc.c:1646  */
+#line 588 "gram.y" /* yacc.c:1646  */
+    {//msg("found statement 6");
+	}
+#line 2475 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 176:
-#line 573 "gram.y" /* yacc.c:1646  */
+#line 590 "gram.y" /* yacc.c:1646  */
     { st_enter_block(); }
-#line 2471 "y.tab.c" /* yacc.c:1646  */
+#line 2481 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 177:
-#line 573 "gram.y" /* yacc.c:1646  */
-    {msg("found statement 1"); st_exit_block();}
-#line 2477 "y.tab.c" /* yacc.c:1646  */
+#line 590 "gram.y" /* yacc.c:1646  */
+    {//msg("found statement 1"); currentScope = LDECL; st_exit_block();
+	}
+#line 2488 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 178:
-#line 574 "gram.y" /* yacc.c:1646  */
-    {msg("found statement 2");}
-#line 2483 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 179:
-#line 575 "gram.y" /* yacc.c:1646  */
-    {msg("found statement 3");}
-#line 2489 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 180:
-#line 576 "gram.y" /* yacc.c:1646  */
-    {msg("found statement 4");}
+#line 592 "gram.y" /* yacc.c:1646  */
+    {//msg("found statement 2");
+	}
 #line 2495 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 179:
+#line 594 "gram.y" /* yacc.c:1646  */
+    {//msg("found statement 3");
+	}
+#line 2502 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 180:
+#line 596 "gram.y" /* yacc.c:1646  */
+    {//msg("found statement 4");
+	}
+#line 2509 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 181:
-#line 577 "gram.y" /* yacc.c:1646  */
-    {msg("found statement 5");}
-#line 2501 "y.tab.c" /* yacc.c:1646  */
+#line 598 "gram.y" /* yacc.c:1646  */
+    {//msg("found statement 5");
+	}
+#line 2516 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 186:
-#line 588 "gram.y" /* yacc.c:1646  */
-    {msg("found compound_statement 1");}
-#line 2507 "y.tab.c" /* yacc.c:1646  */
+#line 610 "gram.y" /* yacc.c:1646  */
+    {//msg("found compound_statement 1");
+	}
+#line 2523 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 187:
-#line 589 "gram.y" /* yacc.c:1646  */
-    {msg("found compound_statement 2");}
-#line 2513 "y.tab.c" /* yacc.c:1646  */
+#line 612 "gram.y" /* yacc.c:1646  */
+    {//msg("found compound_statement 2");
+	}
+#line 2530 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 188:
-#line 590 "gram.y" /* yacc.c:1646  */
-    {msg("found compound_statement 3");}
-#line 2519 "y.tab.c" /* yacc.c:1646  */
+#line 614 "gram.y" /* yacc.c:1646  */
+    {//msg("found compound_statement 3");
+	}
+#line 2537 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 191:
-#line 599 "gram.y" /* yacc.c:1646  */
-    { msg("found statement_list 1");}
-#line 2525 "y.tab.c" /* yacc.c:1646  */
+#line 624 "gram.y" /* yacc.c:1646  */
+    { //msg("found statement_list 1");
+	}
+#line 2544 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 192:
-#line 600 "gram.y" /* yacc.c:1646  */
-    { msg("found statement_list 2");}
-#line 2531 "y.tab.c" /* yacc.c:1646  */
+#line 626 "gram.y" /* yacc.c:1646  */
+    { //msg("found statement_list 2");
+	}
+#line 2551 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 193:
-#line 604 "gram.y" /* yacc.c:1646  */
+#line 631 "gram.y" /* yacc.c:1646  */
     {
-		msg("expr_opt ';'");
+		// TODO: emit assembly code, output value of expression
+		//msg("expr_opt ';' value is: %d", $<y_EN>1->u.valInt);
 	}
-#line 2539 "y.tab.c" /* yacc.c:1646  */
+#line 2560 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 208:
-#line 643 "gram.y" /* yacc.c:1646  */
+#line 671 "gram.y" /* yacc.c:1646  */
     {
 		//fprintf(stderr, "inside function_definition w {}\n");
 	}
-#line 2547 "y.tab.c" /* yacc.c:1646  */
+#line 2568 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 209:
-#line 646 "gram.y" /* yacc.c:1646  */
+#line 674 "gram.y" /* yacc.c:1646  */
     {
 		//fprintf(stderr, "inside function_definition w {}\n");
 	}
-#line 2555 "y.tab.c" /* yacc.c:1646  */
+#line 2576 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 210:
-#line 656 "gram.y" /* yacc.c:1646  */
+#line 684 "gram.y" /* yacc.c:1646  */
     { 
-
-		
-		
 		// Do a symbol table lookup to see if identifier has already been defined
-		ST_ID s = st_lookup_id((yyvsp[0].y_string));
-		if (s != NULL) {
+		ST_ID st_id = st_lookup_id((yyvsp[0].y_string));
+		if (st_id != NULL) {
 			// identifier has already been defined in symtab.
-			// Thus simply return a constant expr node
-			msg("Found INDENTIFIER; %s already exists in symtab!", (yyvsp[0].y_string));
-			(yyval.y_EN) = createVariableExpression(s);
+
+			int block;
+			ST_DR dr = st_lookup(st_id, &block);
+			int value = dr->u.econst.val;
+			//msg("Found INDENTIFIER; %s already exists in symtab with value %d !", $<y_string>1, value);
+
+			(yyval.y_EN) = createVariableExpression(st_id);
 		} 
 		else {
-			msg("Found IDENTIFIER; Enrolling %s",(yyvsp[0].y_string)); 
+			//msg("Found IDENTIFIER; Enrolling %s",$<y_string>1); 
 			ST_ID varName = st_enter_id((yyvsp[0].y_string));
 			(yyval.y_DN) = makeIdNode(varName);
 		}
-		
-
-
 	}
-#line 2581 "y.tab.c" /* yacc.c:1646  */
+#line 2600 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2585 "y.tab.c" /* yacc.c:1646  */
+#line 2604 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2809,7 +2828,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 678 "gram.y" /* yacc.c:1906  */
+#line 704 "gram.y" /* yacc.c:1906  */
 
 
 extern int column;

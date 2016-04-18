@@ -6,7 +6,7 @@
 #include "types.h"
 #include "symtab.h"
 #include "message.h"
-
+#include "backend-x86.h"
 // All the expression types we can have
 typedef enum 
 {
@@ -139,8 +139,8 @@ EN createBinaryExpression(OP_BINARY op, EN left, EN right);
 EN evaluateExpression(EN expr);
 
 //Helper Evaluating Functions
-int evalIntExpression(EN node);
-double evalDoubleExpression(EN node);
+EN evalIntExpression(EN node);
+EN evalDoubleExpression(EN node);
 //Return an EN that holds the Integer or Double from the variable's value.
 EN evalVariableExpression(EN node);
 EN evalFunctionExpression(EN node);
