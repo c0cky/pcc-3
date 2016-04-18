@@ -62,7 +62,7 @@ DN makePtrNode(DN dn, BOOLEAN is_ref);
 DN makeFnNode(DN dn, PARAM_LIST pl); 
 
 // Function to Traverse the Declarator's Derived types list, INPUT Top Node of Derived Type Built as First Parameter and Input Type from type_specifiers built from bucket (ty_query) as Second Parameter.
-TYPE building_derived_type_and_install_st(DN dn, TYPE initialType);
+TYPE building_derived_type_and_install_st(DN dn, TYPE initialType, STDR_TAG stdr_tag);
 
 // Build PArameter list, pass the DN, the bucket type, and parameter list, if first param, then NULL)
 // Builds the next parameter and returns it (if null, returns 1st parameter) previous node of all
@@ -80,42 +80,42 @@ void print_tree(DN dn);
 char* tagToString(DECL_N_TAG tag);
 
 // ******************* PROJ 2 ADD
-typedef enum {CONST_EXPR, VAR_EXPR, UNOP_EXPR, BINOP_EXPR} EXPR_TAG_TYPE;
+// typedef enum {CONST_EXPR, VAR_EXPR, UNOP_EXPR, BINOP_EXPR} EXPR_TAG_TYPE;
 
-// Unary operators - , #
-typedef enum {UN_MINUS, UN_PLUS, UN_LINE_REF} UNOP_TYPE;
+// // Unary operators - , #
+// typedef enum {UN_MINUS, UN_PLUS, UN_LINE_REF} UNOP_TYPE;
 
-// Binary operators + - * / %
-typedef enum {PLUS, MINUS, MUL, DIV, MOD} BINOP_TYPE;
+// // Binary operators + - * / %
+// typedef enum {PLUS, MINUS, MUL, DIV, MOD} BINOP_TYPE;
 
-// Expression Node (en)
-typedef struct en{
-	EXPR_TAG_TYPE tag;
-	union{
-		struct{
-			long val;
-		} const_;
+// // Expression Node (en)
+// typedef struct en{
+// 	EXPR_TAG_TYPE tag;
+// 	union{
+// 		struct{
+// 			long val;
+// 		} const_;
 
-		struct{
-			ST_ID st_id;
-		} var;	
-		 // Unary op has one child
-		struct {
-			UNOP_TYPE op;
-			int line_num;
-			struct en *arg;
-		} unop;
-		// Binary Op has 2 children
-		struct{
-			BINOP_TYPE op;
-			struct en *l_arg, *r_arg;
-		} binop;
-	} u;
-} EXPR_REC, *EXPR;
+// 		struct{
+// 			ST_ID st_id;
+// 		} var;	
+// 		 // Unary op has one child
+// 		struct {
+// 			UNOP_TYPE op;
+// 			int line_num;
+// 			struct en *arg;
+// 		} unop;
+// 		// Binary Op has 2 children
+// 		struct{
+// 			BINOP_TYPE op;
+// 			struct en *l_arg, *r_arg;
+// 		} binop;
+// 	} u;
+// } EXPR_REC, *EXPR;
 
-EXPR makeID_ExprN(ST_ID);
+// EXPR makeID_ExprN(ST_ID);
 
-long traverse(EXPR e);
+// long traverse(EXPR e);
 // ***********************END OF PROJ2 ADD
 
 #endif

@@ -174,14 +174,24 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 20 "gram.y" /* yacc.c:1909  */
+#line 29 "gram.y" /* yacc.c:1909  */
 
 	int	y_int;
 	double	y_double;
 	char *	y_string;
-	
+	TYPE_SPECIFIER y_typeSpec;
+	BUCKET_PTR y_bucketPtr;
+	ST_ID y_stID;
+	DN y_DN;
+	PARAM_LIST y_PL;
+	BOOLEAN y_ref; // Flag for reference type?
 
-#line 185 "y.tab.h" /* yacc.c:1909  */
+	//Expressions
+	OP_UNARY y_unop;
+	EN y_EN;
+
+
+#line 195 "y.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

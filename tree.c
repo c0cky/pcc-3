@@ -74,7 +74,7 @@ DN makeFnNode(DN dn, PARAM_LIST pl)
 
 // Function to Traverse the Declarator's Derived types list, INPUT Top Node of Derived Type Built as 
 // First Parameter and Input Type from type_specifiers built from bucket (ty_query) as Second Parameter.
-TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
+TYPE building_derived_type_and_install_st(DN dn, TYPE initialType, STDR_TAG stdr_tag)
 {
 	TYPE type = initialType;
 	//BOOLEAN val_array = TRUE;
@@ -110,7 +110,7 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 				//msg("Installing");
 				ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 
-				dr->tag = GDECL;
+				dr->tag = stdr_tag;
 				dr->u.decl.type = type;
 				dr->u.decl.sc = NO_SC;
 				dr->u.decl.err = FALSE;
@@ -119,12 +119,15 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 				result = st_install(dn->u.st_id.i,dr);
 				if (!result) {
 					error("duplicate declaration for %s", st_get_id_str(dn->u.st_id.i));
-					error("duplicate definition of '%s'", st_get_id_str(dn->u.st_id.i));
 				}
 				else
 				{
 					installSuccessful = TRUE;
 				}
+				// result = st_tag_install(dn->u.st_id.i,dr);
+				// if (!result) {
+				// 	error("duplicate declaration for %s", st_get_id_str(dn->u.st_id.i));
+				// }
 
 				break;
 			default:
@@ -265,73 +268,4 @@ char* tagToString(DECL_N_TAG tag) {
 	}
 
 	return strTag;
-}
-
-// PROJ 2
-EXPR makeID_ExprN(ST_ID stid)
-{
-	error("EXPR ID node");
-	EXPR p;
-	p = (EXPR)malloc(sizeof(EXPR_REC));
-	p->tag = VAR_EXPR;
-	p->u.var.st_id = stid;	
-	return p;
-}
-
-long traverse(EXPR p)
-{	
-	switch(p->tag)
-	{
-		case CONST_EXPR:
-			return p->u.const_.val;
-			break;
-		case VAR_EXPR:
-			b_push_ext_addr (st_get_id_str(p->u.var.st_id)); // changed from PROJ 2
-			break;
-		case UNOP_EXPR:
-			switch(p->u.unop.op)
-			{	
-				case UN_MINUS:
-					return -(traverse(p->u.unop.arg));
-					break;
-				case UN_PLUS:
-					return traverse(p->u.unop.arg);
-					break;
-				case UN_LINE_REF:
-					//printf("LINE REF\n");
-					//printf("Need line reference data struct\n");
-					//if (p->u.unop.line_num != 0)
-					//	return memo_check(p);  //return list of line referen
-					//else  
-						//return memo_check(traverse(p->u.unop.arg));
-					// return (traverse(p->u.unop.arg));
-					break;
-				;
-			} // negative positive linerefernece?
-			break;
-		case BINOP_EXPR:
-			switch(p->u.binop.op)
-			{
-				case PLUS:
-					return (traverse(p->u.binop.l_arg) + traverse(p->u.binop.r_arg));
-					break;
-				case MINUS:
-					return (traverse(p->u.binop.l_arg) - traverse(p->u.binop.r_arg));
-					break;
-				case MUL:
-					return (traverse(p->u.binop.l_arg) * traverse(p->u.binop.r_arg));
-					break;
-				case DIV:
-					return (traverse(p->u.binop.l_arg) / traverse(p->u.binop.r_arg));
-					break;
-				case MOD:
-					return (traverse(p->u.binop.l_arg) % traverse(p->u.binop.r_arg));
-					break;
-				default:
-					fprintf(stderr, "BINOP failed\n");
-			}
-		default:
-			fprintf(stderr, "Expression tree failed\n");	
-	}
-
 }

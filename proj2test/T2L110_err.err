@@ -1,0 +1,10 @@
+line 33: ERROR -- operator requires function designator or l-value
+line 34: ERROR -- operator requires function designator or l-value
+line 35: ERROR -- operator requires function designator or l-value
+line 36: ERROR -- illegal unary operation on constant operand
+line 37: ERROR -- left side of assignment is not an l-value
+line 38: ERROR -- operator requires function designator or l-value
+line 39: ERROR -- cannot increment or decrement nonscalar type
+line 71: ERROR -- duplicate declaration for c
+line 71: ERROR -- duplicate declaration for x
+line 75: ERROR -- duplicate declaration for u

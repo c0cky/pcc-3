@@ -1,0 +1,8 @@
+line 15: ERROR -- duplicate declaration for get_doub
+line 15: ERROR -- duplicate definition of `get_doub'
+line 44: ERROR -- `xyz' is undefined
+line 52: ERROR -- duplicate or incompatible function declaration `w'
+line 56: ERROR -- duplicate or incompatible function declaration `x'
+line 68: ERROR -- `q' is undefined
+line 69: ERROR -- expression not of function type
+line 70: ERROR -- left side of assignment is not an l-value

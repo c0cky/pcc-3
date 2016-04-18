@@ -294,7 +294,8 @@ void b_init_formal_param_offset ();
 */
 void b_func_epilogue (char *f_name);
 
-/* b_set_return copies the value currently on the stack into the space
+/* (Pascal only)
+   b_set_return copies the value currently on the stack into the space
    designated for the return value, which should not be TYVOID.  The space
    designated for the return value is given by %ebp + return_value_offset.
    The return_type argument is the return type of the function.
@@ -306,7 +307,8 @@ void b_func_epilogue (char *f_name);
 */
 void b_set_return (TYPETAG return_type);
 
-/* b_prepare_return prepares for a return from a Pascal function or Pascal
+/* (Pascal only)
+   b_prepare_return prepares for a return from a Pascal function or Pascal
    procedure.  The type argument is the return type of the function
    (TYVOID for a procedure).  Does nothing if TYVOID; otherwise assumes the
    value to be returned is at %ebp + return_value_offset, and that its type
@@ -347,8 +349,9 @@ void b_prepare_return (TYPETAG return_type);
    will automatically convert the first argument from double to float,
    and the second argument from int to char.
 
-   Var parameters (reference parameters) in Pascal should always be stored
-   using TYPTR, regardless of their actual type.
+   Reference parameters (or "var" parameters in Pascal) are l-values, and
+   therefore should always be stored using TYPTR, regardless of their
+   actual type.
 */
 int b_store_formal_param (TYPETAG type);
 
@@ -358,7 +361,8 @@ int b_store_formal_param (TYPETAG type);
 */
 int b_get_formal_param_offset (TYPETAG type);
 
-/* b_alloc_return_value allocates on the stack space to hold the return
+/* (Pascal only)
+   b_alloc_return_value allocates on the stack space to hold the return
    value for the current function.  This is only required for Pascal
    functions, where the return value can be set/updated any number of
    times and must persist across proc/func calls.
@@ -371,15 +375,20 @@ void b_alloc_return_value();
 /* b_alloc_local_vars accepts an integer and emits code to increase the
    stack by that number of bytes, adjusted upward to maintain quadword
    (8-byte) alignment of %esp.  This function should be used to allocate
-   space for all the variables in the declaration section of a block all
-   at once.  The size passed to b_alloc_local_vars must be at least
-   the amount of space taken up by the variables, as well as any padding
-   necessary for alignment.  The offset (from %ebp) of the variable with
-   lowest address is returned.
+   space for all the variables in the declaration section of a block
+   (not necessarily all at once).  The size passed to b_alloc_local_vars
+   must be at least the sum of the sizes (in bytes) of the variables,
+   including any padding necessary for alignment.  The offset (from %ebp)
+   of the variable with lowest address is returned.
+
+   NOTE: Passing a size that is bigger than necessary is unlikely to
+   cause any runtime errors; it merely leaves unused space on the stack
+   for the duration of the function execution.
 */
 int b_alloc_local_vars (int size);
 
-/* b_get_local_var_offset returns the current value of loc_var_offset.
+/* (Pascal only)
+   b_get_local_var_offset returns the current value of loc_var_offset.
    In Pascal, local variable offsets must be computed long before space
    for them is actually allocated, so this function can be called once
    after all formal parameter offsets have been computed (using
@@ -400,7 +409,11 @@ int b_get_local_var_offset();
    stack by that number of bytes.  The stack pointer is restored
    (if necessary) to quadword (8-byte) alignment.  The size value passed
    in must match the size passed to b_alloc_local_vars() at the beginning
-   of the function.
+   of the block.
+
+   NOTE: Not calling this function at the end of a block is unlikely to
+   cause any runtime errors; it merely leaves unused space on the stack
+   for the duration of the function execution.
 */
 void b_dealloc_local_vars (int size);
 
@@ -466,10 +479,10 @@ void b_alloc_arglist (int total_size);
    value, before the next argument is pushed.
 
    The only exception to this regimen is if a argument is being passed by
-   reference (that is, it corresponds to a VAR parameter of the function),
-   b_load_arg is called with TYPTR, regardless of the actual type of the
-   argument. (Such an argument must be an l-value, so a pointer value is on
-   top of the stack.)
+   reference (that is, it corresponds to a C++ reference parameter or
+   (Pascal) VAR parameter of the function), b_load_arg is called with TYPTR,
+   regardless of the actual type of the argument. (Such an argument must be
+   an l-value, so a pointer value is on top of the stack.)
 
    Note also that b_load_arg does NOT leave the value of the argument on
    the stack, i.e., the value is popped.
@@ -495,7 +508,7 @@ void b_load_arg (TYPETAG type);
    b_funcall_by_name and b_funcall_by_ptr differ in only one way: the
    former requires an explicit function name as argument, while the
    latter assumes the entry address of the function has been pushed
-   onto the stack.
+   onto the stack at runtime.
 */
 void b_funcall_by_name (char *f_name, TYPETAG return_type);
 
@@ -638,14 +651,8 @@ void b_funcall_by_ptr (TYPETAG return_type);
  **************************/
 
 
-/* This is the only backend routine that performs the actual return
-   from a C function.  It is called from b_encode_return to execute a
-   return statement, and also from b_func_epilogue when control falls
-   out of the bottom of a function.
-*/
-static void b_void_return ();
-
-/*  emit prints printf strings to outfp
+/*  emit prints printf strings to outfp with an end-of-line character
+ *  appended to the end.
 */
 void emit( char *format, ... );
 

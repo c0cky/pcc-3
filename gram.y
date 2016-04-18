@@ -6,17 +6,20 @@
 
 %{
 
-#include "defs.h"
-#include "types.h"
-#include "symtab.h"
-#include "bucket.h"
-#include "message.h"
-#include <stdio.h>
-#include "tree.h"
+	#include "types.h"
+	#include "symtab.h"
+	#include "bucket.h"
+	#include "message.h"
+	#include "tree.h"
+	#include "expr.h"
+	#include <stdio.h>
+	#include "defs.h"
 
     int yylex();
     int yyerror(char *s);
-	
+
+    STDR_TAG currentScope = GDECL;
+
     int sizeOfType(TYPETAG type);
     void globalDecl(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
 	void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
@@ -37,9 +40,15 @@
 	ST_ID y_stID;
 	DN y_DN;
 	PARAM_LIST y_PL;
-	EXPR y_EXPR;
+	// EXPR y_EXPR;
 	BOOLEAN y_ref; // Flag for reference type?
+
+	//Expressions
+	OP_UNARY y_unop;
+	EN y_EN;
+
 };
+
 
 %token IDENTIFIER INT_CONSTANT DOUBLE_CONSTANT STRING_LITERAL SIZEOF
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
@@ -63,41 +72,56 @@
   *******************************/
 
 primary_expr
-	: identifier // Look up in the ST, if not in ST semantic error; Otherwise Build node (need TYPE)
-	{
-		// Get the name of ID from node
-		ST_ID stid = getSTID($<y_DN>1);
-		// Checks the Symbol Table for installment, returns True if installed, False if not
-		if(st_IDCheck(stid))
-		{
-			$<y_EXPR>$ = makeID_ExprN(stid);
-		}
-		else
-			error("'%s' is undefined", st_get_id_str(stid));
+	: identifier { 
+		//msg("primary_expr 1"); 
 	}
 	| INT_CONSTANT { 
-		//msg("INT_CONSTANT is %d", $<y_int>1);
-		$<y_int>$ = $<y_int>1;
+		//msg("primary_expr 2");
+		////msg("INT_CONSTANT is %d", $<y_int>1);
+		
+		EN node = createConstantIntExpression($<y_int>1);
+		$<y_EN>$ = node;
+
+		// printExpression(node);
+
+		// $<y_int>$ = $<y_int>1;
 	}
 	| DOUBLE_CONSTANT {
-		// msg("DOUBLE CONSTANT is %f", $<y_double>$1);
-		$<y_double>$ = $<y_double>1;
+		//msg("primary_expr 3");
+		// //msg("DOUBLE CONSTANT is %f", $<y_double>$1);
+		
+		EN node = createConstantDoubleExpression($<y_double>1);
+		$<y_EN>$ = node;
+
+		// printExpression(node);
+
+		// $<y_double>$ = $<y_double>1;
 	}
 	| STRING_LITERAL {
-		// msg("STRING LITERAL is %s", $<y_string>$1);
-		$<y_string>$ = $<y_string>1;
+		//msg("primary_expr 4");
+		// //msg("STRING LITERAL is %s", $<y_string>$1);
 	}
-	| '(' expr ')'
+	| '(' expr ')' {
+		//msg("primary_expr 5");
+		$<y_EN>$ = $<y_EN>2;
+	}
 	;
 
 postfix_expr
-	: primary_expr
-	| postfix_expr '[' expr ']'
-	| postfix_expr '(' argument_expr_list_opt ')' /*function calls PROJ 2*/
-	| postfix_expr '.' identifier 
-	| postfix_expr PTR_OP identifier
-	| postfix_expr INC_OP // PROJ 2
-	| postfix_expr DEC_OP // PROJ 2
+	: primary_expr { //msg("postfix_expr 1"); 
+	}
+	| postfix_expr '[' expr ']' { //msg("postfix_expr 2"); 
+	}
+	| postfix_expr '(' argument_expr_list_opt ')' { //msg("postfix_expr 3"); 
+	}
+	| postfix_expr '.' identifier { //msg("postfix_expr 4"); 
+	}
+	| postfix_expr PTR_OP identifier { //msg("postfix_expr 5"); 
+	}
+	| postfix_expr INC_OP { //msg("postfix_expr 6"); 
+	}
+	| postfix_expr DEC_OP { //msg("postfix_expr 7"); 
+	}
 	;
 
 argument_expr_list_opt
@@ -111,16 +135,35 @@ argument_expr_list
 	;
 
 unary_expr
-	: postfix_expr 
-	| INC_OP unary_expr
-	| DEC_OP unary_expr
-	| unary_operator cast_expr
-	| SIZEOF unary_expr
-	| SIZEOF '(' type_name ')'
+	: postfix_expr { //msg("unary_expr 1"); 
+	}
+	| INC_OP unary_expr { //msg("unary_expr 2"); 
+	}
+	| DEC_OP unary_expr { //msg("unary_expr 3"); 
+	}
+	| unary_operator cast_expr {
+		//msg("unary_expr 4"); 
+		$<y_EN>$ = createUnaryExpression($<y_unop>1, $<y_EN>2, TRUE);
+	}
+	| SIZEOF unary_expr { //msg("unary_expr 5"); 
+	}
+	| SIZEOF '(' type_name ')' { //msg("unary_expr 6"); 
+	}
 	;
 
 unary_operator
-	: '&' | '*' | '+' | '-' | '~' | '!'
+	: '&' { $<y_unop>$ = UNARY_REF; 
+	}
+	| '*' { $<y_unop>$ = UNARY_DEREF; 
+	} 
+	| '+' { $<y_unop>$ = UNARY_PLUS; 
+	}
+	| '-' { $<y_unop>$ = UNARY_MINUS; 
+	}
+	| '~' { $<y_unop>$ = UNARY_TILDE; 
+	}
+	| '!' { $<y_unop>$ = UNARY_NOT; 
+	}
 	;
 
 cast_expr
@@ -131,59 +174,113 @@ cast_expr
 multiplicative_expr
 	: cast_expr
 	| multiplicative_expr '*' cast_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_MULT, $<y_EN>1, $<y_EN>3);
+	}
 	| multiplicative_expr '/' cast_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_DIV, $<y_EN>1, $<y_EN>3);
+	}
 	| multiplicative_expr '%' cast_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_MOD, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 additive_expr
 	: multiplicative_expr
 	| additive_expr '+' multiplicative_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_ADD, $<y_EN>1, $<y_EN>3);
+	}
 	| additive_expr '-' multiplicative_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_SUB, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 shift_expr
 	: additive_expr
 	| shift_expr LEFT_OP additive_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_SHIFTL, $<y_EN>1, $<y_EN>3);
+	}
 	| shift_expr RIGHT_OP additive_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_SHIFTR, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 relational_expr
 	: shift_expr 
 	| relational_expr '<' shift_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_LT, $<y_EN>1, $<y_EN>3);
+	}
 	| relational_expr '>' shift_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_GRT, $<y_EN>1, $<y_EN>3);
+	}
 	| relational_expr LE_OP shift_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_LTE, $<y_EN>1, $<y_EN>3);
+	}
 	| relational_expr GE_OP shift_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_GRTE, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 equality_expr
 	: relational_expr
 	| equality_expr EQ_OP relational_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_EQUALS, $<y_EN>1, $<y_EN>3);
+	}
 	| equality_expr NE_OP relational_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_NE, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 and_expr
 	: equality_expr
 	| and_expr '&' equality_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_XAND, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 exclusive_or_expr
 	: and_expr 
 	| exclusive_or_expr '^' and_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_XNOT, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 inclusive_or_expr
 	: exclusive_or_expr 
 	| inclusive_or_expr '|' exclusive_or_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_XOR, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 logical_and_expr
 	: inclusive_or_expr 
 	| logical_and_expr AND_OP inclusive_or_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_AND, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 logical_or_expr
 	: logical_and_expr 
 	| logical_or_expr OR_OP logical_and_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_OR, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 conditional_expr
@@ -192,8 +289,22 @@ conditional_expr
 	;
 
 assignment_expr
-	: conditional_expr
-	| unary_expr assignment_operator assignment_expr
+	: conditional_expr { 
+		//msg("assignment_expr expr 1");
+		$<y_EN>$ = evaluateExpression($<y_EN>1); 
+		printExpression($<y_EN>$);
+					   }
+	| unary_expr assignment_operator assignment_expr {
+		ST_ID left_st_id = $<y_EN>1->u.varStID;
+		//msg("Found assignment_expr 2. unary_expr is %s assigment_expr is: %d", st_get_id_str(left_st_id), $<y_EN>3->u.valInt);
+
+		EN returnNode = $<y_EN>1;
+		returnNode->u.valInt = $<y_EN>3->u.valInt;
+		$<y_EN>$ = returnNode;
+
+		TYPETAG typeTag = getTypeTagFromExpression($<y_EN>3);
+		b_assign(typeTag);
+	}
 	;
 
 assignment_operator
@@ -203,8 +314,10 @@ assignment_operator
 	;
 
 expr
-	: assignment_expr
-	| expr ',' assignment_expr
+	: assignment_expr {//msg("found expr 1");
+	}
+	| expr ',' assignment_expr {//msg("found expr 2");
+	}
 	;
 
 constant_expr
@@ -222,50 +335,55 @@ expr_opt
 
 declaration
 	: declaration_specifiers ';' { error("no declarator in declaration");}
-	| declaration_specifiers init_declarator_list ';' {
-		// Combine the type of declaration_specifiers (held in a bucket)
-		// with the type of init_declarator_list HERE!!!!!
-	}
+	| declaration_specifiers init_declarator_list ';' 
 	;
 
 declaration_specifiers
 	: storage_class_specifier
 	| storage_class_specifier declaration_specifiers
 	| type_specifier { 
+		
 		$<y_bucketPtr>$ = buildBucket(NULL, $<y_typeSpec>1);
 	}
 	| type_specifier declaration_specifiers { 
+		
 		$<y_bucketPtr>$ = buildBucket($<y_bucketPtr>2, $<y_typeSpec>1);
 	}
 	| type_qualifier {
+		
 		$<y_bucketPtr>$ = buildBucket(NULL, $<y_typeSpec>1);
 	}
 	| type_qualifier declaration_specifiers {
+		
 		$<y_bucketPtr>$ = buildBucket($<y_bucketPtr>2, $<y_typeSpec>1);
 	}
 	;
 
 init_declarator_list
 	: init_declarator { 
-		//msg("In init_declarator");
+		
+		////msg("In init_declarator");
 		// print_tree($<y_DN>1);
 
 		TYPE baseType = build_base($<y_bucketPtr>0);
-		TYPE derivedType = building_derived_type_and_install_st($<y_DN>1, baseType);
+		TYPE derivedType = building_derived_type_and_install_st($<y_DN>1, baseType, currentScope);
 		GLD($<y_DN>1, baseType, derivedType, installSuccessful);
 	}
 	| init_declarator_list ',' init_declarator {
-		//msg("In init_declarator");
+		
+		////msg("In init_declarator");
 		// building_derived_type_and_install_st($<y_DN>3, build_base($<y_bucketPtr>0));
 		TYPE baseType = build_base($<y_bucketPtr>0);
-		TYPE derivedType = building_derived_type_and_install_st($<y_DN>3, baseType);
+		TYPE derivedType = building_derived_type_and_install_st($<y_DN>3, baseType, currentScope);
 		GLD($<y_DN>3, baseType, derivedType, installSuccessful);
 	}
 	;
 
 init_declarator
 	: declarator 
-	| declarator '=' initializer
+	| declarator '=' initializer {
+		//msg("here1");
+	}
 	;
 
 storage_class_specifier	
@@ -314,7 +432,7 @@ specifier_qualifier_list
 
 specifier_qualifier_list_opt
 	: /* null derive */ {
-		//msg("Found *");
+		////msg("Found *");
 	}
 	| specifier_qualifier_list 
 	;
@@ -343,7 +461,9 @@ enumerator_list
 
 enumerator
 	: identifier
-	| identifier '=' constant_expr
+	| identifier '=' constant_expr {
+		//msg("here2");
+	}
 	;
 
 type_qualifier
@@ -358,10 +478,11 @@ type_qualifier
 declarator
 	: direct_declarator
 	| pointer declarator {
+		
 		//if($<y_ref>1 == TRUE)
-			//msg("Reference passed");
+			////msg("Reference passed");
 		//else;
-			//msg("Found 'pointer declarator'");
+			////msg("Found 'pointer declarator'");
 		$<y_DN>$ = makePtrNode($<y_DN>2, $<y_ref>1);
 		//}
 	}
@@ -370,12 +491,12 @@ declarator
 direct_declarator
 	: identifier
 	| '(' declarator ')' { 
-		//msg("Found ( declarator )");
+		////msg("Found ( declarator )");
 		$<y_DN>$ = $<y_DN>2;
 	}
 	| direct_declarator '[' ']'
 	| direct_declarator '[' constant_expr ']' { 
-			$<y_DN>$ = makeArrayNode($<y_DN>1, $<y_int>3);
+			$<y_DN>$ = makeArrayNode($<y_DN>1, getIntFromExpression($<y_EN>3));
 	}
 	| direct_declarator '(' parameter_type_list ')' {
 			if(checkParam($<y_PL>3))
@@ -472,12 +593,18 @@ initializer_list
   *******************************/
 
 statement
-	: labeled_statement
-	| compound_statement
-	| expression_statement // only legal statement
-	| selection_statement
-	| iteration_statement
-	| jump_statement
+	: labeled_statement {//msg("found statement 6");
+	}
+	| { st_enter_block(); } compound_statement {//msg("found statement 1"); currentScope = LDECL; st_exit_block();
+	}
+	| expression_statement {//msg("found statement 2");
+	}
+	| selection_statement {//msg("found statement 3");
+	}
+	| iteration_statement {//msg("found statement 4");
+	}
+	| jump_statement {//msg("found statement 5");
+	}
 	;
 
 labeled_statement
@@ -487,12 +614,13 @@ labeled_statement
 	;
 
 compound_statement
-	: '{' '}'			 { //error("Empty Function");
+	: '{' '}'
+	| '{' statement_list '}' {//msg("found compound_statement 1");
 	}
-	| '{' statement_list '}'	 { //error("Stmt_list Function");
+	| '{' declaration_list '}' {//msg("found compound_statement 2");
 	}
-	| '{' declaration_list '}'
-	| '{' declaration_list statement_list '}'
+	| '{' declaration_list statement_list '}' {//msg("found compound_statement 3");
+	}
 	;
 
 declaration_list
@@ -501,15 +629,16 @@ declaration_list
 	;
 
 statement_list
-	: statement
-	| statement_list statement
+	: statement { //msg("found statement_list 1");
+	}
+	| statement_list statement { //msg("found statement_list 2");
+	}
 	;
 
 expression_statement
-	: expr_opt ';'	// traverse the tree in $1, bottom up, calling approp BE to push va;ies and apply operators
-	{
-// traverse function here is from HW2, to test some basic functionality, needs Tyler's Expression nodes
-		traverse($<y_EXPR>1);
+	: expr_opt ';' {
+		// TODO: emit assembly code, output value of expression
+		//msg("expr_opt ';' value is: %d", $<y_EN>1->u.valInt);
 	}
 	;
 
@@ -584,7 +713,8 @@ function_definition
 		stdr = st_lookup(stid, &b);
 		if(!stdr)
 		{
-			TYPE derivedType = building_derived_type_and_install_st($<y_DN>2, baseType);
+			STDR_TAG scope = FDECL;
+			TYPE derivedType = building_derived_type_and_install_st($<y_DN>2, baseType, scope);
 			GLD($<y_DN>2, baseType, derivedType, installSuccessful);
 			result = funcDeclCheck($<y_DN>2);
 		}
@@ -618,9 +748,23 @@ function_definition
 
 identifier
 	: IDENTIFIER { 
-		//msg("Found ID; Enrolling %s",$<y_string>1); 
-		ST_ID varName = st_enter_id($<y_string>1);
-		$<y_DN>$ = makeIdNode(varName);
+		// Do a symbol table lookup to see if identifier has already been defined
+		ST_ID st_id = st_lookup_id($<y_string>1);
+		if (st_id != NULL) {
+			// identifier has already been defined in symtab.
+
+			int block;
+			ST_DR dr = st_lookup(st_id, &block);
+			int value = dr->u.econst.val;
+			//msg("Found INDENTIFIER; %s already exists in symtab with value %d !", $<y_string>1, value);
+
+			$<y_EN>$ = createVariableExpression(st_id);
+		} 
+		else {
+			//msg("Found IDENTIFIER; Enrolling %s",$<y_string>1); 
+			ST_ID varName = st_enter_id($<y_string>1);
+			$<y_DN>$ = makeIdNode(varName);
+		}
 	}
 	;
 %%
@@ -705,6 +849,7 @@ BOOLEAN st_IDCheck(ST_ID stid)
 int sizeOfType(TYPETAG type)
 {
 	int returnedSizeOf = -1;
+
 	returnedSizeOf = get_size_basic(type);
 
 	return returnedSizeOf;
@@ -817,6 +962,7 @@ int yyerror(char *s)
 BUCKET_PTR buildBucket(BUCKET_PTR bucketPtr, TYPE_SPECIFIER typeSpec) {
 	BUCKET_PTR updatedBucket = update_bucket(bucketPtr, typeSpec, NULL);
 	if (is_error_decl(updatedBucket)) {
+
 		//error("Semantic error");
 	}
 
