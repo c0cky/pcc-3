@@ -99,9 +99,9 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 				break;
 			case FUNC:
 				if(dn->u.param_list.pl == NULL)
-				type = ty_build_func(type, PROTOTYPE, NULL);
+				type = ty_build_func(type, OLDSTYLE, NULL);
 				else
-				type = ty_build_func(type, PROTOTYPE, dn->u.param_list.pl->prev);
+				type = ty_build_func(type, OLDSTYLE, dn->u.param_list.pl->prev);
 				break;
 			case REF:
 				bug("Looking for REF \"stdr_dump\"");
@@ -150,9 +150,9 @@ void building_checkFunction(DN dn, TYPE initialType)
 		ST_DR stdr = st_lookup(stid, &b);
 		if(stdr == NULL) // if STDR is NULL then we build it
 		{		if(dn->u.param_list.pl == NULL)
-				type = ty_build_func(initialType, PROTOTYPE, NULL);
+				type = ty_build_func(initialType, OLDSTYLE, NULL);
 				else
-				type = ty_build_func(initialType, PROTOTYPE, dn->u.param_list.pl->prev);
+				type = ty_build_func(initialType, OLDSTYLE, dn->u.param_list.pl->prev);
 			// send in node to check stuff
 		//BOOLEAN result = funcDeclCheck($<y_DN>1);
 			// Prologue into function and enter block (Back_end and Symbol Table stuff)

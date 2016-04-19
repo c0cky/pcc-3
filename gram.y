@@ -463,7 +463,7 @@ direct_declarator
 	}
 	| direct_declarator '[' ']'
 	| direct_declarator '[' constant_expr ']' { 
-			$<y_DN>$ = makeArrayNode($<y_DN>1, $<y_int>3);
+			$<y_DN>$ = makeArrayNode($<y_DN>1, getIntFromExpression(evaluateExpression($<y_EN>3)));
 	}
 	| direct_declarator '(' parameter_type_list ')' {
 			if(checkParam($<y_PL>3))

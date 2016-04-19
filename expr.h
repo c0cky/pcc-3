@@ -15,6 +15,10 @@ typedef enum
 	TAG_CONST_INTEGER,
 	TAG_CONST_DOUBLE,
 
+	//Evaluated Expressions Return value.
+	TAG_EVAL_INTEGER,
+	TAG_EVAL_DOUBLE,
+
 	TAG_FUNCTION,		//Function Call f(3) returns 5
 	TAG_VARIABLE,
 
@@ -182,4 +186,8 @@ AL buildArg(EN node);
 AL linkArgList(AL current, AL new_al);
 TYPETAG getTypeTagFromExpression(EN node);
 TYPETAG ifDouble(BOOLEAN b);
+
+// Converts 
+TYPETAG convertExpression(EN leftOperand, EN rightOperand);
+
 #endif
