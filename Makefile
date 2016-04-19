@@ -79,11 +79,7 @@ y.output: gram.y
 	$(YACC) -v -y gram.y
 
 run: pcc3
-	make clean
-	make
-	./pcc3 < T2L85_ok.c > t.s
-	gcc -m32 t.s lib85.c
-	./a.out
+	./pcc3 < t.txt
 
 clean:
 	-rm -f pcc3 *.o y.tab.h y.output y.tab.c

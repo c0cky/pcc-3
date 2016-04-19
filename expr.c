@@ -4,12 +4,11 @@
 /***************** Create Functions ***************/
 EN createConstantIntExpression(int val)
 {
-	//msg("Creating const int expr: %d", val);
+	msg("Creating const int expr: %d", val);
 
 	EN expression = (EN)malloc(sizeof(EXPR_NODE));
 
 	expression->tag = TAG_CONST_INTEGER;
-	expression->isDouble = FALSE;
 	expression->u.valInt = val;
 
 	return expression;
@@ -17,12 +16,11 @@ EN createConstantIntExpression(int val)
 
 EN createConstantDoubleExpression(const double val)
 {
-	//msg("Creating const double expr: %f", val);
+	msg("Creating const double expr: %f", val);
 
 	EN expression = (EN)malloc(sizeof(EXPR_NODE));
 
 	expression->tag = TAG_CONST_DOUBLE;
-	expression->isDouble = TRUE;
 	expression->u.valDouble = val;
 
 	return expression;
@@ -31,7 +29,7 @@ EN createConstantDoubleExpression(const double val)
 EN createVariableExpression(ST_ID varStID)
 {
 	char* identifier = st_get_id_str(varStID);
-	//msg("Creating variable expr %s", identifier);
+	msg("Creating variable expr %s", identifier);
 	int b;
 	EN expression = (EN)malloc(sizeof(EXPR_NODE));
 	ST_DR stdr = st_lookup(varStID, &b);
@@ -51,7 +49,7 @@ EN createVariableExpression(ST_ID varStID)
 
 EN createFunctionExpression(EN node, AL arg_l)
 {
-	//msg("Creating function expr");
+	msg("Creating function expr");
 
 	EN expression = (EN)malloc(sizeof(EXPR_NODE));
 
@@ -65,7 +63,7 @@ EN createFunctionExpression(EN node, AL arg_l)
 
 EN createUnaryExpression(OP_UNARY op, EN operand, BOOLEAN prefix)
 {
-	//msg("Creating unary expr");
+	msg("Creating unary expr");
 
 	EN expression = (EN)malloc(sizeof(EXPR_NODE));
 
@@ -81,7 +79,7 @@ EN createUnaryExpression(OP_UNARY op, EN operand, BOOLEAN prefix)
 
 EN createBinaryExpression(OP_BINARY op, EN left, EN right)
 {
-	//msg("Creating binary expr OP_BINARY: %d", op);
+	msg("Creating binary expr OP_BINARY: %d", op);
 
 	EN expression = (EN)malloc(sizeof(EXPR_NODE));
 
@@ -89,8 +87,8 @@ EN createBinaryExpression(OP_BINARY op, EN left, EN right)
 	expression->u.binop.op = op;
 	expression->u.binop.leftOperand = left;
 	expression->u.binop.rightOperand = right;
-	//printExpression(left);
-	//printExpression(right);
+	printExpression(left);
+	printExpression(right);
 	return expression;
 }
 AL linkArgList(AL current, AL new_al)
@@ -353,9 +351,11 @@ TYPETAG typeTagEN(EN node)
 }
 EN evalBinaryExpression(EN node)
 {
+	msg("start evaluating binary expression %d", node->u.binop.op);
+
 	EN evaluated = NULL;
-	EN evalLeft = NULL;
-	EN evalRight = NULL;
+	EN evalLeft = node->u.binop.leftOperand;
+	EN evalRight = node->u.binop.rightOperand;
 	int b;
 	TYPETAG typetag = TYSIGNEDINT;
 	
@@ -551,16 +551,22 @@ EN evalBinaryExpression(EN node)
 			break;
 
 		case BINARY_ADD:		// a + b
+
+			msg("INSIDE BINARY_ADD");
 			// Moved to top of function
-			evalLeft = node->u.binop.leftOperand;//evaluateExpression(node->u.binop.leftOperand);	
+			//evaluateExpression(node->u.binop.leftOperand);	
 			// if(isVariableExpression(evalLeft))
 			// 	b_deref(getTypeTagFromExpression(evalLeft));	
-			evalRight = node->u.binop.rightOperand;// evaluateExpression(node->u.binop.rightOperand);
+			// evaluateExpression(node->u.binop.rightOperand);
 			// if(isVariableExpression(evalRight))
 			// 	b_deref(getTypeTagFromExpression(evalRight));
+
+			printExpression(evalLeft);
+			printExpression(evalRight);
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight))
 			{
+				msg("Eval + for double + double");
 				//Make evaluated be Double Expression After Multiplying.
 				evalLeft->u.valDouble = getDoubleFromExpression(evalLeft) 
 											+ getDoubleFromExpression(evalRight);
@@ -570,6 +576,7 @@ EN evalBinaryExpression(EN node)
 			}
 			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
 			{
+				msg("Eval + for int + int");
 				//Make evaluated be Integer Expression after Multiplying.
 				evalLeft->u.valInt = getIntFromExpression(evalLeft)
 											+ getIntFromExpression(evalRight);
@@ -885,10 +892,12 @@ EN evalBinaryExpression(EN node)
 
 TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 {
+	msg("inside convert expression");
 	TYPETAG type;
 
 	if(isIntExpression(leftOperand) && isIntExpression(rightOperand))
 	{// if both operands are integers
+		msg("int && int");
 		b_push_const_int(leftOperand->u.valInt);
 		b_push_const_int(rightOperand->u.valInt);
 		type = TYSIGNEDINT;
@@ -1040,10 +1049,20 @@ ST_ID getIDFromVariableExpression(EN node)
 
 TYPETAG getTypeTagFromExpression(EN node)
 {
-	int b;
-	ST_ID stid = getIDFromVariableExpression(node);
-	ST_DR stdr = st_lookup(node->u.varStID, &b);
-	return ty_query(stdr->u.decl.type);
+	if(isEvaluatedExpression(node))
+	{
+		if(node->tag == TAG_EVAL_INTEGER)
+			return TYSIGNEDINT;
+		else
+			return TYDOUBLE;
+	}
+	else //if(isVariableExpression(node))
+	{
+		int b;
+		ST_ID stid = getIDFromVariableExpression(node);
+		ST_DR stdr = st_lookup(node->u.varStID, &b);
+		return ty_query(stdr->u.decl.type);
+	}
 }
 
 TYPETAG ifDouble(BOOLEAN double_)
@@ -1075,6 +1094,14 @@ BOOLEAN isVariableExpression(EN node)
 	return FALSE;
 }
 
+//Returns true if this expression has been evaluated i.e 'tag->TAG_EVAL_INTEGER || TAG_EVAL_DOUBLE'
+BOOLEAN isEvaluatedExpression(EN node)
+{
+	if(node!= NULL && (node->evauated == TRUE)
+		return TRUE;
+	return FALSE;
+}
+
 void printExpression(EN node)
 {
 	switch(node->tag)
@@ -1095,13 +1122,14 @@ void printExpression(EN node)
 			break;
 
 		case TAG_UNARY:
-			msg("Unary Expression");
+			msg("Unary Expression %d", node->u.unop.op);
 			break;
 		
 		case TAG_BINARY:
-			msg("Binary Expression");
+			msg("Binary Expression %d", node->u.binop.op);
 			break;
 
+			//TODO: REMOVE
 		case TAG_EVAL_INTEGER:
 			msg("Evaluated Expression returning Integer");
 		

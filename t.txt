@@ -1,2 +1,15 @@
 void p(int & b);
 
+int x;
+double r;
+double y;
+double *(z[10]);
+
+int main();
+
+int main()
+{
+   x = 10 + 6 + 4;
+   y = r + 4;
+   x = 4;
+}
