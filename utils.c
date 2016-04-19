@@ -44,7 +44,7 @@ PARAM_LIST plist_alloc()
 
 void plist_free(PARAM_LIST plist)
 {
-	free(plist);
+    free(plist);
 }
 
 /****************************************************************/
@@ -213,7 +213,7 @@ unsigned int get_size_basic(TYPETAG tag)
 	return 4;
     case TYSIGNEDLONGINT:
     case TYUNSIGNEDLONGINT:
-	return 8;
+	return 4;
     case TYPTR:
 	return 4;     /* this is for 32-bit, which differs from 64-bit */
     case TYFLOAT:
@@ -223,6 +223,10 @@ unsigned int get_size_basic(TYPETAG tag)
 	return 8;
     case TYVOID:
 	return sizeof(void);
+    case TYFUNC:
+        bug("get_size_basic: TYFUNC is not a data type");
+    case TYERROR:
+        bug("get_size_basic: TYERROR is not a data type");
     default:
 	bug("get_size_basic: nonbasic or unknown type: %d", tag);
     }

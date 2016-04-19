@@ -89,6 +89,16 @@ static int double_base_offset;
 static int caller_offset;
 static int loc_var_offset = 1;  /* Positive value is guaranteed illegal */
 
+/*
+ * Boolean flag to tell whether we are in the body of main(). The reason
+ * we need to know this is because in main, the frame pointer %ebp may
+ * not be 16-byte aligned as it is when other functions are called.  In
+ * the latter case, we store control words for floating point conversions
+ * as negative offsets from %ebp, but in the former case, this may cause
+ * problems, so instead we store them as positive offsets from %esp instead.
+ */
+static BOOLEAN in_main = FALSE;
+
 /* Not needed, because x86 C calling convention puts all arguments on
  * the stack.  -SF 4/4/2011 */
 #if 0
@@ -147,6 +157,13 @@ static void post_call_clean_up (TYPETAG return_type, BOOLEAN is_name);
 static void divide_by_size(unsigned int size);
 
 
+/* This is the only backend routine that performs the actual return
+   from a function.  It is called from b_encode_return to execute a
+   return statement, and also from b_func_epilogue when control falls
+   out of the bottom of a function body.
+*/
+static void b_void_return ();
+
 
 /* Makes room on the stack for a temporary value */
 static void b_push()
@@ -160,21 +177,25 @@ static void b_push()
 
 /* Sets the FPU control word in anticipation of a conversion from
  * floating point to integer.
- * The original control word is saved in the %dx register.
+ * The original control word is saved on the stack.
  * Use in tandem with restore_fpu_control(). */
 static void set_fpu_control()
 {
-    emit ("\tfnstcw\t%%dx");
-    emit ("\tmovzwl\t%%dx, %%eax");
-    emit ("\tmovb\t$12, %%ah");
-    emit ("\tfldcw\t%%ax");
+        /* Use the top of the stack to store the fp control word */
+    b_push();
+    emit("\tfnstcw\t6(%%esp)");
+    emit("\tmovzwl\t6(%%esp), %%eax");
+    emit("\tmovb\t$12, %%ah");
+    emit("\tmovw\t%%ax, 4(%%esp)");
+    emit("\tfldcw\t4(%%esp)");
 }
 
 /* Restores the original control word after a floating point to integer
  * conversion.  Use in tandem with set_fpu_control(). */
 static void restore_fpu_control()
 {
-    emit ("\tfldcw\t%%dx");
+    emit ("\tfldcw\t6(%%esp)");
+    b_internal_pop(FALSE);
 }
 
 
@@ -776,13 +797,13 @@ void b_convert (TYPETAG from_type, TYPETAG to_type)
       case TYSIGNEDINT:
       case TYSIGNEDLONGINT:
           set_fpu_control();
-	  emit ("\tfistpl\t(%%esp)");
+	  emit ("\tfistpl\t%d(%%esp)", STACK_ITEM);
           restore_fpu_control();
 	  break;
       case TYUNSIGNEDINT:
       case TYUNSIGNEDLONGINT:
           set_fpu_control();
-	  emit ("\tfistpll\t(%%esp)");
+	  emit ("\tfistpll\t%d(%%esp)", STACK_ITEM);
           restore_fpu_control();
 	  break;
       case TYFLOAT:
@@ -1182,6 +1203,9 @@ void b_func_prologue (char *f_name)
 {
   emit ("\t\t\t\t# b_func_prologue (%s)", f_name);
 
+      /* Set flag if we are entering the main function */
+  in_main = !strcmp(f_name, "main");
+
   /* Args of type double will be stored starting at %ebp-8. */
   loc_var_offset = double_base_offset = 0;
 
@@ -1219,7 +1243,7 @@ void b_func_prologue (char *f_name)
   emit ("\tpushl\t%%ebp");
       /* Update the frame pointer to current call frame */
   emit ("\tmovl\t%%esp, %%ebp");
-      /* We don't use %ebx for anything */
+      /* We don't use %ebx for anything persisting across function calls */
   #if 0
       /* %ebx should persist across function calls.  Save it now and
        * restore it at the end in b_encode_void_return() */
@@ -1234,7 +1258,7 @@ void b_func_prologue (char *f_name)
        * safety's sake, we'll do it also.  The main entry point of the
        * program may be called from somewhere where the %esp is not 16-byte
        * aligned, so we align it now, by clearing the four low-order bits. */
-  if (!strcmp(f_name, "main"))
+  if (in_main)
       emit ("\tandl\t$-16, %%esp");
 }
 
@@ -1523,8 +1547,8 @@ void b_dealloc_local_vars (int size)
 */
 static void b_void_return (void)
 {
-        /* We don't use %ebx for anything, so just leave the function no
-         * matter where %esp is at this point. */
+        /* We don't use %ebx for anything persisting across function calls,
+         * so just leave the function no matter where %esp is at this point. */
     #if 0
         /* Move stack pointer from wherever it is to where %ebx was stored.
          * This means that we don't need to call b_dealloc_local_vars(). */
@@ -1558,6 +1582,8 @@ void b_func_epilogue (char *f_name)
 
       /* Reset loc_var_offset to a positive (illegal) value */
   loc_var_offset = 1;
+
+  in_main = FALSE;
 }
 
 
@@ -1986,13 +2012,13 @@ void b_funcall_by_ptr (TYPETAG return_type)
    For example, to emit code for the global declaration ``int i=5;'',
    one might call
 
-   b_global_decl("i", 4, 4);
+   b_global_decl("i", 4);
    b_alloc_int(5, 1);
 
    For another example, to emit code for the global declaration
    ``int a[10] = {3,4,5};'', one might call
 
-   b_global_decl("a", 4, 12);
+   b_global_decl("a", 4);
    b_alloc_int(3, 1);
    b_alloc_int(4, 1);
    b_alloc_int(5, 1);
