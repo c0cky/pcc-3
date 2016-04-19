@@ -6,17 +6,18 @@
 
 %{
 
-#include "defs.h"
-#include "types.h"
-#include "symtab.h"
-#include "bucket.h"
-#include "message.h"
-#include <stdio.h>
-#include "tree.h"
+	#include "types.h"
+	#include "symtab.h"
+	#include "bucket.h"
+	#include "message.h"
+	#include "tree.h"
+	#include "expr.h"
+	#include <stdio.h>
+	#include "defs.h"
 
     int yylex();
     int yyerror(char *s);
-	
+
     int sizeOfType(TYPETAG type);
     void globalDecl(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
 	void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
@@ -25,6 +26,8 @@
 	// Added for Proj 2
 	BOOLEAN funcDeclCheck(DN dn);
 	BOOLEAN st_IDCheck(ST_ID stid);
+	TYPETAG getTypeTag_STID(ST_ID stid);
+	void funcDefBuildParams(DN node);
 	//
 %}
 
@@ -37,8 +40,14 @@
 	ST_ID y_stID;
 	DN y_DN;
 	PARAM_LIST y_PL;
-	EXPR y_EXPR;
 	BOOLEAN y_ref; // Flag for reference type?
+
+	//Expressions
+	OP_UNARY y_unop;
+	OP_BINARY y_binop;
+	EN y_EN;
+	AL y_arg_list;
+
 };
 
 %token IDENTIFIER INT_CONSTANT DOUBLE_CONSTANT STRING_LITERAL SIZEOF
@@ -63,127 +72,202 @@
   *******************************/
 
 primary_expr
-	: identifier // Look up in the ST, if not in ST semantic error; Otherwise Build node (need TYPE)
-	{
-		// Get the name of ID from node
-		ST_ID stid = getSTID($<y_DN>1);
-		// Checks the Symbol Table for installment, returns True if installed, False if not
-		if(st_IDCheck(stid))
-		{
-			$<y_EXPR>$ = makeID_ExprN(stid);
-		}
-		else
-			error("'%s' is undefined", st_get_id_str(stid));
-	}
+	: identifier { int b; 
+			//if(!st_lookup(getSTID($<y_DN>1), &b))
+			//{error("undefined"); $<y_EN>$ = NULL;}
+			//else
+			$<y_EN>$ = createVariableExpression(getSTID($<y_DN>1)); }
 	| INT_CONSTANT { 
-		//msg("INT_CONSTANT is %d", $<y_int>1);
-		$<y_int>$ = $<y_int>1;
+		EN node = createConstantIntExpression($<y_int>1);
+		$<y_EN>$ = node;
+
+		// printExpression(node);
+
+		// $<y_int>$ = $<y_int>1;
 	}
 	| DOUBLE_CONSTANT {
 		// msg("DOUBLE CONSTANT is %f", $<y_double>$1);
-		$<y_double>$ = $<y_double>1;
+		
+		EN node = createConstantDoubleExpression($<y_double>1);
+		$<y_EN>$ = node;
+
+		// printExpression(node);
+
+		// $<y_double>$ = $<y_double>1;
 	}
 	| STRING_LITERAL {
 		// msg("STRING LITERAL is %s", $<y_string>$1);
+
 		$<y_string>$ = $<y_string>1;
 	}
-	| '(' expr ')'
+	| '(' expr ')' {
+		$<y_EN>$ = $<y_EN>2;
+	}
 	;
 
 postfix_expr
 	: primary_expr
 	| postfix_expr '[' expr ']'
-	| postfix_expr '(' argument_expr_list_opt ')' /*function calls PROJ 2*/
-	| postfix_expr '.' identifier 
+	| postfix_expr '(' argument_expr_list_opt ')' { $<y_EN>$ = createFunctionExpression($<y_EN>1, $<y_arg_list>3);}
+	| postfix_expr '.' identifier
 	| postfix_expr PTR_OP identifier
-	| postfix_expr INC_OP // PROJ 2
-	| postfix_expr DEC_OP // PROJ 2
+	| postfix_expr INC_OP
+	| postfix_expr DEC_OP
 	;
 
 argument_expr_list_opt
-	: /* null derive */
+	: /* null derive */ { $<y_arg_list>$ = NULL; }
 	| argument_expr_list
 	;
 
 argument_expr_list
-	: assignment_expr
-	| argument_expr_list ',' assignment_expr
+	: assignment_expr { $<y_arg_list>$ = buildArg( $<y_EN>1 );	}
+	| argument_expr_list ',' assignment_expr { 
+			$<y_arg_list>$ = linkArgList($<y_arg_list>1, buildArg( $<y_EN>3 ));
+	}
 	;
 
 unary_expr
 	: postfix_expr 
 	| INC_OP unary_expr
 	| DEC_OP unary_expr
-	| unary_operator cast_expr
+	| unary_operator cast_expr {
+		$<y_EN>$ = createUnaryExpression($<y_unop>1, $<y_EN>2, TRUE);
+	}
 	| SIZEOF unary_expr
 	| SIZEOF '(' type_name ')'
 	;
 
 unary_operator
-	: '&' | '*' | '+' | '-' | '~' | '!'
+	: '&' { $<y_unop>$ = UNARY_REF; 
+	}
+	| '*' { $<y_unop>$ = UNARY_DEREF; 
+	} 
+	| '+' { $<y_unop>$ = UNARY_PLUS; 
+	}
+	| '-' { $<y_unop>$ = UNARY_MINUS; 
+	}
+	| '~' { $<y_unop>$ = UNARY_TILDE; 
+	}
+	| '!' { $<y_unop>$ = UNARY_NOT; 
+	}
 	;
 
 cast_expr
-	: unary_expr 
+	: unary_expr
 	| '(' type_name ')' cast_expr
 	;
 
 multiplicative_expr
 	: cast_expr
 	| multiplicative_expr '*' cast_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_MULT, $<y_EN>1, $<y_EN>3);
+	}
 	| multiplicative_expr '/' cast_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_DIV, $<y_EN>1, $<y_EN>3);
+	}
 	| multiplicative_expr '%' cast_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_MOD, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 additive_expr
 	: multiplicative_expr
 	| additive_expr '+' multiplicative_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_ADD, $<y_EN>1, $<y_EN>3);
+	}
 	| additive_expr '-' multiplicative_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_SUB, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 shift_expr
 	: additive_expr
 	| shift_expr LEFT_OP additive_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_SHIFTL, $<y_EN>1, $<y_EN>3);
+	}
 	| shift_expr RIGHT_OP additive_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_SHIFTR, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 relational_expr
 	: shift_expr 
 	| relational_expr '<' shift_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_LT, $<y_EN>1, $<y_EN>3);
+	}
 	| relational_expr '>' shift_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_GRT, $<y_EN>1, $<y_EN>3);
+	}
 	| relational_expr LE_OP shift_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_LTE, $<y_EN>1, $<y_EN>3);
+	}
 	| relational_expr GE_OP shift_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_GRTE, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 equality_expr
 	: relational_expr
 	| equality_expr EQ_OP relational_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_EQUALS, $<y_EN>1, $<y_EN>3);
+	}
 	| equality_expr NE_OP relational_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_NE, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 and_expr
 	: equality_expr
 	| and_expr '&' equality_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_XAND, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 exclusive_or_expr
 	: and_expr 
 	| exclusive_or_expr '^' and_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_XNOT, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 inclusive_or_expr
 	: exclusive_or_expr 
 	| inclusive_or_expr '|' exclusive_or_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_XOR, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 logical_and_expr
 	: inclusive_or_expr 
 	| logical_and_expr AND_OP inclusive_or_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_AND, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 logical_or_expr
 	: logical_and_expr 
 	| logical_or_expr OR_OP logical_and_expr
+	{
+		$<y_EN>$ = createBinaryExpression(BINARY_OR, $<y_EN>1, $<y_EN>3);
+	}
 	;
 
 conditional_expr
@@ -192,12 +276,16 @@ conditional_expr
 	;
 
 assignment_expr
-	: conditional_expr
-	| unary_expr assignment_operator assignment_expr
+	: conditional_expr 
+	| unary_expr assignment_operator assignment_expr { 	
+		
+		$<y_EN>$ = createBinaryExpression($<y_binop>2, $<y_EN>1, $<y_EN>3);
+		
+	}
 	;
 
 assignment_operator
-	: '=' 	// x = 3 +4;
+	: '=' { $<y_binop>$ = BINARY_ASSIGNMENT; }
 	| MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | ADD_ASSIGN | SUB_ASSIGN
 	| LEFT_ASSIGN | RIGHT_ASSIGN | AND_ASSIGN | XOR_ASSIGN | OR_ASSIGN
 	;
@@ -383,8 +471,7 @@ direct_declarator
 			else
 				$<y_DN>$ = NULL;
 	}
-	| direct_declarator '(' ')' { 
-		//error("function node");
+	| direct_declarator '(' ')' {
 		$<y_DN>$ = makeFnNode($<y_DN>1, NULL);
 	}
 	| direct_declarator '(' identifier_list ')'
@@ -474,7 +561,7 @@ initializer_list
 statement
 	: labeled_statement
 	| compound_statement
-	| expression_statement // only legal statement
+	| expression_statement
 	| selection_statement
 	| iteration_statement
 	| jump_statement
@@ -487,10 +574,8 @@ labeled_statement
 	;
 
 compound_statement
-	: '{' '}'			 { //error("Empty Function");
-	}
-	| '{' statement_list '}'	 { //error("Stmt_list Function");
-	}
+	: '{' '}'
+	| '{' statement_list '}'
 	| '{' declaration_list '}'
 	| '{' declaration_list statement_list '}'
 	;
@@ -506,11 +591,14 @@ statement_list
 	;
 
 expression_statement
-	: expr_opt ';'	// traverse the tree in $1, bottom up, calling approp BE to push va;ies and apply operators
-	{
-// traverse function here is from HW2, to test some basic functionality, needs Tyler's Expression nodes
-		traverse($<y_EXPR>1);
-	}
+	: expr_opt ';' { $<y_EN>$ = evaluateExpression($<y_EN>1); 
+		//msg("Done evaluating Expression");
+		if($<y_EN>1->tag == TAG_FUNCTION)
+			;//b_internal_pop(FALSE);
+		else
+		b_internal_pop(TRUE);
+						// printExpression($<y_EN>$);
+					   }
 	;
 
 selection_statement
@@ -579,16 +667,21 @@ function_definition
 		ST_ID stid = getSTID($<y_DN>2);
 		char *f = st_get_id_str(stid);
 		ST_DR stdr;
+		PARAMSTYLE ps;
+		PARAM_LIST pl;
 		BOOLEAN result = FALSE;
 		TYPE baseType = build_base($<y_bucketPtr>1);
 		stdr = st_lookup(stid, &b);
 		if(!stdr)
 		{
+			//error("in check if stdr");
 			TYPE derivedType = building_derived_type_and_install_st($<y_DN>2, baseType);
 			GLD($<y_DN>2, baseType, derivedType, installSuccessful);
 			result = funcDeclCheck($<y_DN>2);
 		}
-		else if(stdr->u.decl.type == build_base($<y_bucketPtr>1))
+		else if (ty_query(stdr->u.decl.type) != TYFUNC)
+			error("duplicate or incompatible function declaration '%s'", f);
+		else if (ty_query(ty_query_func(stdr->u.decl.type, &ps, &pl)) == ty_query(baseType))
 		{
 			result = funcDeclCheck($<y_DN>2);
 		}
@@ -619,6 +712,7 @@ function_definition
 identifier
 	: IDENTIFIER { 
 		//msg("Found ID; Enrolling %s",$<y_string>1); 
+		
 		ST_ID varName = st_enter_id($<y_string>1);
 		$<y_DN>$ = makeIdNode(varName);
 	}
@@ -635,7 +729,7 @@ BOOLEAN funcDeclCheck(DN dn)
 	char * id = st_get_id_str(stid);
 	//error("Function %s\n", id);
 	BOOLEAN result = FALSE;
-
+	
 	ST_DR stdr;
 	stdr = st_lookup(stid, &b);
 	// if STDR is NULL then we build it
@@ -688,6 +782,37 @@ BOOLEAN funcDeclCheck(DN dn)
 		error("How did we get here in FuncDeclCheck not built, need to build?");
 }
 
+void funcDefBuildParams(DN node)
+{
+	int offset;
+	ST_DR dr;
+	BOOLEAN result;
+	//error("Building parameters");
+	if(node->tag != FUNC) 
+		error("Not a Function\n");
+	else
+	{
+		PARAM_LIST pl = node->u.param_list.pl;
+		while(pl != NULL)
+		{
+			dr = stdr_alloc(); // Allocate space for the symtab data record
+			dr->tag = PDECL;
+			dr->u.decl.type = pl->type;
+			dr->u.decl.sc = NO_SC;
+			dr->u.decl.err = FALSE;
+			result = st_install(pl->id, dr);
+			if (!result)
+			{
+			error("param install, duplicate declaration for %s", st_get_id_str(pl->id));
+			error("param, install duplicate definition of '%s'", st_get_id_str(pl->id));
+			}
+			offset = b_store_formal_param(ty_query(pl->type));
+			pl = pl->next;
+		}
+	}
+		
+
+}
 // stID check, TRUE if it does exist in current block or global, or FALSE it does not exist
 BOOLEAN st_IDCheck(ST_ID stid)
 {
@@ -701,10 +826,20 @@ BOOLEAN st_IDCheck(ST_ID stid)
 	else
 		return FALSE;
 }
-// PROJ2
+
+TYPETAG getTypeTag_STID(ST_ID stid)
+{
+	int b;
+	ST_DR stdr = st_lookup(stid, &b);
+	return ty_query(stdr->u.decl.type);
+}
+
+// PROJ2 End
+
 int sizeOfType(TYPETAG type)
 {
 	int returnedSizeOf = -1;
+
 	returnedSizeOf = get_size_basic(type);
 
 	return returnedSizeOf;

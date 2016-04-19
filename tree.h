@@ -73,49 +73,10 @@ PARAM_LIST linkParams(PARAM_LIST pl1, PARAM_LIST new_pl);
 
 // Check Params for duplicate IDs
 BOOLEAN checkParam(PARAM_LIST pl);
-//Returns the ST_ID from the list or 0 if it does not exist.
+//Returns the ST_ID from the list or null if it does not exist.
 ST_ID getSTID(DN dn);
 
 void print_tree(DN dn);
 char* tagToString(DECL_N_TAG tag);
-
-// ******************* PROJ 2 ADD
-typedef enum {CONST_EXPR, VAR_EXPR, UNOP_EXPR, BINOP_EXPR} EXPR_TAG_TYPE;
-
-// Unary operators - , #
-typedef enum {UN_MINUS, UN_PLUS, UN_LINE_REF} UNOP_TYPE;
-
-// Binary operators + - * / %
-typedef enum {PLUS, MINUS, MUL, DIV, MOD} BINOP_TYPE;
-
-// Expression Node (en)
-typedef struct en{
-	EXPR_TAG_TYPE tag;
-	union{
-		struct{
-			long val;
-		} const_;
-
-		struct{
-			ST_ID st_id;
-		} var;	
-		 // Unary op has one child
-		struct {
-			UNOP_TYPE op;
-			int line_num;
-			struct en *arg;
-		} unop;
-		// Binary Op has 2 children
-		struct{
-			BINOP_TYPE op;
-			struct en *l_arg, *r_arg;
-		} binop;
-	} u;
-} EXPR_REC, *EXPR;
-
-EXPR makeID_ExprN(ST_ID);
-
-long traverse(EXPR e);
-// ***********************END OF PROJ2 ADD
 
 #endif

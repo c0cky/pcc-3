@@ -136,8 +136,78 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 
 	return type;
 }
-// Build Parameter type, PARAM_LIST pl not used (only if parameter has its own param list)
+// For function_defintion production NOT USED
+void building_checkFunction(DN dn, TYPE initialType)
+{
+				//error("Function %s\n", id);
+		ST_ID stid = getSTID(dn);		
+		if (initialType == NULL)
+			initialType = ty_build_basic(TYSIGNEDINT);		
+		TYPE type;
+		int b;
+		BOOLEAN result = FALSE;
+		char *f = st_get_id_str(stid);
+		ST_DR stdr = st_lookup(stid, &b);
+		if(stdr == NULL) // if STDR is NULL then we build it
+		{		if(dn->u.param_list.pl == NULL)
+				type = ty_build_func(initialType, PROTOTYPE, NULL);
+				else
+				type = ty_build_func(initialType, PROTOTYPE, dn->u.param_list.pl->prev);
+			// send in node to check stuff
+		//BOOLEAN result = funcDeclCheck($<y_DN>1);
+			// Prologue into function and enter block (Back_end and Symbol Table stuff)
+		
+				ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 
+				dr->tag = FDECL;
+				dr->u.decl.type = type;
+				dr->u.decl.sc = NO_SC;
+				dr->u.decl.err = FALSE;
+				
+				BOOLEAN result; 
+				result = st_install(dn->u.st_id.i,dr);
+				if (!result) {
+					error("This should not happen,duplicate declaration for %s", f);
+					error("duplicate definition of '%s'", f);
+		}
+		else
+		{
+				if(ty_query(stdr->u.decl.type) != TYFUNC)
+				{ error("duplicate or incompatible function declaration '%s' FuncDeclCheck not TYFUNC", f);  
+					//return FALSE;		//bug("error not a function"); 
+				}
+				else
+				{
+					if(stdr->tag == GDECL)
+					{
+						//error("Is GDECL switch to FDECL");
+						stdr->tag = FDECL;
+						//return TRUE;
+					}
+					else if(stdr->tag == FDECL)
+					{
+						error("duplicate or incompatible function declaration '%s'", f);
+						//return FALSE;
+					}
+					else
+					{	error("Wrong type(not a function ID)"); 
+						//return FALSE;
+					 }
+					//stdr->u.decl.type = type;
+				}
+		
+		}
+		if(result)
+			{
+				b_func_prologue (f); 
+				st_enter_block();
+				funcDefBuildParams(dn);
+			}
+		//$<y_ref>$ = result;
+		}
+}
+
+// Build Parameter type, PARAM_LIST pl not used (only if parameter has its own param list)
 PARAM_LIST build_Param(DN dn, TYPE initialType, PARAM_LIST pl)
 {
 	if(dn == NULL)
@@ -215,7 +285,7 @@ BOOLEAN checkParam(PARAM_LIST pl)
 //Returns the ST_ID from the list or 0 if it does not exist.
 ST_ID getSTID(DN dn)
 {
-	ST_ID stId = 0;
+	ST_ID stId = NULL;
 
 	while(dn != NULL)
 	{
@@ -265,73 +335,4 @@ char* tagToString(DECL_N_TAG tag) {
 	}
 
 	return strTag;
-}
-
-// PROJ 2
-EXPR makeID_ExprN(ST_ID stid)
-{
-	error("EXPR ID node");
-	EXPR p;
-	p = (EXPR)malloc(sizeof(EXPR_REC));
-	p->tag = VAR_EXPR;
-	p->u.var.st_id = stid;	
-	return p;
-}
-
-long traverse(EXPR p)
-{	
-	switch(p->tag)
-	{
-		case CONST_EXPR:
-			return p->u.const_.val;
-			break;
-		case VAR_EXPR:
-			b_push_ext_addr (st_get_id_str(p->u.var.st_id)); // changed from PROJ 2
-			break;
-		case UNOP_EXPR:
-			switch(p->u.unop.op)
-			{	
-				case UN_MINUS:
-					return -(traverse(p->u.unop.arg));
-					break;
-				case UN_PLUS:
-					return traverse(p->u.unop.arg);
-					break;
-				case UN_LINE_REF:
-					//printf("LINE REF\n");
-					//printf("Need line reference data struct\n");
-					//if (p->u.unop.line_num != 0)
-					//	return memo_check(p);  //return list of line referen
-					//else  
-						//return memo_check(traverse(p->u.unop.arg));
-					// return (traverse(p->u.unop.arg));
-					break;
-				;
-			} // negative positive linerefernece?
-			break;
-		case BINOP_EXPR:
-			switch(p->u.binop.op)
-			{
-				case PLUS:
-					return (traverse(p->u.binop.l_arg) + traverse(p->u.binop.r_arg));
-					break;
-				case MINUS:
-					return (traverse(p->u.binop.l_arg) - traverse(p->u.binop.r_arg));
-					break;
-				case MUL:
-					return (traverse(p->u.binop.l_arg) * traverse(p->u.binop.r_arg));
-					break;
-				case DIV:
-					return (traverse(p->u.binop.l_arg) / traverse(p->u.binop.r_arg));
-					break;
-				case MOD:
-					return (traverse(p->u.binop.l_arg) % traverse(p->u.binop.r_arg));
-					break;
-				default:
-					fprintf(stderr, "BINOP failed\n");
-			}
-		default:
-			fprintf(stderr, "Expression tree failed\n");	
-	}
-
 }
