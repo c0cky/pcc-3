@@ -602,10 +602,18 @@ expression_statement
 	;
 
 selection_statement
-	: IF '(' expr ')' statement
-	| IF '(' expr ')' statement ELSE statement
+	: IF '(' expr ')' if_action statement {b_label($<y_string>5);}
+	| IF '(' expr ')' if_action statement ELSE statement
 	| SWITCH '(' expr ')' statement
 	;
+    
+if_action
+    : /* empty */ {
+      char *label = new_symbol();
+      // encode the expr
+      // b_cond_jump(TYPE OF EXPR, B_ZERO, label);
+      $<y_string>$ = label;
+    }
 
 iteration_statement
 	: WHILE '(' expr ')' statement
