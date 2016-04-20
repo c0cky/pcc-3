@@ -593,10 +593,10 @@ statement_list
 expression_statement
 	: expr_opt ';' { $<y_EN>$ = evaluateExpression($<y_EN>1); 
 		//msg("Done evaluating Expression");
-		if($<y_EN>1->tag == TAG_FUNCTION)
-			;//b_internal_pop(FALSE);
-		else
-		b_internal_pop(TRUE);
+		// if($<y_EN>1->tag == TAG_FUNCTION)
+		// 	;//b_internal_pop(FALSE);
+		// else
+		b_pop();
 						// printExpression($<y_EN>$);
 					   }
 	;

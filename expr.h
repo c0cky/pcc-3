@@ -15,6 +15,8 @@ typedef enum
 	TAG_CONST_INTEGER,
 	TAG_CONST_DOUBLE,
 
+	TAG_EVALUATED,
+
 	//Evaluated Expressions from Binary / Unary Operators Return value.
 	TAG_EVAL_INTEGER,
 	TAG_EVAL_DOUBLE,
@@ -181,6 +183,8 @@ BOOLEAN isDoubleExpression(EN node);
 //Returns true if this expression is a variable expression
 BOOLEAN isVariableExpression(EN node);
 
+BOOLEAN isEvaluatedExpression(EN node);
+
 void printExpression(EN node);
 void evalArgList(AL arg_list);
 AL buildArg(EN node);
@@ -188,7 +192,8 @@ AL linkArgList(AL current, AL new_al);
 TYPETAG getTypeTagFromExpression(EN node);
 TYPETAG ifDouble(BOOLEAN b);
 
-// Converts 
+// Conversions
+TYPETAG unaryConversion(EN operand);	//char -> int, float -> double, input must be variable
 TYPETAG convertExpression(EN leftOperand, EN rightOperand);
 
 #endif
