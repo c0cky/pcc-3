@@ -354,8 +354,8 @@ EN evalBinaryExpression(EN node)
 	msg("start evaluating binary expression %d", node->u.binop.op);
 
 	EN evaluated = NULL;
-	EN evalLeft = node->u.binop.leftOperand;
-	EN evalRight = node->u.binop.rightOperand;
+	EN evalLeft = NULL;
+	EN evalRight = NULL;
 	int b;
 	TYPETAG typetag = TYSIGNEDINT;
 	
@@ -401,16 +401,16 @@ EN evalBinaryExpression(EN node)
 		case BINARY_MULT: 	// a * b
 
 			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
-			if(isVariableExpression(evalLeft))
-				b_deref(getTypeTagFromExpression(evalLeft));
+			// if(isVariableExpression(evalLeft))
+			// 	b_deref(getTypeTagFromExpression(evalLeft));
 			/*if(isVariableExpression(evalRight))
 					{	if(typeTagEN(evalRight) != typeTagEN(evalLeft))
 						b_convert(typeTagEN(evalLeft), typeTagEN(evalRight)); }*/
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
-			if(isVariableExpression(evalRight))
-				b_deref(getTypeTagFromExpression(evalRight));
+			// if(isVariableExpression(evalRight))
+			// 	b_deref(getTypeTagFromExpression(evalRight));
 	
-			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight))
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
 			{
 				//Make evaluated be Double Expression After Multiplying.
 				evalLeft->u.valDouble = getDoubleFromExpression(evalLeft) 
@@ -427,52 +427,60 @@ EN evalBinaryExpression(EN node)
 				evaluated = evalLeft;
 
 			}
-			else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
-			{
-				evaluated = node;
-				evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-				b_arith_rel_op(B_MULT, ifDouble(evaluated->isDouble));
-			}
-			else if(isVariableExpression(evalLeft) || isVariableExpression(evalRight))
-			{
-				evaluated = node;
-				evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-				
-				if(isIntExpression(evalLeft))
-					b_push_const_int(evalLeft->u.valInt);	
-				else if (isIntExpression(evalRight))	
-					b_push_const_int(evalRight->u.valInt);	
-				b_arith_rel_op(B_MULT, ifDouble(evaluated->isDouble));//ifDouble(evalLeft->isDouble || evalRight->isDouble));
-
-			}
-			//else if(
 			else
 			{
+				TYPETAG type = convertExpression(evalLeft, evalRight);
+				b_arith_rel_op(B_MULT, type);
+				
 				evaluated = node;
-				evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);			
-				b_arith_rel_op(B_MULT, ifDouble(evaluated->isDouble));
-				//error("Cannot add these two expressions");
+
+
+				if(type == TYSIGNEDINT)
+					evaluated->isDouble = FALSE;
+				else
+					evaluated->isDouble = TRUE;
 			}
+			// else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
+			// {
+			// 	evaluated = node;
+			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
+			// 	b_arith_rel_op(B_MULT, ifDouble(evaluated->isDouble));
+			// }
+			// else if(isVariableExpression(evalLeft) || isVariableExpression(evalRight))
+			// {
+			// 	evaluated = node;
+			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
+				
+			// 	if(isIntExpression(evalLeft))
+			// 		b_push_const_int(evalLeft->u.valInt);	
+			// 	else if (isIntExpression(evalRight))	
+			// 		b_push_const_int(evalRight->u.valInt);	
+			// 	b_arith_rel_op(B_MULT, ifDouble(evaluated->isDouble));//ifDouble(evalLeft->isDouble || evalRight->isDouble));
+
+			// }
+			// //else if(
+			// else
+			// {
+			// 	evaluated = node;
+			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);			
+			// 	b_arith_rel_op(B_MULT, ifDouble(evaluated->isDouble));
+			// 	//error("Cannot add these two expressions");
+			// }
 
 			break;
 
 		case BINARY_DIV:		// a / 
 
-			msg("DIVIDING");
+			msg("BINARY_DIV");
 
-
-			evalLeft = node->u.binop.leftOperand;
-			evalRight = node->u.binop.rightOperand;
-
-			printExpression(evalRight);
-			// evalLeft = evaluateExpression(node->u.binop.leftOperand);	
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			// if(isVariableExpression(evalLeft))
 			// 	b_deref(getTypeTagFromExpression(evalLeft));	
-			// evalRight = evaluateExpression(node->u.binop.rightOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			// if(isVariableExpression(evalRight))
 			// 	b_deref(getTypeTagFromExpression(evalRight));
 	
-			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight))
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
 			{
 				//Make evaluated be Double Expression After Multiplying.
 				evalLeft->u.valDouble = getDoubleFromExpression(evalLeft) 
@@ -494,12 +502,13 @@ EN evalBinaryExpression(EN node)
 			{
 				TYPETAG type = convertExpression(evalLeft, evalRight);
 				b_arith_rel_op(B_DIV, type);
-
+				
 				evaluated = node;
+
 				if(type == TYSIGNEDINT)
-					evaluated->tag = TAG_EVAL_INTEGER;
+					evaluated->isDouble = FALSE;
 				else
-					evaluated->tag = TAG_EVAL_DOUBLE;
+					evaluated->isDouble = TRUE;
 			}
 			// else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
 			// {
@@ -552,21 +561,17 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_ADD:		// a + b
 
-			msg("INSIDE BINARY_ADD");
 			// Moved to top of function
-			//evaluateExpression(node->u.binop.leftOperand);	
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			// if(isVariableExpression(evalLeft))
 			// 	b_deref(getTypeTagFromExpression(evalLeft));	
-			// evaluateExpression(node->u.binop.rightOperand);
+			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			// if(isVariableExpression(evalRight))
 			// 	b_deref(getTypeTagFromExpression(evalRight));
-
-			printExpression(evalLeft);
-			printExpression(evalRight);
 	
-			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight))
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
 			{
-				msg("Eval + for double + double");
+			// 	msg("Eval + for double + double");
 				//Make evaluated be Double Expression After Multiplying.
 				evalLeft->u.valDouble = getDoubleFromExpression(evalLeft) 
 											+ getDoubleFromExpression(evalRight);
@@ -576,7 +581,7 @@ EN evalBinaryExpression(EN node)
 			}
 			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
 			{
-				msg("Eval + for int + int");
+				// msg("Eval + for int + int");
 				//Make evaluated be Integer Expression after Multiplying.
 				evalLeft->u.valInt = getIntFromExpression(evalLeft)
 											+ getIntFromExpression(evalRight);
@@ -592,9 +597,9 @@ EN evalBinaryExpression(EN node)
 
 
 				if(type == TYSIGNEDINT)
-					evaluated->tag = TAG_EVAL_INTEGER;
+					evaluated->isDouble = FALSE;
 				else
-					evaluated->tag = TAG_EVAL_DOUBLE;
+					evaluated->isDouble = TRUE;
 			}
 			// else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
 			// {
@@ -636,13 +641,13 @@ EN evalBinaryExpression(EN node)
 		case BINARY_SUB:		// a - b
 
 			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
-			if(isVariableExpression(evalLeft))
-				b_deref(getTypeTagFromExpression(evalLeft));	
+			// if(isVariableExpression(evalLeft))
+			// 	b_deref(getTypeTagFromExpression(evalLeft));	
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
-			if(isVariableExpression(evalRight))
-				b_deref(getTypeTagFromExpression(evalRight));
+			// if(isVariableExpression(evalRight))
+			// 	b_deref(getTypeTagFromExpression(evalRight));
 	
-			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight))
+			if(isDoubleExpression(evalLeft) || isDoubleExpression(evalRight))
 			{
 				//Make evaluated be Double Expression After Multiplying.
 				evalLeft->u.valDouble = getDoubleFromExpression(evalLeft) 
@@ -659,35 +664,48 @@ EN evalBinaryExpression(EN node)
 				evaluated = evalLeft;
 
 			}
-			else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
-			{
-				evaluated = node;
-				evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-				/*if(isIntExpression(evalLeft))
-					b_push_const_int(evalLeft->u.valInt);	
-				else if (isIntExpression(evalRight))	
-					b_push_const_int(evalRight->u.valInt);	*/
-				b_arith_rel_op(B_SUB, ifDouble(evaluated->isDouble));
-			}
-			else if(isVariableExpression(evalLeft) || isVariableExpression(evalRight))
-			{
-				evaluated = node;
-				evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-				if(isIntExpression(evalLeft))
-					b_push_const_int(evalLeft->u.valInt);	
-				else if (isIntExpression(evalRight))	
-					b_push_const_int(evalRight->u.valInt);	
-				b_arith_rel_op(B_SUB, ifDouble(evaluated->isDouble));//ifDouble(evalLeft->isDouble || evalRight->isDouble));
-
-			}
-			//else if(
 			else
 			{
+				TYPETAG type = convertExpression(evalLeft, evalRight);
+				b_arith_rel_op(B_SUB, type);
+				
 				evaluated = node;
-				evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);			
-				b_arith_rel_op(B_SUB, ifDouble(evaluated->isDouble));
-				//error("Cannot add these two expressions");
+
+
+				if(type == TYSIGNEDINT)
+					evaluated->isDouble = FALSE;
+				else
+					evaluated->isDouble = TRUE;
 			}
+			// else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
+			// {
+			// 	evaluated = node;
+			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
+			// 	/*if(isIntExpression(evalLeft))
+			// 		b_push_const_int(evalLeft->u.valInt);	
+			// 	else if (isIntExpression(evalRight))	
+			// 		b_push_const_int(evalRight->u.valInt);	*/
+			// 	b_arith_rel_op(B_SUB, ifDouble(evaluated->isDouble));
+			// }
+			// else if(isVariableExpression(evalLeft) || isVariableExpression(evalRight))
+			// {
+			// 	evaluated = node;
+			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
+			// 	if(isIntExpression(evalLeft))
+			// 		b_push_const_int(evalLeft->u.valInt);	
+			// 	else if (isIntExpression(evalRight))	
+			// 		b_push_const_int(evalRight->u.valInt);	
+			// 	b_arith_rel_op(B_SUB, ifDouble(evaluated->isDouble));//ifDouble(evalLeft->isDouble || evalRight->isDouble));
+
+			// }
+			// //else if(
+			// else
+			// {
+			// 	evaluated = node;
+			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);			
+			// 	b_arith_rel_op(B_SUB, ifDouble(evaluated->isDouble));
+			// 	//error("Cannot add these two expressions");
+			// }
 
 			break;
 
@@ -911,7 +929,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 	else if(isVariableExpression(leftOperand))
 	{// if the left operand is a variable
 
-		leftOperand = evaluateExpression(leftOperand);
+		// leftOperand = evaluateExpression(leftOperand);
 
 		TYPETAG leftType = typeTagEN(leftOperand);
 
@@ -950,7 +968,6 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 			{
 				msg("var + var: both integers");
 				// b_push_const_int(rightOperand->u.valInt);
-				evaluateExpression(rightOperand);
 				b_deref(rightType);
 				msg("deref questionable?");
 				type = TYSIGNEDINT;
@@ -958,20 +975,17 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 			else if(leftType == TYSIGNEDINT && rightType == TYDOUBLE)
 			{
 				b_convert(leftType, TYDOUBLE);
-				evaluateExpression(rightOperand);
 				b_deref(rightType);
 				type = TYDOUBLE;
 			}
 			else if(leftType == TYDOUBLE && rightType == TYSIGNEDINT)
 			{
-				evaluateExpression(rightOperand);
 				b_deref(rightType);
 				b_convert(rightType, TYDOUBLE);
 				type = TYDOUBLE;
 			}
 			else if(leftType == TYDOUBLE && rightType == TYDOUBLE)
 			{
-				evaluateExpression(rightOperand);
 				b_deref(rightType);
 				type = TYDOUBLE;
 			}
@@ -987,14 +1001,12 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 		if(isIntExpression(leftOperand) && rightType == TYSIGNEDINT)
 		{
 			b_push_const_int(leftOperand->u.valInt);
-			evaluateExpression(rightOperand);
 			b_deref(rightType);
 			type = TYSIGNEDINT;
 		}
 		else if(isDoubleExpression(leftOperand) && rightType == TYSIGNEDINT)
 		{
 			b_push_const_double(leftOperand->u.valDouble);
-			evaluateExpression(rightOperand);
 			b_deref(rightType);
 			b_convert(rightType, TYDOUBLE);
 			type = TYDOUBLE;
@@ -1003,14 +1015,12 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 		{
 			b_push_const_int(leftOperand->u.valInt);
 			b_convert(TYSIGNEDINT, TYDOUBLE);
-			evaluateExpression(rightOperand);
 			b_deref(rightType);
 			type = TYDOUBLE;
 		}
 		else if(isDoubleExpression(leftOperand) && rightType == TYDOUBLE)
 		{
 			b_push_const_double(leftOperand->u.valDouble);
-			evaluateExpression(rightOperand);
 			b_deref(rightType);
 			type = TYDOUBLE;
 		}
@@ -1048,21 +1058,12 @@ ST_ID getIDFromVariableExpression(EN node)
 /***************** Eval Expressions ***************/
 
 TYPETAG getTypeTagFromExpression(EN node)
-{
-	if(isEvaluatedExpression(node))
-	{
-		if(node->tag == TAG_EVAL_INTEGER)
-			return TYSIGNEDINT;
-		else
-			return TYDOUBLE;
-	}
-	else //if(isVariableExpression(node))
-	{
-		int b;
-		ST_ID stid = getIDFromVariableExpression(node);
-		ST_DR stdr = st_lookup(node->u.varStID, &b);
-		return ty_query(stdr->u.decl.type);
-	}
+{ 
+	//if(isVariableExpression(node))
+	int b;
+	ST_ID stid = getIDFromVariableExpression(node);
+	ST_DR stdr = st_lookup(node->u.varStID, &b);
+	return ty_query(stdr->u.decl.type);
 }
 
 TYPETAG ifDouble(BOOLEAN double_)
@@ -1090,14 +1091,6 @@ BOOLEAN isDoubleExpression(EN node)
 BOOLEAN isVariableExpression(EN node)
 {
 	if(node!=NULL && node->tag == TAG_VARIABLE)
-		return TRUE;
-	return FALSE;
-}
-
-//Returns true if this expression has been evaluated i.e 'tag->TAG_EVAL_INTEGER || TAG_EVAL_DOUBLE'
-BOOLEAN isEvaluatedExpression(EN node)
-{
-	if(node!= NULL && (node->evauated == TRUE)
 		return TRUE;
 	return FALSE;
 }

@@ -181,9 +181,6 @@ BOOLEAN isDoubleExpression(EN node);
 //Returns true if this expression is a variable expression
 BOOLEAN isVariableExpression(EN node);
 
-//Returns true if this expression has been evaluated i.e 'tag->TAG_EVAL_INTEGER || TAG_EVAL_DOUBLE'
-BOOLEAN isEvaluatedExpression(EN node);
-
 void printExpression(EN node);
 void evalArgList(AL arg_list);
 AL buildArg(EN node);
