@@ -463,7 +463,7 @@ direct_declarator
 	}
 	| direct_declarator '[' ']'
 	| direct_declarator '[' constant_expr ']' { 
-			$<y_DN>$ = makeArrayNode($<y_DN>1, $<y_int>3);
+			$<y_DN>$ = makeArrayNode($<y_DN>1, getIntFromExpression(evaluateExpression($<y_EN>3)));
 	}
 	| direct_declarator '(' parameter_type_list ')' {
 			if(checkParam($<y_PL>3))
@@ -593,27 +593,19 @@ statement_list
 expression_statement
 	: expr_opt ';' { $<y_EN>$ = evaluateExpression($<y_EN>1); 
 		//msg("Done evaluating Expression");
-		if($<y_EN>1->tag == TAG_FUNCTION)
-			;//b_internal_pop(FALSE);
+		 if($<y_EN>1->tag == TAG_FUNCTION)
+			;// 	;//b_internal_pop(FALSE);
 		else
-		b_internal_pop(TRUE);
+		b_pop();
 						// printExpression($<y_EN>$);
 					   }
 	;
 
 selection_statement
-	: IF '(' expr ')' if_action statement {b_label($<y_string>5);}
-	| IF '(' expr ')' if_action statement ELSE statement
+	: IF '(' expr ')' statement
+	| IF '(' expr ')' statement ELSE statement
 	| SWITCH '(' expr ')' statement
 	;
-    
-if_action
-    : /* empty */ {
-      char *label = new_symbol();
-      // encode the expr
-      // b_cond_jump(TYPE OF EXPR, B_ZERO, label);
-      $<y_string>$ = label;
-    }
 
 iteration_statement
 	: WHILE '(' expr ')' statement
