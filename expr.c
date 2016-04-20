@@ -302,11 +302,14 @@ EN evalUnaryExpression(EN node)
 				b_negate(type);
 				returnedNode = expr;
 				returnedNode->tag = TAG_EVALUATED;
+				returnedNode->u.eval.type = type;
+			}
+			else if(isEvaluatedExpression(expr) == TRUE)
+			{
+				TYPETAG type = getTypeTagFromExpression(expr);
 
-				if(type == TYSIGNEDINT)
-					returnedNode->isDouble = FALSE;
-				else
-					returnedNode->isDouble = TRUE;
+				b_negate(type);
+				returnedNode = expr;
 			}
 			else
 				error("Illegal Unary Minus in expression");
@@ -393,7 +396,7 @@ EN evalBinaryExpression(EN node)
 
 			printExpression(evalLeft);
 			printExpression(evalRight);
-			
+
 			// Aaron ADD
 			TYPETAG type;
 
@@ -401,6 +404,12 @@ EN evalBinaryExpression(EN node)
 			{
 				b_push_const_int(evalRight->u.valInt);
 				type = TYSIGNEDINT;
+
+				if(type != typeTagEN(evalLeft))
+				{
+					b_convert(type, typeTagEN(evalLeft)); 
+					type = typeTagEN(evalLeft);
+				}
 			}
 			else if(isVariableExpression(evalRight))
 			{
@@ -408,26 +417,40 @@ EN evalBinaryExpression(EN node)
 				b_deref(type);
 
 				type = unaryConversion(evalRight); 
-				
+
+
 				if(type != typeTagEN(evalLeft))
+				{
 					b_convert(type, typeTagEN(evalLeft)); 
+					type = typeTagEN(evalLeft);
+				}
 			}
 			else if(isDoubleExpression(evalRight))
 			{
 				b_push_const_double(evalRight->u.valDouble);
 				type = TYDOUBLE;
+
+				if(type != typeTagEN(evalLeft))
+				{
+					b_convert(type, typeTagEN(evalLeft)); 
+					type = typeTagEN(evalLeft);
+				}	
 			}
 			else if(isEvaluatedExpression(evalRight))
 			{
 				msg("Evaluated righthand side in ASSIGNMENT!!!!");
-				type = ifDouble(evalRight->isDouble);
+				type = getTypeTagFromExpression(evalRight);
 
-				if(typeTagEN(evalLeft) != type)
-					b_convert(type, typeTagEN(evalLeft));
+				if(type != typeTagEN(evalLeft))
+				{
+					b_convert(type, typeTagEN(evalLeft)); 
+					type = typeTagEN(evalLeft);
+				}
 			}
 			
 			if(st_lookup(evalLeft->u.varStID, &b) != NULL && getTypeTag_STID(evalLeft->u.varStID) != TYFUNC )	
-			{	
+			{
+
 				b_assign(getTypeTag_STID(evalLeft->u.varStID)); 				
 			}
 			else
@@ -435,11 +458,7 @@ EN evalBinaryExpression(EN node)
 			
 			evaluated = node;
 			evaluated->tag = TAG_EVALUATED;
-			
-			if(type == TYSIGNEDINT)
-				evaluated->isDouble = FALSE;
-			else
-				evaluated->isDouble = TRUE;
+			evaluated->u.eval.type = type;
 
 			break;
 
@@ -449,10 +468,16 @@ EN evalBinaryExpression(EN node)
 
 			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			if(isVariableExpression(evalLeft))
-				b_deref(getTypeTagFromExpression(evalLeft));	
+			{
+				b_deref(getTypeTagFromExpression(evalLeft));
+				unaryConversion(evalLeft);
+			}
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			if(isVariableExpression(evalRight))
+			{
 				b_deref(getTypeTagFromExpression(evalRight));
+				unaryConversion(evalRight); 
+			}
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -480,12 +505,7 @@ EN evalBinaryExpression(EN node)
 				
 				evaluated = node;
 				evaluated->tag = TAG_EVALUATED;
-
-
-				if(type == TYSIGNEDINT)
-					evaluated->isDouble = FALSE;
-				else
-					evaluated->isDouble = TRUE;
+				evaluated->u.eval.type = type;
 			}
 			// else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
 			// {
@@ -522,10 +542,16 @@ EN evalBinaryExpression(EN node)
 
 			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			if(isVariableExpression(evalLeft))
-				b_deref(getTypeTagFromExpression(evalLeft));	
+			{
+				b_deref(getTypeTagFromExpression(evalLeft));
+				unaryConversion(evalLeft); 
+			}
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			if(isVariableExpression(evalRight))
+			{
 				b_deref(getTypeTagFromExpression(evalRight));
+				unaryConversion(evalRight); 
+			}
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -554,11 +580,7 @@ EN evalBinaryExpression(EN node)
 				
 				evaluated = node;
 				evaluated->tag = TAG_EVALUATED;
-
-				if(type == TYSIGNEDINT)
-					evaluated->isDouble = FALSE;
-				else
-					evaluated->isDouble = TRUE;
+				evaluated->u.eval.type = type;
 			}
 			// else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
 			// {
@@ -616,10 +638,16 @@ EN evalBinaryExpression(EN node)
 			// Moved to top of function
 			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			if(isVariableExpression(evalLeft))
-				b_deref(getTypeTagFromExpression(evalLeft));	
+			{
+				b_deref(getTypeTagFromExpression(evalLeft));
+				unaryConversion(evalLeft); 
+			}
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			if(isVariableExpression(evalRight))
+			{
 				b_deref(getTypeTagFromExpression(evalRight));
+				unaryConversion(evalRight); 
+			}
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -649,12 +677,7 @@ EN evalBinaryExpression(EN node)
 				
 				evaluated = node;
 				evaluated->tag = TAG_EVALUATED;
-
-
-				if(type == TYSIGNEDINT)
-					evaluated->isDouble = FALSE;
-				else
-					evaluated->isDouble = TRUE;
+				evaluated->u.eval.type = type;
 			}
 			// else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
 			// {
@@ -699,10 +722,16 @@ EN evalBinaryExpression(EN node)
 
 			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			if(isVariableExpression(evalLeft))
-				b_deref(getTypeTagFromExpression(evalLeft));	
+			{
+				b_deref(getTypeTagFromExpression(evalLeft));
+				unaryConversion(evalLeft); 
+			}
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			if(isVariableExpression(evalRight))
+			{
 				b_deref(getTypeTagFromExpression(evalRight));
+				unaryConversion(evalRight); 
+			}
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -730,11 +759,7 @@ EN evalBinaryExpression(EN node)
 				
 				evaluated = node;
 				evaluated->tag = TAG_EVALUATED;
-
-				if(type == TYSIGNEDINT)
-					evaluated->isDouble = FALSE;
-				else
-					evaluated->isDouble = TRUE;
+				evaluated->u.eval.type = type;
 			}
 			// else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
 			// {
@@ -775,12 +800,18 @@ EN evalBinaryExpression(EN node)
 		//Boolean Comparators
 		case BINARY_LT:		// a < b
 			
-			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			if(isVariableExpression(evalLeft))
-				b_deref(getTypeTagFromExpression(evalLeft));	
+			{
+				b_deref(getTypeTagFromExpression(evalLeft));
+				unaryConversion(evalLeft); 
+			}
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			if(isVariableExpression(evalRight))
+			{
 				b_deref(getTypeTagFromExpression(evalRight));
+				unaryConversion(evalRight); 
+			}
 			//Make evaluated be int Expression After comparing
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -805,11 +836,7 @@ EN evalBinaryExpression(EN node)
 				
 				evaluated = node;
 				evaluated->tag = TAG_EVALUATED;
-
-				if(type == TYSIGNEDINT)
-					evaluated->isDouble = FALSE;
-				else
-					evaluated->isDouble = TRUE;
+				evaluated->u.eval.type = type;
 			}
 			// else if(isVariableExpression(evalLeft) || isVariableExpression(evalRight))
 			// {
@@ -825,12 +852,18 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_GRT:		// a > b
 
-			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			if(isVariableExpression(evalLeft))
-				b_deref(getTypeTagFromExpression(evalLeft));	
+			{
+				b_deref(getTypeTagFromExpression(evalLeft));
+				unaryConversion(evalLeft); 
+			}
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			if(isVariableExpression(evalRight))
+			{
 				b_deref(getTypeTagFromExpression(evalRight));
+				unaryConversion(evalRight); 
+			}
 			//Make evaluated be int Expression After comparing
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -855,11 +888,7 @@ EN evalBinaryExpression(EN node)
 				
 				evaluated = node;
 				evaluated->tag = TAG_EVALUATED;
-
-				if(type == TYSIGNEDINT)
-					evaluated->isDouble = FALSE;
-				else
-					evaluated->isDouble = TRUE;
+				evaluated->u.eval.type = type;
 			}
 			// else if(isVariableExpression(evalLeft) || isVariableExpression(evalRight))
 			// {
@@ -875,12 +904,18 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_LTE:		// a <= b
 
-			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			if(isVariableExpression(evalLeft))
-				b_deref(getTypeTagFromExpression(evalLeft));	
+			{
+				b_deref(getTypeTagFromExpression(evalLeft));
+				unaryConversion(evalLeft); 
+			}
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			if(isVariableExpression(evalRight))
+			{
 				b_deref(getTypeTagFromExpression(evalRight));
+				unaryConversion(evalRight); 
+			}
 
 			//Make evaluated be int Expression After comparing
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
@@ -906,11 +941,7 @@ EN evalBinaryExpression(EN node)
 				
 				evaluated = node;
 				evaluated->tag = TAG_EVALUATED;
-
-				if(type == TYSIGNEDINT)
-					evaluated->isDouble = FALSE;
-				else
-					evaluated->isDouble = TRUE;
+				evaluated->u.eval.type = type;
 			}
 			// else
 			// {
@@ -920,12 +951,18 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_GRTE: 	// a >= b
 
-			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			if(isVariableExpression(evalLeft))
-				b_deref(getTypeTagFromExpression(evalLeft));	
+			{
+				b_deref(getTypeTagFromExpression(evalLeft));
+				unaryConversion(evalLeft); 
+			}
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			if(isVariableExpression(evalRight))
+			{
 				b_deref(getTypeTagFromExpression(evalRight));
+				unaryConversion(evalRight); 
+			}
 
 			//Make evaluated be int Expression After comparing
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
@@ -951,11 +988,7 @@ EN evalBinaryExpression(EN node)
 				
 				evaluated = node;
 				evaluated->tag = TAG_EVALUATED;
-
-				if(type == TYSIGNEDINT)
-					evaluated->isDouble = FALSE;
-				else
-					evaluated->isDouble = TRUE;
+				evaluated->u.eval.type = type;
 			}
 			// else
 			// {
@@ -965,12 +998,18 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_EQUALS:	// a == b
 
-			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			if(isVariableExpression(evalLeft))
-				b_deref(getTypeTagFromExpression(evalLeft));	
+			{
+				b_deref(getTypeTagFromExpression(evalLeft));
+				unaryConversion(evalLeft); 
+			}
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			if(isVariableExpression(evalRight))
+			{
 				b_deref(getTypeTagFromExpression(evalRight));
+				unaryConversion(evalRight); 
+			}
 
 			//Make evaluated be int Expression After comparing
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
@@ -996,11 +1035,7 @@ EN evalBinaryExpression(EN node)
 				
 				evaluated = node;
 				evaluated->tag = TAG_EVALUATED;
-
-				if(type == TYSIGNEDINT)
-					evaluated->isDouble = FALSE;
-				else
-					evaluated->isDouble = TRUE;
+				evaluated->u.eval.type = type;
 			}
 			// else
 			// {
@@ -1010,12 +1045,18 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_NE:		// a != b
 
-			evalLeft = evaluateExpression(node->u.binop.leftOperand);
+			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			if(isVariableExpression(evalLeft))
-				b_deref(getTypeTagFromExpression(evalLeft));	
+			{
+				b_deref(getTypeTagFromExpression(evalLeft));
+				unaryConversion(evalLeft); 
+			}
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			if(isVariableExpression(evalRight))
+			{
 				b_deref(getTypeTagFromExpression(evalRight));
+				unaryConversion(evalRight); 
+			}
 
 			//Make evaluated be int Expression After comparing
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
@@ -1041,11 +1082,7 @@ EN evalBinaryExpression(EN node)
 				
 				evaluated = node;
 				evaluated->tag = TAG_EVALUATED;
-
-				if(type == TYSIGNEDINT)
-					evaluated->isDouble = FALSE;
-				else
-					evaluated->isDouble = TRUE;
+				evaluated->u.eval.type = type;
 			}
 			// else
 			// {
@@ -1072,6 +1109,46 @@ EN evalBinaryExpression(EN node)
 	return evaluated;
 }
 
+
+
+TYPETAG unaryConversionNoConversion(EN operand)
+{
+	msg("Inside Unary Conversion No Conversion");
+
+	TYPETAG returnType, 
+			currentType;
+
+	returnType = currentType = getTypeTagFromExpression(operand); 
+
+	// msg("return type %d", returnType);
+
+	// if(currentType == TYSIGNEDCHAR )
+		// msg("iffffffffffffffffffff");
+	switch(currentType)
+	{
+		case TYSIGNEDLONGINT:
+		case TYSIGNEDCHAR:
+		case TYSIGNEDSHORTINT:
+		case TYUNSIGNEDLONGINT:
+		case TYUNSIGNEDSHORTINT:
+		case TYUNSIGNEDINT:
+		case TYUNSIGNEDCHAR:
+			 	msg("convert %d to %d", currentType, returnType);
+			 	returnType = TYSIGNEDINT;
+			 	// b_convert(currentType, returnType);
+			 	break;
+		case TYFLOAT:
+		case TYLONGDOUBLE:
+			 	msg("convert %d to %d", currentType, returnType);
+			 	returnType = TYDOUBLE;
+			 	// b_convert(currentType, returnType);
+			 	break;
+	}
+	
+	// msg("finished switch in unaryConversion");
+
+	return returnType;
+}
 
 TYPETAG unaryConversion(EN operand)
 {
@@ -1104,7 +1181,7 @@ TYPETAG unaryConversion(EN operand)
 			 	msg("convert %d to %d", currentType, returnType);
 			 	returnType = TYDOUBLE;
 			 	b_convert(currentType, returnType);
-			 break;
+			 	break;
 	}
 	
 	// msg("finished switch in unaryConversion");
@@ -1119,7 +1196,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 
 	if(isEvaluatedExpression(leftOperand))
 	{
-		TYPETAG leftType = ifDouble(leftOperand->isDouble);
+		TYPETAG leftType = unaryConversion(leftOperand);
 
 		if(leftType == TYSIGNEDINT && isIntExpression(rightOperand))
 		{
@@ -1148,7 +1225,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 			TYPETAG rightType = getTypeTagFromExpression(rightOperand);
 			// deref the left operand 
 			// b_deref(rightType);
-			rightType = unaryConversion(rightOperand);
+			rightType = unaryConversionNoConversion(rightOperand);
 
 
 			msg("rightType %d", rightType);
@@ -1185,7 +1262,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 		}
 		else if(isEvaluatedExpression(rightOperand))
 		{//both operands have been evaluated (on the stack)
-			TYPETAG rightType = ifDouble(rightOperand->isDouble);
+			TYPETAG rightType = unaryConversion(rightOperand);
 			if(leftType == rightType && leftType == TYSIGNEDINT)
 			{
 				msg("int && int");
@@ -1220,7 +1297,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 
 		// deref the left operand 
 		// b_deref(leftType);
-		leftType = unaryConversion(leftOperand);
+		leftType = unaryConversionNoConversion(leftOperand);
 
 		if(leftType == TYSIGNEDINT && isIntExpression(rightOperand))
 		{
@@ -1248,7 +1325,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 		{
 
 			TYPETAG rightType = typeTagEN(rightOperand);
-			rightType = unaryConversion(rightOperand);
+			rightType = unaryConversionNoConversion(rightOperand);
 			msg("rightType %d", rightType);
 
 			if(leftType == TYSIGNEDINT && rightType == TYSIGNEDINT)
@@ -1285,7 +1362,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 		{
 			msg("var op evaluated");
 			
-			TYPETAG rightType = ifDouble(rightOperand->isDouble);
+			TYPETAG rightType = unaryConversion(rightOperand);
 
 			if(leftType == rightType && leftType == TYSIGNEDINT)
 			{
@@ -1311,7 +1388,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 	else if(isVariableExpression(rightOperand))
 	{// if the right operand is a variable
 		TYPETAG rightType = typeTagEN(rightOperand);
-		rightType = unaryConversion(rightOperand);
+		rightType = unaryConversionNoConversion(rightOperand);
 
 		// deref the right operand 
 		// b_deref(rightType);
@@ -1379,12 +1456,17 @@ TYPETAG getTypeTagFromExpression(EN node)
 { 
 	if(isEvaluatedExpression(node))
 	{
-		if(node->isDouble)
-			return TYDOUBLE;
-		else
-			return TYSIGNEDINT;
+		return node->u.eval.type;
 	}
-	else 
+	else if(isIntExpression(node))
+	{
+		return TYSIGNEDINT;
+	}
+	else if(isDoubleExpression(node))
+	{
+		return TYDOUBLE;
+	}
+	else
 	{//if(isVariableExpression(node))
 		int b;
 		ST_ID stid = getIDFromVariableExpression(node);
