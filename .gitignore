@@ -1,2 +1,4 @@
 *.o
 pcc3
+y.tab.c
+y.tab.h
