@@ -196,9 +196,9 @@ EN evalVariableExpression(EN node)
 	if(b == 0 && stdr != NULL) // Maybe change to Less than current block
 		b_push_ext_addr(identifier); //msg("pushing");}
 	else if(stdr)
-		;//b_push_loc_addr(b_get_formal_param_offset(ty_query(stdr->u.decl.type))); // This is not returning the value of 8 for TYSIGNEDINT...?
+		;//error("why");//b_push_loc_addr(b_get_formal_param_offset(ty_query(stdr->u.decl.type))); // This is not returning the value of 8 for TYSIGNEDINT...?
 	else
-	{	error("'%s' is undefined", identifier); return NULL;}
+	{	error("`%s' is undefined", identifier); return NULL;}
 	//msg("Evaluating Variable: %s", identifier);
 	return node;
 
@@ -219,7 +219,7 @@ TYPETAG returnFuncTypeTag(EN node)
 	
 	if (ty_query(stdr->u.decl.type) != TYFUNC)
 	{
-		error("duplicate or incompatible function declaration '%s'", st_get_id_str(stid));
+		error("expression not of function type", st_get_id_str(stid));
 		return TYVOID;
 	}
 	else
@@ -252,7 +252,7 @@ EN evalFunctionExpression(EN node)
 	if(st_lookup(node->u.func.func_node->u.varStID, &b) != NULL )
 		b_funcall_by_name(f, returnFuncTypeTag(node));
 	else
-		error("'%s' is undefined", f);
+		error("`%s' is undefined", f);
 	return node;
 }
 
@@ -535,6 +535,36 @@ EN evalBinaryExpression(EN node)
 				evaluated = evalLeft;
 
 			}
+			else if(evalLeft->tag == TAG_FUNCTION && evalRight->tag == TAG_FUNCTION)
+			{
+				// SHOULD be return Type Convert call might be needed
+					b_arith_rel_op(B_MULT, returnFuncTypeTag(evalLeft)); 
+				evaluated = evalLeft;
+			}
+			else if(evalLeft->tag == TAG_FUNCTION)
+			{
+				evalLeft = evaluateExpression(node->u.binop.leftOperand);
+
+			//evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+				if(isIntExpression(evalRight))
+				{	b_push_const_int(evalRight->u.valInt);
+					b_arith_rel_op(B_MULT, TYSIGNEDINT);}
+				else
+				{	b_push_const_double(evalRight->u.valDouble);
+					b_arith_rel_op(B_MULT, TYDOUBLE);}
+				evaluated = evalLeft;
+			}
+			else if(evalRight->tag == TAG_FUNCTION)
+			{
+				if(isIntExpression(evalLeft))
+				{	b_push_const_int(evalLeft->u.valInt);
+					b_arith_rel_op(B_MULT, TYSIGNEDINT);}
+				else
+				{	b_push_const_double(evalLeft->u.valDouble);
+					b_arith_rel_op(B_MULT, TYDOUBLE);}
+				evaluated = evalRight;
+			}
 			else
 			{
 				evalLeft = evaluateExpression(node->u.binop.leftOperand);	
@@ -630,6 +660,35 @@ EN evalBinaryExpression(EN node)
 											/ getIntFromExpression(evalRight);
 				evaluated = evalLeft;
 
+			}else if(evalLeft->tag == TAG_FUNCTION && evalRight->tag == TAG_FUNCTION)
+			{
+				// SHOULD be return Type Convert call might be needed
+					b_arith_rel_op(B_ADD, returnFuncTypeTag(evalLeft)); 
+				evaluated = evalLeft;
+			}
+			else if(evalLeft->tag == TAG_FUNCTION)
+			{
+				evalLeft = evaluateExpression(node->u.binop.leftOperand);
+
+			//evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+				if(isIntExpression(evalRight))
+				{	b_push_const_int(evalRight->u.valInt);
+					b_arith_rel_op(B_DIV, TYSIGNEDINT);}
+				else
+				{	b_push_const_double(evalRight->u.valDouble);
+					b_arith_rel_op(B_DIV, TYDOUBLE);}
+				evaluated = evalLeft;
+			}
+			else if(evalRight->tag == TAG_FUNCTION)
+			{
+				if(isIntExpression(evalLeft))
+				{	b_push_const_int(evalLeft->u.valInt);
+					b_arith_rel_op(B_DIV, TYSIGNEDINT);}
+				else
+				{	b_push_const_double(evalLeft->u.valDouble);
+					b_arith_rel_op(B_DIV, TYDOUBLE);}
+				evaluated = evalRight;
 			}
 			else
 			{
@@ -880,6 +939,36 @@ EN evalBinaryExpression(EN node)
 											- getIntFromExpression(evalRight);
 				evaluated = evalLeft;
 
+			}
+			else if(evalLeft->tag == TAG_FUNCTION && evalRight->tag == TAG_FUNCTION)
+			{
+				// SHOULD be return Type Convert call might be needed
+					b_arith_rel_op(B_SUB, returnFuncTypeTag(evalLeft)); 
+				evaluated = evalLeft;
+			}
+			else if(evalLeft->tag == TAG_FUNCTION)
+			{
+				evalLeft = evaluateExpression(node->u.binop.leftOperand);
+
+			//evalRight = evaluateExpression(node->u.binop.rightOperand);
+
+				if(isIntExpression(evalRight))
+				{	b_push_const_int(evalRight->u.valInt);
+					b_arith_rel_op(B_SUB, TYSIGNEDINT);}
+				else
+				{	b_push_const_double(evalRight->u.valDouble);
+					b_arith_rel_op(B_SUB, TYDOUBLE);}
+				evaluated = evalLeft;
+			}
+			else if(evalRight->tag == TAG_FUNCTION)
+			{
+				if(isIntExpression(evalLeft))
+				{	b_push_const_int(evalLeft->u.valInt);
+					b_arith_rel_op(B_SUB, TYSIGNEDINT);}
+				else
+				{	b_push_const_double(evalLeft->u.valDouble);
+					b_arith_rel_op(B_SUB, TYDOUBLE);}
+				evaluated = evalRight;
 			}
 			else
 			{

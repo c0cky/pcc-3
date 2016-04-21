@@ -119,7 +119,7 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 				result = st_install(dn->u.st_id.i,dr);
 				if (!result) {
 					error("duplicate declaration for %s", st_get_id_str(dn->u.st_id.i));
-					error("duplicate definition of '%s'", st_get_id_str(dn->u.st_id.i));
+					error("duplicate definition of `%s'", st_get_id_str(dn->u.st_id.i));
 				}
 				else
 				{

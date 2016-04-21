@@ -696,13 +696,13 @@ function_definition
 			result = funcDeclCheck($<y_DN>2);
 		}
 		else if (ty_query(stdr->u.decl.type) != TYFUNC)
-			error("duplicate or incompatible function declaration '%s'", f);
+			error("duplicate or incompatible function declaration `%s'", f);
 		else if (ty_query(ty_query_func(stdr->u.decl.type, &ps, &pl)) == ty_query(baseType))
 		{
 			result = funcDeclCheck($<y_DN>2);
 		}
 		else
-			error("duplicate or incompatible function declaration '%s'", f);
+			error("duplicate or incompatible function declaration `%s'", f);
 		if(result)
 			{
 				b_func_prologue (f); 
@@ -788,7 +788,7 @@ BOOLEAN funcDeclCheck(DN dn)
 			}
 			else if(stdr->tag == FDECL && !result)
 			{
-				error("duplicate or incompatible function declaration '%s'", id);
+				error("duplicate or incompatible function declaration `%s'", id);
 				return FALSE;
 			}
 			else
