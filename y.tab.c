@@ -2782,6 +2782,7 @@ void funcDefBuildParams(DN node)
 		PARAM_LIST pl = node->u.param_list.pl;
 		while(pl != NULL)
 		{
+			msg("building param: %s", st_get_id_str(node->u.st_id.i));
 			dr = stdr_alloc(); // Allocate space for the symtab data record
 			dr->tag = PDECL;
 			dr->u.decl.type = pl->type;
@@ -2791,7 +2792,6 @@ void funcDefBuildParams(DN node)
 			if (!result)
 			{
 			error("param install, duplicate declaration for %s", st_get_id_str(pl->id));
-			error("param, install duplicate definition of '%s'", st_get_id_str(pl->id));
 			}
 			offset = b_store_formal_param(ty_query(pl->type));
 			pl = pl->next;

@@ -29,7 +29,7 @@ main()
     print_g();
     test_ref_params();
     print_g();
-    printf("this is a debugging message\n");
+    /*printf("this is a debugging message\n");*/
 }
 
 int ga;

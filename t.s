@@ -233,37 +233,4 @@ main:
 	addl	%ecx, %eax
 	movl	%eax, (%esp)
 				# b_convert (signed int -> signed char)
-				# b_assign (signed char)
-	movzbl	(%esp), %edx
-	addl	$8, %esp
-	movl	(%esp), %eax
-	movb	%dl, (%eax)
-	movb	%dl, (%esp)
-				# b_pop ()
-	addl	$8, %esp
- #   28
-				# b_alloc_arglist (40 bytes)
-	movl	%esp, %eax
-	subl	$4, %esp
-	andl	$-16, %esp
-	movl	%eax, (%esp)
-	subl	$48, %esp
-				# b_push_ext_addr (i)
-	subl	$8, %esp
-	movl	$i, (%esp)
-				# b_deref (signed int)
-	movl	(%esp), %eax
-	movl	(%eax), %edx
-	movl	%edx, (%esp)
-				# b_load_arg (signed int)
-	movl	(%esp), %eax
-	addl	$8, %esp
-	movl	%eax, 0(%esp)
-				# b_push_ext_addr (x)
-	subl	$8, %esp
-	movl	$x, (%esp)
-				# b_deref (float)
-	movl	(%esp), %eax
-	movl	(%eax), %edx
-	movl	%edx, (%esp)
-				# b_load_arg (float)
+				# b_assign 

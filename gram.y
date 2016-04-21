@@ -71,7 +71,6 @@
   * Expressions                 *
   *******************************/
 
-primary_expr
 	: identifier { int b; 
 			//if(!st_lookup(getSTID($<y_DN>1), &b))
 			//{error("undefined"); $<y_EN>$ = NULL;}
@@ -807,7 +806,6 @@ void funcDefBuildParams(DN node)
 			if (!result)
 			{
 			error("param install, duplicate declaration for %s", st_get_id_str(pl->id));
-			error("param, install duplicate definition of '%s'", st_get_id_str(pl->id));
 			}
 			offset = b_store_formal_param(ty_query(pl->type));
 			pl = pl->next;
