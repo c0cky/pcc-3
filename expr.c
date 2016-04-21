@@ -178,7 +178,7 @@ EN evalVariableExpression(EN node)
 	
 	stdr = st_lookup(node->u.varStID, &b);
 	if(b == 0) // Maybe change to Less than current block
-	{	b_push_ext_addr(identifier); //msg("pushing");}
+		b_push_ext_addr(identifier); //msg("pushing");}
 	else if(stdr)
 		b_push_loc_addr(b_get_formal_param_offset(ty_query(stdr->u.decl.type))); // This is not returning the value of 8 for TYSIGNEDINT...?
 	else
@@ -483,24 +483,7 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_MULT: 	// a * b
 
-<<<<<<< HEAD
-			//msg("BINARY_MULT is evaluating");
-
-			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
-			if(isVariableExpression(evalLeft))
-			{
-				b_deref(getTypeTagFromExpression(evalLeft));
-				unaryConversion(evalLeft);
-			}
-			evalRight = evaluateExpression(node->u.binop.rightOperand);
-			if(isVariableExpression(evalRight))
-			{
-				b_deref(getTypeTagFromExpression(evalRight));
-				unaryConversion(evalRight); 
-			}
-=======
 			msg("BINARY_MULT is evaluating");
->>>>>>> 9d75c39b1cee91c179e9180197de4325a2946a4d
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -595,24 +578,7 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_DIV:		// a / 
 
-<<<<<<< HEAD
-			//msg("BINARY_DIV is evaluating");
-
-			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
-			if(isVariableExpression(evalLeft))
-			{
-				b_deref(getTypeTagFromExpression(evalLeft));
-				unaryConversion(evalLeft); 
-			}
-			evalRight = evaluateExpression(node->u.binop.rightOperand);
-			if(isVariableExpression(evalRight))
-			{
-				b_deref(getTypeTagFromExpression(evalRight));
-				unaryConversion(evalRight); 
-			}
-=======
 			msg("BINARY_DIV is evaluating");
->>>>>>> 9d75c39b1cee91c179e9180197de4325a2946a4d
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -728,25 +694,7 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_ADD:		// a + b
 
-<<<<<<< HEAD
-			//msg("BINARY_ADD is evaluating");
-
-			// Moved to top of function
-			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
-			if(isVariableExpression(evalLeft))
-			{
-				b_deref(getTypeTagFromExpression(evalLeft));
-				unaryConversion(evalLeft); 
-			}
-			evalRight = evaluateExpression(node->u.binop.rightOperand);
-			if(isVariableExpression(evalRight))
-			{
-				b_deref(getTypeTagFromExpression(evalRight));
-				unaryConversion(evalRight); 
-			}
-=======
 			msg("BINARY_ADD is evaluating");
->>>>>>> 9d75c39b1cee91c179e9180197de4325a2946a4d
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -851,24 +799,7 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_SUB:		// a - b
 
-<<<<<<< HEAD
-			//msg("BINARY_SUB is evaluating");
-
-			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
-			if(isVariableExpression(evalLeft))
-			{
-				b_deref(getTypeTagFromExpression(evalLeft));
-				unaryConversion(evalLeft); 
-			}
-			evalRight = evaluateExpression(node->u.binop.rightOperand);
-			if(isVariableExpression(evalRight))
-			{
-				b_deref(getTypeTagFromExpression(evalRight));
-				unaryConversion(evalRight); 
-			}
-=======
 			msg("BINARY_SUB is evaluating");
->>>>>>> 9d75c39b1cee91c179e9180197de4325a2946a4d
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)

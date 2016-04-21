@@ -71,6 +71,7 @@
   * Expressions                 *
   *******************************/
 
+primary_expr
 	: identifier { int b; 
 			//if(!st_lookup(getSTID($<y_DN>1), &b))
 			//{error("undefined"); $<y_EN>$ = NULL;}
@@ -797,6 +798,7 @@ void funcDefBuildParams(DN node)
 		PARAM_LIST pl = node->u.param_list.pl;
 		while(pl != NULL)
 		{
+			msg("building param: %s", st_get_id_str(node->u.st_id.i));
 			dr = stdr_alloc(); // Allocate space for the symtab data record
 			dr->tag = PDECL;
 			dr->u.decl.type = pl->type;
