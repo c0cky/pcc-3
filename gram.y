@@ -121,7 +121,7 @@ postfix_expr
 	//	if(ty_query(stdr->u.decl.type) != TYFUNC)
 	//	error("not tyfunc tion");
 	}
-	st_enter_block();
+	//st_enter_block();
 	 $<y_EN>$ = createFunctionExpression($<y_EN>1, $<y_arg_list>3);}
 	| postfix_expr '.' identifier
 	| postfix_expr PTR_OP identifier
@@ -655,12 +655,17 @@ function_definition
 		char *f = st_get_id_str(getSTID($<y_DN>1));
 			// send in node to check stuff
 		BOOLEAN result = funcDeclCheck($<y_DN>1);
+		//error("in func def");
 			// Prologue into function and enter block (Back_end and Symbol Table stuff)
 		if(result)
 			{
 				b_func_prologue (f); 
-				
+				st_enter_block();
+				//error("in func def 2");
+				if(checkParam($<y_DN>1->u.param_list.pl))
+					funcDefBuildParams($<y_DN>1);
 			}
+		//error("in func def 3");
 		$<y_ref>$ = result;
 		}
 		compound_statement 
@@ -671,8 +676,6 @@ function_definition
 			{
 				st_exit_block();
 				b_func_epilogue (f);
-
-				funcDefBuildParams($<y_DN>1);
 			}
 //			printf("'$2 is %s'\n", $<y_string>2);
 		}
@@ -707,8 +710,8 @@ function_definition
 			{
 				b_func_prologue (f); 
 				st_enter_block();
-
-				funcDefBuildParams($<y_DN>2);
+				if(checkParam($<y_DN>2->u.param_list.pl))
+				 funcDefBuildParams($<y_DN>2);
 			}
 		$<y_ref>$ = result;
 	} 
@@ -759,8 +762,10 @@ BOOLEAN funcDeclCheck(DN dn)
 		stdr->u.decl.type = ty_build_func(ty_build_basic(TYSIGNEDINT), PROTOTYPE, NULL);
 		stdr->u.decl.sc = NO_SC;
 		stdr->u.decl.err = FALSE;
-				
-		result = st_install(stid,stdr);
+		if(stid == NULL)
+			{error("function Decl Check, STID was null!"); 	return FALSE;}
+		else	
+		{  result = st_install(stid,stdr);}
 		if (!result) 
 		{
 			error("duplicate declaration for %s in Function Decl Check", st_get_id_str(dn->u.st_id.i));
@@ -805,6 +810,7 @@ void funcDefBuildParams(DN node)
 	int offset;
 	ST_DR dr;
 	BOOLEAN result;
+	//int i = 0;
 	//error("Building parameters");
 	if(node->tag != FUNC) 
 		error("Not a Function\n");
@@ -813,7 +819,8 @@ void funcDefBuildParams(DN node)
 		PARAM_LIST pl = node->u.param_list.pl;
 		while(pl != NULL)
 		{
-			msg("building param: %s", st_get_id_str(node->u.st_id.i));
+			//i++;
+			//error("building param: %s, %d", st_get_id_str(pl->id), i);
 			dr = stdr_alloc(); // Allocate space for the symtab data record
 			dr->tag = PDECL;
 			dr->u.decl.type = pl->type;

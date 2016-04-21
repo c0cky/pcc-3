@@ -197,12 +197,12 @@ void building_checkFunction(DN dn, TYPE initialType)
 				}
 		
 		}
-		if(result)
-			{
-				b_func_prologue (f); 
-				st_enter_block();
-				funcDefBuildParams(dn);
-			}
+		//if(result)
+		//	{
+		//		b_func_prologue (f); 
+		//		st_enter_block();
+		//		funcDefBuildParams(dn);
+		//	}
 		//$<y_ref>$ = result;
 		}
 }
@@ -216,6 +216,7 @@ PARAM_LIST build_Param(DN dn, TYPE initialType, PARAM_LIST pl)
 		return NULL;
 	}
 	TYPE type = initialType;
+	ST_DR dr;
 	PARAM_LIST pl1 = plist_alloc();
 	while(dn != NULL)
 	{
@@ -234,6 +235,24 @@ PARAM_LIST build_Param(DN dn, TYPE initialType, PARAM_LIST pl)
 				pl1->is_ref = TRUE;
 				break;
 			case ID: 
+				/*dr = stdr_alloc(); 
+
+				dr->tag = PDECL;
+				dr->u.decl.type = type;
+				dr->u.decl.sc = NO_SC;
+				dr->u.decl.err = FALSE;
+				
+				BOOLEAN result; 
+				result = st_install(dn->u.st_id.i,dr);
+				if (!result) {
+					error("duplicate declaration for %s", st_get_id_str(dn->u.st_id.i));
+					error("duplicate definition of `%sbuild_Param'", st_get_id_str(dn->u.st_id.i));
+				}
+				else
+				{
+					installSuccessful = TRUE;
+				}*/
+
 				pl1->id = dn->u.st_id.i;
 				pl1->type = type;
 				pl1->sc = NO_SC;
