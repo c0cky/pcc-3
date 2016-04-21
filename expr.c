@@ -115,10 +115,7 @@ AL buildArg(EN node)
 	AL new_al = (AL)malloc(sizeof(ARG_LIST));
 	new_al->arg = node;
 	new_al->prev = new_al;
-	if(node->isDouble == TRUE)
-		new_al->size = 8;
-	else
-		new_al->size = 4;
+	new_al->size = 8;
 	return new_al;
 }
 /***************** Create Functions ***************/

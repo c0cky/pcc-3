@@ -656,6 +656,8 @@ function_definition
 			{
 				st_exit_block();
 				b_func_epilogue (f);
+
+				funcDefBuildParams($<y_DN>1);
 			}
 //			printf("'$2 is %s'\n", $<y_string>2);
 		}
@@ -690,6 +692,8 @@ function_definition
 			{
 				b_func_prologue (f); 
 				st_enter_block();
+
+				funcDefBuildParams($<y_DN>2);
 			}
 		$<y_ref>$ = result;
 	} 
