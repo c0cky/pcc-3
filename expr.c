@@ -372,6 +372,10 @@ EN evalBinaryExpression(EN node)
 	EN evalRight = NULL;
 	int b;
 	TYPETAG typetag = TYSIGNEDINT;
+
+	TYPETAG leftType = evaluateTypeExpression(node->u.binop.leftOperand);
+	TYPETAG rightType = evaluateTypeExpression(node->u.binop.rightOperand);
+	msg("8w9q48958714289798257894725: %d %d", leftType, rightType);
 	
 	/*if(node->u.binop.op != BINARY_ASSIGNMENT)
 	{
@@ -389,6 +393,9 @@ EN evalBinaryExpression(EN node)
 		//TODO: Complete the rest of the logic
 		//Set the left operand to be the evlauted expression of the right operand
 			msg("BINARY_ASSIGNMENT evaluating");
+
+			// TYPETAG rightSide = evaluateTypeExpression(node->u.binop.rightOperand);
+			// msg("89qe9089wq94uqw909qweri90ewi9riew0r: %d", rightSide);
 
 			evalLeft = evaluateExpression(node->u.binop.leftOperand);
 
@@ -799,7 +806,7 @@ EN evalBinaryExpression(EN node)
 
 		//Boolean Comparators
 		case BINARY_LT:		// a < b
-			
+
 			evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 			if(isVariableExpression(evalLeft))
 			{
@@ -1422,6 +1429,92 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 	}
 
 	return type;
+}
+
+TYPETAG evaluateUnaryConversion(TYPETAG type)
+{
+	TYPETAG returnType, 
+			currentType;
+
+	returnType = currentType = type;
+
+	// msg("return type %d", returnType);
+
+	// if(currentType == TYSIGNEDCHAR )
+		// msg("iffffffffffffffffffff");
+	switch(currentType)
+	{
+		case TYSIGNEDLONGINT:
+		case TYSIGNEDCHAR:
+		case TYSIGNEDSHORTINT:
+		case TYUNSIGNEDLONGINT:
+		case TYUNSIGNEDSHORTINT:
+		case TYUNSIGNEDINT:
+		case TYUNSIGNEDCHAR:
+			 	msg("convert %d to %d", currentType, returnType);
+			 	returnType = TYSIGNEDINT;
+			 	break;
+		case TYFLOAT:
+		case TYLONGDOUBLE:
+			 	msg("convert %d to %d", currentType, returnType);
+			 	returnType = TYDOUBLE;
+			 	break;
+	}
+	
+	// msg("finished switch in unaryConversion");
+
+	return returnType;
+}
+
+TYPETAG evaluateTypeExpression(EN expr)
+{
+	switch(expr->tag)
+	{
+		case TAG_CONST_INTEGER:
+			return TYSIGNEDINT;
+		case TAG_CONST_DOUBLE:
+			return TYDOUBLE;
+
+		case TAG_FUNCTION:
+			return evalTypeFunctionExpression(expr);
+		case TAG_VARIABLE:
+			return evalTypeVariableExpression(expr);
+		case TAG_UNARY:
+			return evalTypeUnaryExpression(expr);
+		case TAG_BINARY:
+			return evalTypeBinaryExpression(expr);
+
+		default:
+			bug("Where's the expression tag in evaluateExpression?");
+	}
+}
+
+//Return an EN that holds the Integer or Double from the variable's value.
+TYPETAG evalTypeVariableExpression(EN node)
+{
+	return getTypeTagFromExpression(node);
+}
+TYPETAG evalTypeFunctionExpression(EN node)
+{
+	return returnFuncTypeTag(node);
+}
+TYPETAG evalTypeUnaryExpression(EN node)
+{
+	return evaluateUnaryConversion(evaluateTypeExpression(node->u.unop.operand));
+}
+TYPETAG evalTypeBinaryExpression(EN node)
+{
+	TYPETAG leftType = evaluateTypeExpression(node->u.binop.leftOperand);
+	TYPETAG rightType = evaluateTypeExpression(node->u.binop.rightOperand);
+
+	if(leftType == rightType && leftType == TYSIGNEDINT)
+		return TYSIGNEDINT;
+	else if(leftType == rightType && leftType == TYDOUBLE)
+		return TYDOUBLE;
+	else if(leftType == TYSIGNEDINT && rightType == TYDOUBLE)
+		return TYDOUBLE;
+	else //if(leftType == TYDOUBLE && rightType == TYSIGNEDINT)
+		return TYDOUBLE;
 }
 
 int getIntFromExpression(EN node)
