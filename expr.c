@@ -36,7 +36,7 @@ EN createVariableExpression(ST_ID varStID)
 	TYPETAG ty_tag = TYERROR;
 	if(stdr != NULL)
 		ty_tag = ty_query(stdr->u.decl.type);
-	////msg("Creating variable expr %s", identifier);
+	//msg("Creating variable expr %s", identifier);
 	expression->tag = TAG_VARIABLE;
 	if(ty_tag == TYFLOAT || ty_tag == TYDOUBLE)
 		expression->isDouble = TRUE;
@@ -136,7 +136,7 @@ EN evaluateExpression(EN expr)
 
 		case TAG_FUNCTION:
 		//TODO:	
-			////msg("Begin Eval Function");
+			//msg("Begin Eval Function");
 			//bug("haven't implemented function expressions yet");
 			return evalFunctionExpression(expr);
 
@@ -183,7 +183,7 @@ EN evalVariableExpression(EN node)
 		b_push_loc_addr(b_get_formal_param_offset(ty_query(stdr->u.decl.type))); // This is not returning the value of 8 for TYSIGNEDINT...?
 	else
 		error("'%s' is undefined", identifier);
-	////msg("Evaluating Variable: %s", identifier);
+	//msg("Evaluating Variable: %s", identifier);
 	return node;
 
 
@@ -387,7 +387,7 @@ EN evalBinaryExpression(EN node)
 	TYPETAG rightType = evaluateTypeExpression(node->u.binop.rightOperand);
 	
 	TYPETAG resolvedType = resolveTypeBinaryExpression(leftType, rightType);
-	msg("8w9q48958714289798257894725: %d %d", leftType, rightType);
+	//msg("8w9q48958714289798257894725: %d %d", leftType, rightType);
 	
 	/*if(node->u.binop.op != BINARY_ASSIGNMENT)
 	{
@@ -407,7 +407,7 @@ EN evalBinaryExpression(EN node)
 			//msg("BINARY_ASSIGNMENT evaluating");
 
 			// TYPETAG rightSide = evaluateTypeExpression(node->u.binop.rightOperand);
-			// msg("89qe9089wq94uqw909qweri90ewi9riew0r: %d", rightSide);
+			// //msg("89qe9089wq94uqw909qweri90ewi9riew0r: %d", rightSide);
 
 			evalLeft = evaluateExpression(node->u.binop.leftOperand);
 
@@ -483,7 +483,7 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_MULT: 	// a * b
 
-			msg("BINARY_MULT is evaluating");
+			//msg("BINARY_MULT is evaluating");
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -578,7 +578,7 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_DIV:		// a / 
 
-			msg("BINARY_DIV is evaluating");
+			//msg("BINARY_DIV is evaluating");
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -694,7 +694,7 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_ADD:		// a + b
 
-			msg("BINARY_ADD is evaluating");
+			//msg("BINARY_ADD is evaluating");
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -799,7 +799,7 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_SUB:		// a - b
 
-			msg("BINARY_SUB is evaluating");
+			//msg("BINARY_SUB is evaluating");
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -1600,7 +1600,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 			}
 			else if(leftType == TYSIGNEDINT && rightType == TYDOUBLE)
 			{
-				msg("int && double[Evaluated]");
+				//msg("int && double[Evaluated]");
 				// b_convert(leftType, TYDOUBLE);
 				type = TYDOUBLE;
 			}
@@ -1661,10 +1661,10 @@ TYPETAG evaluateUnaryConversion(TYPETAG type)
 
 	returnType = currentType = type;
 
-	// msg("return type %d", returnType);
+	// //msg("return type %d", returnType);
 
 	// if(currentType == TYSIGNEDCHAR )
-		// msg("iffffffffffffffffffff");
+		// //msg("iffffffffffffffffffff");
 	switch(currentType)
 	{
 		case TYSIGNEDLONGINT:
@@ -1674,17 +1674,17 @@ TYPETAG evaluateUnaryConversion(TYPETAG type)
 		case TYUNSIGNEDSHORTINT:
 		case TYUNSIGNEDINT:
 		case TYUNSIGNEDCHAR:
-			 	msg("convert %d to %d", currentType, returnType);
+			 	//msg("convert %d to %d", currentType, returnType);
 			 	returnType = TYSIGNEDINT;
 			 	break;
 		case TYFLOAT:
 		case TYLONGDOUBLE:
-			 	msg("convert %d to %d", currentType, returnType);
+			 	//msg("convert %d to %d", currentType, returnType);
 			 	returnType = TYDOUBLE;
 			 	break;
 	}
 	
-	// msg("finished switch in unaryConversion");
+	// //msg("finished switch in unaryConversion");
 
 	return returnType;
 }
