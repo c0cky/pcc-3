@@ -202,6 +202,7 @@ TYPETAG unaryConversion(EN operand);	//char -> int, float -> double, input must 
 TYPETAG unaryConversionNoConversion(EN operand);
 TYPETAG convertExpression(EN leftOperand, EN rightOperand);
 
+TYPETAG evaluateUnaryConversion(TYPETAG type);
 TYPETAG evaluateTypeExpression(EN expr);
 
 //Return an EN that holds the Integer or Double from the variable's value.
@@ -209,6 +210,7 @@ TYPETAG evalTypeVariableExpression(EN node);
 TYPETAG evalTypeFunctionExpression(EN node);
 TYPETAG evalTypeUnaryExpression(EN node);
 TYPETAG evalTypeBinaryExpression(EN node);
+TYPETAG resolveTypeBinaryExpression(TYPETAG leftType, TYPETAG rightType);
 
 
 #endif
