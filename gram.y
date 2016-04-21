@@ -72,9 +72,10 @@
   *******************************/
 
 primary_expr
-	: identifier { int b; 
-			//if(!st_lookup(getSTID($<y_DN>1), &b))
-			//{error("undefined"); $<y_EN>$ = NULL;}
+	: identifier { int b;
+			if(!st_lookup(getSTID($<y_DN>1), &b))
+			{//error("undefined"); 
+			$<y_EN>$ = NULL;}
 			//else
 			$<y_EN>$ = createVariableExpression(getSTID($<y_DN>1)); }
 	| INT_CONSTANT { 
@@ -97,8 +98,9 @@ primary_expr
 	}
 	| STRING_LITERAL {
 		// msg("STRING LITERAL is %s", $<y_string>$1);
-
-		$<y_string>$ = $<y_string>1;
+		EN node = createStringExpression($<y_string>1);
+		$<y_EN>$ = node;
+		//$<y_string>$ = $<y_string>1;
 	}
 	| '(' expr ')' {
 		$<y_EN>$ = $<y_EN>2;
@@ -108,7 +110,19 @@ primary_expr
 postfix_expr
 	: primary_expr
 	| postfix_expr '[' expr ']'
-	| postfix_expr '(' argument_expr_list_opt ')' { $<y_EN>$ = createFunctionExpression($<y_EN>1, $<y_arg_list>3);}
+	| postfix_expr '(' argument_expr_list_opt ')' { int b;
+//error("rite b4 2");
+	ST_ID stid = $<y_EN>1->u.varStID;
+	
+	ST_DR stdr = st_lookup(stid, &b);
+	if(stdr != NULL)
+	{
+	//	error("rite b4");
+	//	if(ty_query(stdr->u.decl.type) != TYFUNC)
+	//	error("not tyfunc tion");
+	}
+	st_enter_block();
+	 $<y_EN>$ = createFunctionExpression($<y_EN>1, $<y_arg_list>3);}
 	| postfix_expr '.' identifier
 	| postfix_expr PTR_OP identifier
 	| postfix_expr INC_OP
@@ -280,7 +294,6 @@ assignment_expr
 	| unary_expr assignment_operator assignment_expr { 	
 		
 		$<y_EN>$ = createBinaryExpression($<y_binop>2, $<y_EN>1, $<y_EN>3);
-		
 	}
 	;
 
@@ -463,7 +476,7 @@ direct_declarator
 	}
 	| direct_declarator '[' ']'
 	| direct_declarator '[' constant_expr ']' { 
-			$<y_DN>$ = makeArrayNode($<y_DN>1, $<y_int>3);
+			$<y_DN>$ = makeArrayNode($<y_DN>1, getIntFromExpression(evaluateExpression($<y_EN>3)));
 	}
 	| direct_declarator '(' parameter_type_list ')' {
 			if(checkParam($<y_PL>3))
@@ -591,14 +604,15 @@ statement_list
 	;
 
 expression_statement
-	: expr_opt ';' { $<y_EN>$ = evaluateExpression($<y_EN>1); 
-		//msg("Done evaluating Expression");
-		if($<y_EN>1->tag == TAG_FUNCTION)
-			;//b_internal_pop(FALSE);
-		else
-		b_internal_pop(TRUE);
-						// printExpression($<y_EN>$);
-					   }
+	: expr_opt ';' 
+	{ 	
+		//error("in expression_statement");
+		$<y_EN>$ = evaluateExpression($<y_EN>1); 
+		//error("Done evaluating Expression");
+		if($<y_EN>1->tag != TAG_FUNCTION)
+			b_pop();
+		//error("2nd time");
+	}
 	;
 
 selection_statement
@@ -645,7 +659,7 @@ function_definition
 		if(result)
 			{
 				b_func_prologue (f); 
-				st_enter_block();
+				
 			}
 		$<y_ref>$ = result;
 		}
@@ -657,6 +671,8 @@ function_definition
 			{
 				st_exit_block();
 				b_func_epilogue (f);
+
+				funcDefBuildParams($<y_DN>1);
 			}
 //			printf("'$2 is %s'\n", $<y_string>2);
 		}
@@ -691,6 +707,8 @@ function_definition
 			{
 				b_func_prologue (f); 
 				st_enter_block();
+
+				funcDefBuildParams($<y_DN>2);
 			}
 		$<y_ref>$ = result;
 	} 
@@ -795,6 +813,7 @@ void funcDefBuildParams(DN node)
 		PARAM_LIST pl = node->u.param_list.pl;
 		while(pl != NULL)
 		{
+			msg("building param: %s", st_get_id_str(node->u.st_id.i));
 			dr = stdr_alloc(); // Allocate space for the symtab data record
 			dr->tag = PDECL;
 			dr->u.decl.type = pl->type;
@@ -804,7 +823,6 @@ void funcDefBuildParams(DN node)
 			if (!result)
 			{
 			error("param install, duplicate declaration for %s", st_get_id_str(pl->id));
-			error("param, install duplicate definition of '%s'", st_get_id_str(pl->id));
 			}
 			offset = b_store_formal_param(ty_query(pl->type));
 			pl = pl->next;

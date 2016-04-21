@@ -14,12 +14,20 @@ typedef enum
 	//All Expressions get typecasted to int or double
 	TAG_CONST_INTEGER,
 	TAG_CONST_DOUBLE,
+	
+	TAG_EVALUATED,
+
+	//Evaluated Expressions from Binary / Unary Operators Return value.
+	TAG_EVAL_INTEGER,
+	TAG_EVAL_DOUBLE,
 
 	TAG_FUNCTION,		//Function Call f(3) returns 5
 	TAG_VARIABLE,
 
 	TAG_UNARY,
-	TAG_BINARY
+	TAG_BINARY,
+	
+	TAG_STRING
 } EXPR_TAG;
 
 typedef enum
@@ -81,6 +89,7 @@ typedef enum
 typedef struct en 
 {
 	EXPR_TAG tag;	//Tag of the Union
+	BOOLEAN evaluated;
 	BOOLEAN isDouble; // A tag to know if node is a Double
 	union
 	{
@@ -117,6 +126,15 @@ typedef struct en
 			struct en* func_node;
 			struct al* arg_list;
 		} func;
+
+		struct
+		{
+			TYPETAG type;
+		} eval;
+		struct
+		{
+			char* s;
+		}str;
 	} u;
 } EXPR_NODE, *EN;
 
@@ -176,10 +194,29 @@ BOOLEAN isDoubleExpression(EN node);
 //Returns true if this expression is a variable expression
 BOOLEAN isVariableExpression(EN node);
 
+BOOLEAN isEvaluatedExpression(EN node);
+
 void printExpression(EN node);
 void evalArgList(AL arg_list);
 AL buildArg(EN node);
 AL linkArgList(AL current, AL new_al);
 TYPETAG getTypeTagFromExpression(EN node);
 TYPETAG ifDouble(BOOLEAN b);
+
+// Conversions
+TYPETAG unaryConversion(EN operand);	//char -> int, float -> double, input must be variable
+TYPETAG unaryConversionNoConversion(EN operand);
+TYPETAG convertExpression(EN leftOperand, EN rightOperand);
+
+TYPETAG evaluateUnaryConversion(TYPETAG type);
+TYPETAG evaluateTypeExpression(EN expr);
+
+//Return an EN that holds the Integer or Double from the variable's value.
+TYPETAG evalTypeVariableExpression(EN node);
+TYPETAG evalTypeFunctionExpression(EN node);
+TYPETAG evalTypeUnaryExpression(EN node);
+TYPETAG evalTypeBinaryExpression(EN node);
+TYPETAG resolveTypeBinaryExpression(TYPETAG leftType, TYPETAG rightType);
+
+
 #endif
