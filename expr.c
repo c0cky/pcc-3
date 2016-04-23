@@ -846,7 +846,7 @@ EN evalBinaryExpression(EN node)
 				}
 				if(type != NULL)
 				{
-					error("arith add being done, %d", type);
+					//error("arith add being done, %d", type);
 					b_arith_rel_op(B_ADD, type);
 				}
 				else
@@ -1477,7 +1477,7 @@ TYPETAG unaryConversion(EN operand)
 
 TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 {
-	msg("inside convert expression");
+	//msg("inside convert expression");
 	TYPETAG type;
 
 	if(isEvaluatedExpression(leftOperand))
@@ -1968,7 +1968,8 @@ void evaluateSingleNode(EN node)
 			b_deref(getTypeTagFromExpression(node));
 			break;
 		default:
-			error("Only pass single nodes");
+			;
+			//error("Only pass single nodes");
 			//evaluateExpression(node);
 	}
 }
