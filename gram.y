@@ -25,7 +25,16 @@
 	#define push(sp, n) (*((sp)++) = (n))
 	#define pop(sp) (*--(sp))
 	
-/*******************GLOBAL STACK for BREAK statements *************************/    
+/*******************GLOBAL STACK for BREAK statements *************************/  
+
+	char* function_stack[10];
+	char **frt = function_stack;
+
+	//#define pushf(frt, n) (*((frt)++) = (n))
+	//#define popf(frt) (*--(frt))
+
+
+//*********************************  
     int sizeOfType(TYPETAG type);
     void globalDecl(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
 	void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
@@ -37,6 +46,7 @@
 	TYPETAG getTypeTag_STID(ST_ID stid);
 	void funcDefBuildParams(DN node);
 	//
+	TYPETAG funcNameReturnType(char* f);
 %}
 
 %union {
@@ -676,12 +686,22 @@ iteration_statement
 jump_statement
 	: GOTO identifier ';'
 	| CONTINUE ';'
-	| BREAK ';' {b_jump(pop(sp));}
+	| BREAK ';' { char* pop_label = pop(sp); // for error catching of improper breaks (only in while and for loops)
+			 if(pop_label == NULL)
+				error("break not inside switch or loop");
+				else b_jump(pop_label);}
 	| RETURN expr_opt ';' { $<y_EN>$ = evaluateExpression($<y_EN>2); 
-				evaluateSingleNode($<y_EN>$);
 				
+				evaluateSingleNode($<y_EN>$);
+				//error("%d", getTypeTagFromExpression($<y_EN>2));
 				//b_encode_return(getTypeTagFromExpression($<y_EN>2));
-				b_encode_return(TYSIGNEDINT);
+				char* f = pop(frt);
+				TYPETAG tag = funcNameReturnType(f);
+				TYPETAG tag2= getTypeTagFromExpression($<y_EN>$);
+				if(tag != tag2)
+					b_convert(tag2, tag);
+				b_encode_return(tag);
+				push(frt,f);
 				}
 	;
 
@@ -704,6 +724,7 @@ function_definition
 		{ 
 			// Get the name of the function, declarator is a Declarator Node $<y_DN>1
 		char *f = st_get_id_str(getSTID($<y_DN>1));
+		push(frt, f);
 			// send in node to check stuff
 		BOOLEAN result = funcDeclCheck($<y_DN>1);
 		//error("in func def");
@@ -727,6 +748,7 @@ function_definition
 			{
 				st_exit_block();
 				b_func_epilogue (f);
+				pop(frt);
 			}
 //			printf("'$2 is %s'\n", $<y_string>2);
 		}
@@ -736,6 +758,7 @@ function_definition
 		int b;
 		ST_ID stid = getSTID($<y_DN>2);
 		char *f = st_get_id_str(stid);
+		push(frt, f);
 		ST_DR stdr;
 		PARAMSTYLE ps;
 		PARAM_LIST pl;
@@ -773,6 +796,7 @@ function_definition
 			{
 				st_exit_block();
 				b_func_epilogue (f);
+				pop(frt);
 			}
 	}
 	;
@@ -1032,4 +1056,13 @@ BUCKET_PTR buildBucket(BUCKET_PTR bucketPtr, TYPE_SPECIFIER typeSpec) {
 	}
 
 	return updatedBucket;
+}
+
+TYPETAG funcNameReturnType(char *f)
+{
+	int b;
+	PARAMSTYLE ps;
+	PARAM_LIST pl;
+	TYPETAG type = ty_query(ty_query_func(st_lookup(st_lookup_id(f), &b)->u.decl.type, &ps, &pl));
+	return type;
 }

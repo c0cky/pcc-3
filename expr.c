@@ -421,7 +421,6 @@ EN evalBinaryExpression(EN node)
 	switch(node->u.binop.op)
 	{
 		case BINARY_ASSIGNMENT:  // a = EXPR
-		//TODO: Complete the rest of the logic
 		//Set the left operand to be the evlauted expression of the right operand
 			//msg("BINARY_ASSIGNMENT evaluating");
 
@@ -443,14 +442,9 @@ EN evalBinaryExpression(EN node)
 				{error("left side of assignment is not an l-value"); return evalRight;}
 			evalRight = evaluateExpression(node->u.binop.rightOperand);
 			
-			//printExpression(evalLeft);
-			//printExpression(evalRight);
-			
-			//error("midd bin assign %d", evalLeft->tag);
-			//error("no left");
 			if(evalLeft->tag == TAG_FUNCTION)
 			{
-				error("a functino as lval");
+				error("a function as l-value");
 			}
 			// Aaron ADD
 			TYPETAG type;
@@ -502,7 +496,15 @@ EN evalBinaryExpression(EN node)
 					type = typeTagEN(evalLeft);
 				}
 			}
-			
+			else if(isFunctionExpression(evalRight))
+			{
+				type = returnFuncTypeTag(evalRight);
+				if(type != typeTagEN(evalLeft))
+				{
+					b_convert(type, typeTagEN(evalLeft));
+					type = typeTagEN(evalLeft);
+				}
+			}
 			if(st_lookup(evalLeft->u.varStID, &b) != NULL && getTypeTag_STID(evalLeft->u.varStID) != TYFUNC )	
 			{
 
@@ -834,8 +836,8 @@ EN evalBinaryExpression(EN node)
 					b_push_const_double(evalRight->u.valDouble);
 				}
 				rightType = unaryConversion(evalRight);
-				if(rightType != resolvedType)
-					b_convert(rightType, resolvedType);
+				//if(rightType != resolvedType)
+					//b_convert(rightType, resolvedType);
 
 				
 				if(fold_flag == FALSE)	//tried to do more folding than one instance
@@ -1967,6 +1969,6 @@ void evaluateSingleNode(EN node)
 			break;
 		default:
 			error("Only pass single nodes");
-			evaluateExpression(node);
+			//evaluateExpression(node);
 	}
 }
