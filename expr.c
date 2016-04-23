@@ -393,10 +393,12 @@ TYPETAG typeTagEN(EN node)
 EN evalBinaryExpression(EN node)
 {
 	//msg("start evaluating binary expression %d", node->u.binop.op);
-
+	BOOLEAN fold_flag = FALSE;
+	TYPETAG type;
 	EN evaluated = NULL;
 	EN evalLeft = node->u.binop.leftOperand;
 	EN evalRight = node->u.binop.rightOperand;
+	//error("node is %d, evalLeft is %d and evalRight is %d", node->tag, evalLeft->tag, evalRight->tag);
 	int b;
 	TYPETAG leftType = evaluateTypeExpression(node->u.binop.leftOperand);
 	TYPETAG rightType = evaluateTypeExpression(node->u.binop.rightOperand);
@@ -452,6 +454,7 @@ EN evalBinaryExpression(EN node)
 			TYPETAG type;
 			if(isIntExpression(evalRight))
 			{
+				//error("binary assign push const, %d", evalRight->u.valInt);
 				b_push_const_int(evalRight->u.valInt);
 				type = TYSIGNEDINT;
 
@@ -591,7 +594,8 @@ EN evalBinaryExpression(EN node)
 				}
 				else if(isIntExpression(evalRight))
 				{
-					b_push_const_int(evalRight->u.valInt);	
+					//error("binary MULT removed because of convert push const, %d", evalRight->u.valInt);
+					//b_push_const_int(evalRight->u.valInt);	
 				}
 				else if(isDoubleExpression(evalRight))
 				{
@@ -608,33 +612,6 @@ EN evalBinaryExpression(EN node)
 				evaluated->tag = TAG_EVALUATED;
 				evaluated->u.eval.type = type;
 			}
-			// else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
-			// {
-			// 	evaluated = node;
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-			// 	b_arith_rel_op(B_MULT, ifDouble(evaluated->isDouble));
-			// }
-			// else if(isVariableExpression(evalLeft) || isVariableExpression(evalRight))
-			// {
-			// 	evaluated = node;
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-				
-			// 	if(isIntExpression(evalLeft))
-			// 		b_push_const_int(evalLeft->u.valInt);	
-			// 	else if (isIntExpression(evalRight))	
-			// 		b_push_const_int(evalRight->u.valInt);	
-			// 	b_arith_rel_op(B_MULT, ifDouble(evaluated->isDouble));//ifDouble(evalLeft->isDouble || evalRight->isDouble));
-
-			// }
-			// //else if(
-			// else
-			// {
-			// 	evaluated = node;
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);			
-			// 	b_arith_rel_op(B_MULT, ifDouble(evaluated->isDouble));
-			// 	//error("Cannot add these two expressions");
-			// }
-
 			break;
 
 		case BINARY_DIV:		// a / 
@@ -733,35 +710,6 @@ EN evalBinaryExpression(EN node)
 				evaluated->tag = TAG_EVALUATED;
 				evaluated->u.eval.type = type;
 			}
-			// else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
-			// {
-			// 	evaluated = node;
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-			// 	/*if(isIntExpression(evalLeft))
-			// 		b_push_const_int(evalLeft->u.valInt);	
-			// 	else if (isIntExpression(evalRight))	
-			// 		b_push_const_int(evalRight->u.valInt);	*/
-			// 	b_arith_rel_op(B_DIV, ifDouble(evaluated->isDouble));
-			// }
-			// else if(isVariableExpression(evalLeft) || isVariableExpression(evalRight))
-			// {
-			// 	evaluated = node;
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);			
-			// 	if(isIntExpression(evalLeft))
-			// 		b_push_const_int(evalLeft->u.valInt);	
-			// 	else if (isIntExpression(evalRight))	
-			// 		b_push_const_int(evalRight->u.valInt);	
-			// 	b_arith_rel_op(B_DIV, ifDouble(evaluated->isDouble));//ifDouble(evalLeft->isDouble || evalRight->isDouble));
-
-			// }
-			// //else if(
-			// else
-			// {
-			// 	evaluated = node;
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-			// 	b_arith_rel_op(B_DIV, ifDouble(evaluated->isDouble));
-			// 	//error("Cannot add these two expressions");
-			// }
 
 			break;
 
@@ -786,26 +734,31 @@ EN evalBinaryExpression(EN node)
 
 			//msg("BINARY_ADD is evaluating");
 	
-			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
-				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
-				|| isIntExpression(evalLeft) && isDoubleExpression(evalRight))
+			if((isDoubleExpression(evalLeft) && isDoubleExpression(evalRight))
+				|| (isDoubleExpression(evalLeft) && isIntExpression(evalRight))
+				|| (isIntExpression(evalLeft) && isDoubleExpression(evalRight)))
 			{
-			// 	//msg("Eval + for double + double");
+				msg("Eval + for double + double");
 				//Make evaluated be Double Expression After Multiplying.
 				evalLeft->u.valDouble = getDoubleFromExpression(evalLeft) 
 											+ getDoubleFromExpression(evalRight);
 				evalLeft->tag = TAG_CONST_DOUBLE;
 				evaluated = evalLeft;
+				type = TYDOUBLE;
+				fold_flag = TRUE;
 
 			}
 			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
 			{
-				// //msg("Eval + for int + int");
+				msg("Eval + for int + int");
 				//Make evaluated be Integer Expression after Multiplying.
 				evalLeft->u.valInt = getIntFromExpression(evalLeft)
-											+ getIntFromExpression(evalRight);
-				evaluated = evalLeft;
-
+											+ getIntFromExpression(evalRight);			//error("here?");
+				evaluated = evalLeft;// evalLeft;
+				//evaluated->tag = TAG_CONST_INTEGER;
+				return evaluated;
+				type = TYSIGNEDINT;
+				fold_flag = TRUE;
 			}
 			else if(evalLeft->tag == TAG_FUNCTION && evalRight->tag == TAG_FUNCTION)
 			{
@@ -846,7 +799,8 @@ EN evalBinaryExpression(EN node)
 				}
 				else if(isIntExpression(evalLeft))
 				{
-					b_push_const_int(evalLeft->u.valInt);	
+					error("binary add push int eval left removed cuz of convert?, %d", evalLeft->u.valInt );
+					//b_push_const_int(evalLeft->u.valInt);	
 				}
 				else if(isDoubleExpression(evalLeft))
 				{
@@ -854,7 +808,10 @@ EN evalBinaryExpression(EN node)
 				}
 				leftType = unaryConversion(evalLeft);
 				if(leftType != resolvedType)
+					{
+					//error("binary add push int eval left resolved type, %d", evalLeft->u.valInt );
 					b_convert(leftType, resolvedType);
+					}
 
 				evalRight = evaluateExpression(node->u.binop.rightOperand);
 				if(isVariableExpression(evalRight))
@@ -863,7 +820,8 @@ EN evalBinaryExpression(EN node)
 				}
 				else if(isIntExpression(evalRight))
 				{
-					b_push_const_int(evalRight->u.valInt);	
+					//error("binary add push const removed because convert, %d", evalRight->u.valInt);
+					//b_push_const_int(evalRight->u.valInt);	
 				}
 				else if(isDoubleExpression(evalRight))
 				{
@@ -873,47 +831,25 @@ EN evalBinaryExpression(EN node)
 				if(rightType != resolvedType)
 					b_convert(rightType, resolvedType);
 
-				TYPETAG type = convertExpression(evalLeft, evalRight);
-				b_arith_rel_op(B_ADD, type);
+				
+				if(fold_flag == FALSE)	//tried to do more folding than one instance
+				{
+					type = convertExpression(evalLeft, evalRight);
+				}
+				if(type != NULL)
+				{
+					error("arith add being done, %d", type);
+					b_arith_rel_op(B_ADD, type);
+				}
+				else
+				{
+					error("type is null? does this happen?");
+				}
 				
 				evaluated = node;
 				evaluated->tag = TAG_EVALUATED;
 				evaluated->u.eval.type = type;
 			}
-			// else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
-			// {
-				
-			// 	evaluated = node;
-				
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-			// 	//error("isDouble for Add v+v %d", evaluated->isDouble);
-			// 	/*if(isIntExpression(evalLeft))
-			// 		b_push_const_int(evalLeft->u.valInt);	
-			// 	else if (isIntExpression(evalRight))	
-			// 		b_push_const_int(evalRight->u.valInt);	*/
-			// 	b_arith_rel_op(B_ADD, ifDouble(evaluated->isDouble));
-			// }
-			// else if(isVariableExpression(evalLeft) || isVariableExpression(evalRight))
-			// {
-				
-			// 	evaluated = node;
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-			// 	//error("isDouble for Add v+- %d", evaluated->isDouble);
-			// 	if(isIntExpression(evalLeft))
-			// 		b_push_const_int(evalLeft->u.valInt);	
-			// 	else if (isIntExpression(evalRight))	
-			// 		b_push_const_int(evalRight->u.valInt);	
-			// 	b_arith_rel_op(B_ADD, ifDouble(evaluated->isDouble));//ifDouble(evalLeft->isDouble || evalRight->isDouble));
-
-			// }
-			// //else if(
-			// else
-			// {
-			// 	evaluated = node;
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);			
-			// 	b_arith_rel_op(B_ADD, ifDouble(evaluated->isDouble));
-			// 	//error("Cannot add these two expressions");
-			// }
 
 			break;
 
@@ -1013,35 +949,7 @@ EN evalBinaryExpression(EN node)
 				evaluated->tag = TAG_EVALUATED;
 				evaluated->u.eval.type = type;
 			}
-			// else if(isVariableExpression(evalLeft) && isVariableExpression(evalRight))
-			// {
-			// 	evaluated = node;
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-			// 	/*if(isIntExpression(evalLeft))
-			// 		b_push_const_int(evalLeft->u.valInt);	
-			// 	else if (isIntExpression(evalRight))	
-			// 		b_push_const_int(evalRight->u.valInt);	*/
-			// 	b_arith_rel_op(B_SUB, ifDouble(evaluated->isDouble));
-			// }
-			// else if(isVariableExpression(evalLeft) || isVariableExpression(evalRight))
-			// {
-			// 	evaluated = node;
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-			// 	if(isIntExpression(evalLeft))
-			// 		b_push_const_int(evalLeft->u.valInt);	
-			// 	else if (isIntExpression(evalRight))	
-			// 		b_push_const_int(evalRight->u.valInt);	
-			// 	b_arith_rel_op(B_SUB, ifDouble(evaluated->isDouble));//ifDouble(evalLeft->isDouble || evalRight->isDouble));
-
-			// }
-			// //else if(
-			// else
-			// {
-			// 	evaluated = node;
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);			
-			// 	b_arith_rel_op(B_SUB, ifDouble(evaluated->isDouble));
-			// 	//error("Cannot add these two expressions");
-			// }
+			
 
 			break;
 
@@ -1095,7 +1003,7 @@ EN evalBinaryExpression(EN node)
 				}
 				else if(isIntExpression(evalRight))
 				{
-					b_push_const_int(evalRight->u.valInt);	
+					//b_push_const_int(evalRight->u.valInt);	
 				}
 				else if(isDoubleExpression(evalRight))
 				{
@@ -1112,16 +1020,6 @@ EN evalBinaryExpression(EN node)
 				evaluated->tag = TAG_EVALUATED;
 				evaluated->u.eval.type = TYSIGNEDINT;
 			}
-			// else if(isVariableExpression(evalLeft) || isVariableExpression(evalRight))
-			// {
-			// 	evaluated = node;
-			// 	evaluated->isDouble = (evalLeft->isDouble || evalRight->isDouble);
-			// 	b_arith_rel_op(B_LT, ifDouble(evaluated->isDouble));
-			// }
-			// else
-			// {
-			// 	error("Cannot compare '<' with these two expressions");
-			// }
 			break;
 
 		case BINARY_GRT:		// a > b
@@ -1169,7 +1067,7 @@ EN evalBinaryExpression(EN node)
 				}
 				else if(isIntExpression(evalRight))
 				{
-					b_push_const_int(evalRight->u.valInt);	
+					//b_push_const_int(evalRight->u.valInt); Causing duplicate pushes	
 				}
 				else if(isDoubleExpression(evalRight))
 				{
@@ -1379,7 +1277,7 @@ EN evalBinaryExpression(EN node)
 				}
 				else if(isIntExpression(evalRight))
 				{
-					b_push_const_int(evalRight->u.valInt);	
+					//b_push_const_int(evalRight->u.valInt);	
 				}
 				else if(isDoubleExpression(evalRight))
 				{
@@ -1571,7 +1469,7 @@ TYPETAG unaryConversion(EN operand)
 
 TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 {
-	//msg("inside convert expression");
+	msg("inside convert expression");
 	TYPETAG type;
 
 	if(isEvaluatedExpression(leftOperand))
@@ -1580,6 +1478,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 
 		if(leftType == TYSIGNEDINT && isIntExpression(rightOperand))
 		{
+			error("convert if evalEXP... L =INT and R= INT push const, %d", rightOperand->u.valInt);
 			b_push_const_int(rightOperand->u.valInt);
 			type = TYSIGNEDINT;
 		}
@@ -1681,6 +1580,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 
 		if(leftType == TYSIGNEDINT && isIntExpression(rightOperand))
 		{
+			//error("convert push const, %d", rightOperand->u.valInt);
 			b_push_const_int(rightOperand->u.valInt);
 			type = TYSIGNEDINT;
 		}
@@ -1800,6 +1700,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 			type = TYDOUBLE;
 		}
 	}
+	//else if
 
 	return type;
 }

@@ -81,9 +81,12 @@ y.output: gram.y
 run: pcc3
 	make clean
 	make
-	./pcc3 < T2L85_ok.c > t.s
-	gcc -m32 t.s lib85.c
+	./pcc3-nodump < t3.c > t3sol.s
+	./pcc3 < t3.c > t3.s
+	-diff t3.s t3sol.s > t3diff
+	$(CC) -m32 t3.s lib-all.c
 	./a.out
+	
 
 clean:
 	-rm -f pcc3 *.o y.tab.h y.output y.tab.c

@@ -573,7 +573,7 @@ initializer_list
 
 statement
 	: labeled_statement
-	| compound_statement
+	| {/*error("added this from 14 apr video")*/; st_enter_block(); } compound_statement { st_exit_block(); }
 	| expression_statement
 	| selection_statement
 	| iteration_statement
@@ -609,20 +609,47 @@ expression_statement
 		//error("in expression_statement");
 		$<y_EN>$ = evaluateExpression($<y_EN>1); 
 		//error("Done evaluating Expression");
-		if($<y_EN>1->tag != TAG_FUNCTION)
+		//if($<y_EN>1->tag != TAG_FUNCTION)
 			b_pop();
 		//error("2nd time");
 	}
 	;
 
 selection_statement
-	: IF '(' expr ')' statement
-	| IF '(' expr ')' statement ELSE statement
+	: IF '(' expr ')' if_action statement { b_label($<y_string>5); }
+	| IF '(' expr ')' if_action statement ELSE { 
+							char * end_label = new_symbol();
+							b_jump( end_label);
+							b_label($<y_string>5);
+							$<y_string>$ = end_label;
+						    // char
+						  //   $<y_string>$ = new_symbol(); 
+	}
+	statement { 				    // evaluateExpression($<y_EN>8); 
+						     b_label($<y_string>8); 
+	}
 	| SWITCH '(' expr ')' statement
 	;
 
+if_action
+	: /* empty */ { char *label = new_symbol();
+		 evaluateExpression($<y_EN>-1);
+		b_cond_jump(getTypeTagFromExpression($<y_EN>-1), B_ZERO, label); // need to get type of expression
+	$<y_string>$ = label; }
+	;
+
 iteration_statement
-	: WHILE '(' expr ')' statement
+	: WHILE '(' expr ')'    { $<y_string>$ = new_symbol(); /* start label $5 */ } 
+				{ //char* start_label = new_symbol();
+					b_label($<y_string>5);
+					evaluateExpression($<y_EN>3);
+					$<y_string>$ = new_symbol(); // end label $6
+					b_cond_jump(getTypeTagFromExpression($<y_EN>3), B_ZERO, $<y_string>$);
+	}
+	 statement {
+				b_jump( $<y_string>5);
+				b_label($<y_string>6);
+	}
 	| DO statement WHILE '(' expr ')' ';'
 	| FOR '(' expr_opt ';' expr_opt ';' expr_opt ')' statement
 	;
