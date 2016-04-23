@@ -213,12 +213,14 @@ TYPETAG returnFuncTypeTag(EN node)
 	PARAMSTYLE ps;
 	PARAM_LIST pl;
 	//ty_print_type(stdr->u.decl.type);
+	//msg("");
 	if(stdr== NULL || stdr->u.decl.type == NULL) //	if(stdr->u.decl.type == NULL)
 		{  error(" why null in returnFuncTypeTag return TYVOID"); 
 		return TYVOID;	 }
 	
 	if (ty_query(stdr->u.decl.type) != TYFUNC)
 	{
+		error("in returnFuncTypeTag");
 		error("expression not of function type", st_get_id_str(stid));
 		return TYVOID;
 	}
@@ -517,7 +519,7 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_MULT: 	// a * b
 
-			//msg("BINARY_MULT is evaluating");
+			msg("BINARY_MULT is evaluating");
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -541,7 +543,9 @@ EN evalBinaryExpression(EN node)
 			else if(evalLeft->tag == TAG_FUNCTION && evalRight->tag == TAG_FUNCTION)
 			{
 				// SHOULD be return Type Convert call might be needed
-					b_arith_rel_op(B_MULT, returnFuncTypeTag(evalLeft)); 
+				evalLeft = evaluateExpression(node->u.binop.leftOperand);
+				evalRight = evaluateExpression(node->u.binop.rightOperand);					
+				b_arith_rel_op(B_MULT, returnFuncTypeTag(evalLeft)); 
 				evaluated = evalLeft;
 			}
 			else if(evalLeft->tag == TAG_FUNCTION)
@@ -762,6 +766,8 @@ EN evalBinaryExpression(EN node)
 			}
 			else if(evalLeft->tag == TAG_FUNCTION && evalRight->tag == TAG_FUNCTION)
 			{
+				evalLeft = evaluateExpression(node->u.binop.leftOperand);
+				evalRight = evaluateExpression(node->u.binop.rightOperand);
 				// SHOULD be return Type Convert call might be needed
 					b_arith_rel_op(B_ADD, returnFuncTypeTag(evalLeft)); 
 				evaluated = evalLeft;
@@ -932,7 +938,7 @@ EN evalBinaryExpression(EN node)
 				}
 				else if(isIntExpression(evalRight))
 				{
-					b_push_const_int(evalRight->u.valInt);	
+					//b_push_const_int(evalRight->u.valInt);	
 				}
 				else if(isDoubleExpression(evalRight))
 				{
@@ -1838,6 +1844,10 @@ TYPETAG getTypeTagFromExpression(EN node)
 	{
 		return TYDOUBLE;
 	}
+	else if(isFunctionExpression(node))
+	{
+		return returnFuncTypeTag(node);
+	}
 	else
 	{//if(isVariableExpression(node))
 		int b;
@@ -1885,6 +1895,13 @@ BOOLEAN isEvaluatedExpression(EN node)
 	return FALSE;
 }
 
+BOOLEAN isFunctionExpression(EN node)
+{
+	if(node!=NULL && node->tag == TAG_FUNCTION)
+		return TRUE;
+	return FALSE;
+}
+
 void printExpression(EN node)
 {
 	switch(node->tag)
@@ -1927,5 +1944,29 @@ void printExpression(EN node)
 
 		default:
 			bug("Where's the expression tag in printExpression?");
+	}
+}
+
+void evaluateSingleNode(EN node)
+{
+	switch(node->tag)
+	{
+		case TAG_CONST_INTEGER:
+			b_push_const_int(node->u.valInt);
+			break;
+		case TAG_CONST_DOUBLE:
+			b_push_const_double(node->u.valDouble);
+			break;
+
+		case TAG_FUNCTION:
+			msg("Function Expression");// b_func?
+			break;
+
+		case TAG_VARIABLE:
+			b_deref(getTypeTagFromExpression(node));
+			break;
+		default:
+			error("Only pass single nodes");
+			evaluateExpression(node);
 	}
 }

@@ -17,7 +17,15 @@
 
     int yylex();
     int yyerror(char *s);
+/*******************GLOBAL STACK for BREAK statements *************************/    	
+	char* global_stack[100];
 
+	char **sp = global_stack;
+
+	#define push(sp, n) (*((sp)++) = (n))
+	#define pop(sp) (*--(sp))
+	
+/*******************GLOBAL STACK for BREAK statements *************************/    
     int sizeOfType(TYPETAG type);
     void globalDecl(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
 	void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare);
@@ -75,6 +83,7 @@ primary_expr
 	: identifier { int b;
 			if(!st_lookup(getSTID($<y_DN>1), &b))
 			{//error("undefined"); 
+			
 			$<y_EN>$ = NULL;}
 			//else
 			$<y_EN>$ = createVariableExpression(getSTID($<y_DN>1)); }
@@ -633,22 +642,32 @@ selection_statement
 
 if_action
 	: /* empty */ { char *label = new_symbol();
-		 evaluateExpression($<y_EN>-1);
+		EN node = evaluateExpression($<y_EN>-1);
+		evaluateSingleNode($<y_EN>-1);
+		// Check if constant (ex. if (1)
+		//if( node->tag == TAG_CONST_INTEGER)
+		//		b_push_const_int(node->u.valInt);
 		b_cond_jump(getTypeTagFromExpression($<y_EN>-1), B_ZERO, label); // need to get type of expression
 	$<y_string>$ = label; }
 	;
 
 iteration_statement
-	: WHILE '(' expr ')'    { $<y_string>$ = new_symbol(); /* start label $5 */ } 
-				{ //char* start_label = new_symbol();
+	: WHILE '(' expr ')'    { $<y_string>$ = new_symbol(); /* start label is $5 */ } 
+				{ 
 					b_label($<y_string>5);
-					evaluateExpression($<y_EN>3);
-					$<y_string>$ = new_symbol(); // end label $6
+					EN node = evaluateExpression($<y_EN>3);
+					// Check if constant (ex. while (1)
+					//if( node->tag == TAG_CONST_INTEGER)
+					//	b_push_const_int(node->u.valInt);
+					evaluateSingleNode($<y_EN>3);
+					$<y_string>$ = new_symbol(); /* end label is $6 */
+					push(sp, $<y_string>$); /* Store the label onto the global stack */
 					b_cond_jump(getTypeTagFromExpression($<y_EN>3), B_ZERO, $<y_string>$);
 	}
 	 statement {
-				b_jump( $<y_string>5);
-				b_label($<y_string>6);
+				b_jump( $<y_string>5); // return back to start
+				b_label($<y_string>6); // Label the End of while loop
+				error("pop %s", pop(sp));
 	}
 	| DO statement WHILE '(' expr ')' ';'
 	| FOR '(' expr_opt ';' expr_opt ';' expr_opt ')' statement
@@ -657,8 +676,13 @@ iteration_statement
 jump_statement
 	: GOTO identifier ';'
 	| CONTINUE ';'
-	| BREAK ';'
-	| RETURN expr_opt ';'
+	| BREAK ';' {b_jump(pop(sp));}
+	| RETURN expr_opt ';' { $<y_EN>$ = evaluateExpression($<y_EN>2); 
+				evaluateSingleNode($<y_EN>$);
+				
+				//b_encode_return(getTypeTagFromExpression($<y_EN>2));
+				b_encode_return(TYSIGNEDINT);
+				}
 	;
 
  /*******************************
