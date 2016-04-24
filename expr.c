@@ -451,7 +451,8 @@ EN evalBinaryExpression(EN node)
 			if(isIntExpression(evalRight))
 			{
 				//error("binary assign push const, %d", evalRight->u.valInt);
-				b_push_const_int(evalRight->u.valInt);
+				if(!isEvaluatedExpression(evalRight))				
+					b_push_const_int(evalRight->u.valInt);
 				type = TYSIGNEDINT;
 
 				if(type != typeTagEN(evalLeft))
@@ -744,7 +745,7 @@ EN evalBinaryExpression(EN node)
 				|| (isDoubleExpression(evalLeft) && isIntExpression(evalRight))
 				|| (isIntExpression(evalLeft) && isDoubleExpression(evalRight)))
 			{
-				msg("Eval + for double + double");
+				//msg("Eval + for double + double");
 				//Make evaluated be Double Expression After Multiplying.
 				evalLeft->u.valDouble = getDoubleFromExpression(evalLeft) 
 											+ getDoubleFromExpression(evalRight);
@@ -756,7 +757,7 @@ EN evalBinaryExpression(EN node)
 			}
 			else if(isIntExpression(evalLeft) && isIntExpression(evalRight))
 			{
-				msg("Eval + for int + int");
+				//msg("Eval + for int + int");
 				//Make evaluated be Integer Expression after Multiplying.
 				evalLeft->u.valInt = getIntFromExpression(evalLeft)
 											+ getIntFromExpression(evalRight);			//error("here?");
@@ -807,8 +808,8 @@ EN evalBinaryExpression(EN node)
 				}
 				else if(isIntExpression(evalLeft))
 				{
-					error("binary add push int eval left removed cuz of convert?, %d", evalLeft->u.valInt );
-					//b_push_const_int(evalLeft->u.valInt);	
+					//error("binary add push int eval left removed cuz of convert?, %d", evalLeft->u.valInt );
+					b_push_const_int(evalLeft->u.valInt);	
 				}
 				else if(isDoubleExpression(evalLeft))
 				{
@@ -916,6 +917,7 @@ EN evalBinaryExpression(EN node)
 			}
 			else
 			{
+				//msg("inside else");
 				evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 				if(isVariableExpression(evalLeft))
 				{
@@ -1563,7 +1565,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 			else if(leftType == TYSIGNEDINT && rightType == TYDOUBLE)
 			{
 				//msg("int && double");
-				b_convert(TYSIGNEDINT, TYDOUBLE);
+				//b_convert(TYSIGNEDINT, TYDOUBLE);
 				type = TYDOUBLE;
 			}
 			else if(leftType == TYDOUBLE && rightType == TYSIGNEDINT)
@@ -1683,7 +1685,7 @@ TYPETAG convertExpression(EN leftOperand, EN rightOperand)
 
 		if(isIntExpression(leftOperand) && rightType == TYSIGNEDINT)
 		{
-			b_push_const_int(leftOperand->u.valInt);
+			//b_push_const_int(leftOperand->u.valInt);
 			// b_deref(rightType);
 			type = TYSIGNEDINT;
 		}
@@ -1961,7 +1963,7 @@ void evaluateSingleNode(EN node)
 			break;
 
 		case TAG_FUNCTION:
-			error("Function Expression in EvaluateSingleNode function");// b_func?
+			//error("Function Expression in EvaluateSingleNode function");// b_func?
 			break;
 
 		case TAG_VARIABLE:
