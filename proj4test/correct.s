@@ -6,19 +6,19 @@
 	.size	i, 4
 i:
 	.zero	4
+				# b_global_decl (j, alignment = 4, size = 4)
+.globl j
+	.align	4
+	.type	j, @object
+	.size	j, 4
+j:
+	.zero	4
 				# b_global_decl (pi, alignment = 4, size = 4)
 .globl pi
 	.align	4
 	.type	pi, @object
 	.size	pi, 4
 pi:
-	.zero	4
-				# b_global_decl (ppi, alignment = 4, size = 4)
-.globl ppi
-	.align	4
-	.type	ppi, @object
-	.size	ppi, 4
-ppi:
 	.zero	4
  #    2
  #    3
@@ -62,13 +62,34 @@ main:
 				# b_pop ()
 	addl	$8, %esp
  #    6
-				# b_push_ext_addr (ppi)
+				# b_push_ext_addr (j)
 	subl	$8, %esp
-	movl	$ppi, (%esp)
+	movl	$j, (%esp)
+				# b_push_ext_addr (i)
+	subl	$8, %esp
+	movl	$i, (%esp)
+				# b_deref (signed int)
+	movl	(%esp), %eax
+	movl	(%eax), %edx
+	movl	%edx, (%esp)
 				# b_push_ext_addr (pi)
 	subl	$8, %esp
 	movl	$pi, (%esp)
-				# b_assign (pointer)
+				# b_deref (pointer)
+	movl	(%esp), %eax
+	movl	(%eax), %edx
+	movl	%edx, (%esp)
+				# b_deref (signed int)
+	movl	(%esp), %eax
+	movl	(%eax), %edx
+	movl	%edx, (%esp)
+				# b_arith_rel_op ( + , signed int)
+	movl	(%esp), %ecx
+	addl	$8, %esp
+	movl	(%esp), %eax
+	addl	%ecx, %eax
+	movl	%eax, (%esp)
+				# b_assign (signed int)
 	movl	(%esp), %edx
 	addl	$8, %esp
 	movl	(%esp), %eax

@@ -1,17 +1,17 @@
 
 
-        Dump: Id  = ppi
+        Dump: Id  = i
 
         Dump: VAR Stack. 
             Dump: block num =0
 	GDECL
-		type = <no qual> pointer to <no qual> pointer to signed int
+		type = signed int
 		storage class = <no storage class>
 		reference parameter = FALSE
 		error = FALSE
 
 
-        Dump: Id  = i
+        Dump: Id  = j
 
         Dump: VAR Stack. 
             Dump: block num =0

@@ -148,6 +148,7 @@ EN evaluateExpression(EN expr)
 {
 	//Expr should never be null.
 //error("eval var exp");
+
 	switch(expr->tag)
 	{
 		case TAG_CONST_INTEGER:
@@ -161,19 +162,19 @@ EN evaluateExpression(EN expr)
 
 		case TAG_FUNCTION:
 		//TODO:	
-			//error("Begin Eval Function");
+			error("Begin Eval Function");
 			//bug("haven't implemented function expressions yet");
 			return evalFunctionExpression(expr);
 
 		case TAG_VARIABLE:
-			//error("eval var exp");
+			error("eval var exp");
 			return evalVariableExpression(expr);
 		case TAG_UNARY:
-			//error("eval un exp");
+			error("eval un exp");
 			return evalUnaryExpression(expr);
 		
 		case TAG_BINARY:
-			//error("eval ass exp");
+			error("eval ass exp");
 			return evalBinaryExpression(expr); 
 
 		default:
@@ -307,14 +308,27 @@ EN evalUnaryExpression(EN node)
 	EN returnedNode = NULL;
 
 	EN expr = NULL;
-
+	char* identifier = NULL;
 	switch(node->u.unop.op)
 	{
 		//TODO:
 		case UNARY_DEREF: 		//*ptr
+			returnedNode = node->u.unop.operand;
+			identifier = st_get_id_str(node->u.unop.operand->u.varStID);
+			b_push_ext_addr(identifier);
+			
+			TYPETAG type = getTypeTagFromExpression(returnedNode);
+			msg("De-reffing a UNARY_DEREF");
+			b_deref(type);
+
+			msg("TYPETAG after evaluating: %d", type);
+			if (type == TYPTR) {
+				returnedNode->tag = TAG_POINTER;
+				returnedNode->u.eval.type = type;
+			}
 			break;
 		case UNARY_REF:	;		//&identifier
-			char* identifier = st_get_id_str(node->u.unop.operand->u.varStID);
+			identifier = st_get_id_str(node->u.unop.operand->u.varStID);
 			msg("In evalUnaryExpression UNARY_REF");
 			b_push_ext_addr(identifier);
 			break;
@@ -834,20 +848,28 @@ EN evalBinaryExpression(EN node)
 					error("binary add push int eval left resolved type, %d", evalLeft->u.valInt );
 					//b_convert(leftType, resolvedType);
 					}
-
 				evalRight = evaluateExpression(node->u.binop.rightOperand);
+				msg("evalRight TYPETAG: %d",getTypeTagFromExpression(node->u.unop.operand));
 				if(isVariableExpression(evalRight))
 				{
+					msg("evalRight is a variable expression");
 					b_deref(getTypeTagFromExpression(evalRight));
+					//}
 				}
 				else if(isIntExpression(evalRight))
 				{
+					msg("evalRight is a int expression");
 					//error("binary add push const removed because convert, %d", evalRight->u.valInt);
 					//b_push_const_int(evalRight->u.valInt);	
 				}
 				else if(isDoubleExpression(evalRight))
 				{
+					msg("evalRight is a double expression");
 					b_push_const_double(evalRight->u.valDouble);
+				}
+				else if (isPointerExpression(evalRight)) {
+					msg("****ISSUE: NEED TYPE THAT POINTER evalRight POINTS TO HERE!!! (int, double, float char)****");
+					b_deref(getTypeTagFromExpression(evalRight->u.unop.operand));
 				}
 				rightType = unaryConversion(evalRight);
 				//if(rightType != resolvedType)
@@ -1858,25 +1880,38 @@ TYPETAG getTypeTagFromExpression(EN node)
 { 
 	if(isEvaluatedExpression(node))
 	{
+		msg("here1");
 		return node->u.eval.type;
 	}
 	else if(isIntExpression(node))
 	{
+		msg("here2");
 		return TYSIGNEDINT;
+	}
+	else if(isPointerExpression(node)) {
+		msg("here2.5");
+		msg("\tPointer node EXPR_TAG: %d", node->tag);
+		//return node->tag;
+		return TYPTR;
 	}
 	else if(isDoubleExpression(node))
 	{
+		msg("here3");
 		return TYDOUBLE;
 	}
 	else if(isFunctionExpression(node))
 	{
+		msg("here4");
 		return returnFuncTypeTag(node);
 	}
 	else
 	{//if(isVariableExpression(node))
+		msg("here5");
 		int b;
 		ST_ID stid = getIDFromVariableExpression(node);
+		msg("here6");
 		ST_DR stdr = st_lookup(node->u.varStID, &b);
+		msg("here 7");
 		if(stdr == NULL)
 			return TYVOID;
 		return ty_query(stdr->u.decl.type);
@@ -1908,6 +1943,13 @@ BOOLEAN isDoubleExpression(EN node)
 BOOLEAN isVariableExpression(EN node)
 {
 	if(node!=NULL && node->tag == TAG_VARIABLE)
+		return TRUE;
+	return FALSE;
+}
+
+BOOLEAN isPointerExpression(EN node)
+{
+	if(node!=NULL && node->tag == TAG_POINTER);
 		return TRUE;
 	return FALSE;
 }
