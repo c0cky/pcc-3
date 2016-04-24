@@ -521,7 +521,7 @@ EN evalBinaryExpression(EN node)
 
 		case BINARY_MULT: 	// a * b
 
-			msg("BINARY_MULT is evaluating");
+			//msg("BINARY_MULT is evaluating");
 	
 			if(isDoubleExpression(evalLeft) && isDoubleExpression(evalRight)
 				|| isDoubleExpression(evalLeft) && isIntExpression(evalRight)
@@ -1961,11 +1961,13 @@ void evaluateSingleNode(EN node)
 			break;
 
 		case TAG_FUNCTION:
-			msg("Function Expression");// b_func?
+			error("Function Expression in EvaluateSingleNode function");// b_func?
 			break;
 
 		case TAG_VARIABLE:
 			b_deref(getTypeTagFromExpression(node));
+			if(getTypeTagFromExpression(node)!= TYSIGNEDINT)
+				b_convert(getTypeTagFromExpression(node),TYSIGNEDINT);
 			break;
 		default:
 			;

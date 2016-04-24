@@ -35,6 +35,7 @@ typedef struct cs
 	char* label;
 } CASE_LIST, *CASE_;
 
+void linkCase(CASE_ newcase);
 // A structure for the global stack, tag, a label and if a switch the list.
 
 typedef struct condstmt
@@ -42,6 +43,7 @@ typedef struct condstmt
 	COND_TAG tag;
 	char* j_lbl;
 	struct cs* case_list;
+	char* def_lbl;
 }COND_STMT, *COND_ST;
 
 // Build a condition statement item
@@ -52,17 +54,113 @@ COND_ST build_cond_stmt(COND_TAG tag, char* lbl, CASE_ Case_list)
 	new_cond_stm->tag = tag;
 	new_cond_stm->j_lbl = lbl;
 	new_cond_stm->case_list =  Case_list;
+	new_cond_stm->def_lbl = "";
 	return new_cond_stm;
 }
 
 
-CASE_ buildCase(int newVal, char* newLabel, CASE_ lastCase)
+CASE_ buildCase(int newVal, char* newLabel)
 {
+	
 	CASE_ case_entry = (CASE_)malloc(sizeof(CASE_LIST));
 	case_entry->caseVal = newVal;
 	case_entry->label = newLabel;
-	case_entry->nextcase = lastCase;
+	//case_entry->nextcase = lastCase;
+	linkCase(case_entry);
 	return case_entry;
+}
+
+	COND_ST gs[100];
+	COND_ST* spgs = gs;
+	
+	#define push(sp, n) (*((sp)++) = (n))
+	#define pop(sp) (*--(sp))
+	#define internal_push(sp) *((sp)++)
+
+void linkCase(CASE_ newcase)
+{	
+	int i = 0;
+	COND_ST condstmt;
+	CASE_ temp_case;
+	condstmt = pop(spgs);
+	//error("can't check tag?");
+	//error("here? in linkcase, %s, %d", condstmt->j_lbl, condstmt->tag);
+	if(condstmt == NULL)
+			{ 
+			error("no switch stmt made yet?"); 
+				return; }
+	while(condstmt->tag != SWITCH_COND)
+	{
+		i++;
+		condstmt = pop(spgs);
+		if(condstmt == NULL)
+			{ 
+			error("noswitch stmt"); 
+				return; }
+	}
+	if( condstmt->case_list == NULL)
+		condstmt->case_list = newcase;
+	else
+		{
+		temp_case = condstmt->case_list;
+		while(condstmt->case_list->nextcase != NULL)
+		{
+			//error("here where are, temp case was %d", temp_case->caseVal);
+			condstmt->case_list = condstmt->case_list->nextcase;
+			
+		}
+		condstmt->case_list->nextcase = newcase;
+		condstmt->case_list = temp_case;
+		}
+	//condstmt->case_list = 
+	while(i >= 0)
+	{
+		//error("internal push");
+		internal_push(spgs);
+		i--;
+	}
+	//error("here where are, new case was %d", newcase->caseVal);
+	return;
+}
+
+BOOLEAN setSwitchDefault(char* def_lbl)
+{
+	int i = 0;
+	COND_ST condstmt;
+	CASE_ temp_case;
+	condstmt = pop(spgs);
+
+	if(condstmt == NULL)
+			{ 
+			error("no switch stmt made yet?"); 
+				return FALSE; }
+	while(condstmt->tag != SWITCH_COND)
+	{
+		i++;
+		condstmt = pop(spgs);
+		if(condstmt == NULL)
+			{ 
+			error("noswitch stmt"); 
+				return FALSE; }
+	}
+	while(i >= 0)
+	{
+		//error("internal push");
+		internal_push(spgs);
+		i--;
+	}
+	
+	if( condstmt->def_lbl == "")
+		{
+			condstmt->def_lbl = def_lbl;
+			//error("here? in set Switch Default, %s, %d", condstmt->j_lbl, condstmt->tag);	
+			return TRUE;
+		}
+	else
+		error("duplicate default statements in switch");
+	
+	return FALSE;
+	
 }
 
 // CASE_ switch_stack[10];
@@ -72,8 +170,7 @@ CASE_ buildCase(int newVal, char* newLabel, CASE_ lastCase)
 
 	char**sp = global_stack;
 
-	#define push(sp, n) (*((sp)++) = (n))
-	#define pop(sp) (*--(sp))
+	
 	
 /*******************GLOBAL STACK for SWITCH/CASE statements *************************/  
 /*******************GLOBAL STACK for RETURN statements *************************/  
@@ -81,8 +178,7 @@ CASE_ buildCase(int newVal, char* newLabel, CASE_ lastCase)
 	char* function_stack[10];
 	char **frt = function_stack;
 	
-	COND_ST gs[10];
-	COND_ST* spgs = gs;
+
 
 
 //*********************************  
@@ -652,12 +748,16 @@ statement
 
 labeled_statement
 	: identifier ':' statement
-	| CASE constant_expr ':' { char *new_case = new_symbol(); 
-	b_label(new_case);
-	
+	| CASE constant_expr ':' { char *new_case_label = new_symbol(); 
+	b_label(new_case_label);	
+	buildCase(evalIntExpression($<y_EN>2), new_case_label);
+	//error("CASE PRODUCTION");
 	}
 	statement
-	| DEFAULT ':' statement
+	| DEFAULT ':'  { char* default_lbl = new_symbol();
+	b_label(default_lbl); setSwitchDefault(default_lbl);
+	}
+	statement
 	;
 
 compound_statement
@@ -696,30 +796,33 @@ selection_statement
 							b_label($<y_string>5);
 							$<y_string>$ = end_label;
 	}
-	statement { 				    // evaluateExpression($<y_EN>8); 
+	statement { 				    // evaluateExpression($<y_EN>9); 
 						     b_label($<y_string>8); 
 	}
 	| SWITCH '(' expr ')' { char *jump_to_dispatch = new_symbol(); 
 		$<y_string>$ = jump_to_dispatch;
 		EN node = evaluateExpression($<y_EN>3);
 		evaluateSingleNode(node);
-		push(spgs, build_cond_stmt(SWITCH_COND, jump_to_dispatch, NULL));
-		b_jump(jump_to_dispatch);
-
+	}
+	{   char *end_label = new_symbol(); $<y_string>$ = end_label; }
+	{   push(spgs, build_cond_stmt(SWITCH_COND, $<y_string>6, NULL));
+		b_jump($<y_string>5);
 	}
 	statement { //unary convert from char to int
-	// evaluate X, unconditional jump to end then back
-	char *end_label = new_symbol();
-	b_label($<y_string>5);
-	COND_ST switch_stmt = pop(spgs);
-	while(switch_stmt->case_list != NULL)
-	{
-		b_dispatch(B_EQ, TYSIGNEDINT, switch_stmt->case_list->caseVal, switch_stmt->case_list->label, TRUE);
-	//jump to dispatch;
-	//encode body stmt
-		switch_stmt->case_list = switch_stmt->case_list->nextcase;
-	}
-	b_label(end_label);
+
+		b_jump($<y_string>6);
+		b_label($<y_string>5);
+		COND_ST switch_stmt = pop(spgs);
+		while(switch_stmt->case_list != NULL)
+		{
+			b_dispatch(B_EQ, TYSIGNEDINT, switch_stmt->case_list->caseVal, switch_stmt->case_list->label, TRUE);
+			switch_stmt->case_list = switch_stmt->case_list->nextcase;
+		}
+		b_pop();
+		if(switch_stmt->def_lbl != "")
+			b_jump(switch_stmt->def_lbl);
+	
+		b_label($<y_string>6);
 	}
 	;
 
@@ -753,7 +856,7 @@ iteration_statement
 				b_jump( $<y_string>5); // return back to start
 				b_label($<y_string>6); // Label the End of while loop
 				//error("pop %s", pop(sp));
-				error("pop the spgs %s", pop(spgs)->j_lbl);
+				//error("pop the spgs %s", pop(spgs)->j_lbl);
 	}
 	| DO statement WHILE '(' expr ')' ';'
 	| FOR '(' expr_opt ';' expr_opt ';' expr_opt ')' statement
