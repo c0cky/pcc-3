@@ -87,7 +87,7 @@ void linkCase(CASE_ newcase)
 	//error("here? in linkcase, %s, %d", condstmt->j_lbl, condstmt->tag);
 	if(condstmt == NULL)
 			{ 
-			error("no switch stmt made yet?"); 
+			error("case label not inside switch"); 
 				return; }
 	while(condstmt->tag != SWITCH_COND)
 	{
@@ -95,7 +95,7 @@ void linkCase(CASE_ newcase)
 		condstmt = pop(spgs);
 		if(condstmt == NULL)
 			{ 
-			error("noswitch stmt"); 
+			error("No switch stmt"); 
 				return; }
 	}
 	if( condstmt->case_list == NULL)
@@ -106,6 +106,11 @@ void linkCase(CASE_ newcase)
 		while(condstmt->case_list->nextcase != NULL)
 		{
 			//error("here where are, temp case was %d", temp_case->caseVal);
+			if(condstmt->case_list->caseVal == newcase->caseVal)
+			{
+					error("duplicate value in case label: %d", newcase->caseVal);
+					//return; Keeping going, throws segmentation fault otherwise.
+			}
 			condstmt->case_list = condstmt->case_list->nextcase;
 			
 		}
@@ -157,7 +162,7 @@ BOOLEAN setSwitchDefault(char* def_lbl)
 			return TRUE;
 		}
 	else
-		error("duplicate default statements in switch");
+		error("duplicate default label inside switch");
 	
 	return FALSE;
 	
@@ -781,6 +786,10 @@ expression_statement
 	: expr_opt ';' 
 	{ 	
 		//error("in expression_statement");
+		if($<y_EN>1 == NULL)
+			;
+		else
+		{
 		$<y_EN>$ = evaluateExpression($<y_EN>1); 
 		//error("Done evaluating Expression");
 		if($<y_EN>1->tag == TAG_FUNCTION)
@@ -791,6 +800,7 @@ expression_statement
 			}
 		else
 			b_pop();
+		}
 	}
 	;
 
@@ -809,7 +819,9 @@ selection_statement
 		$<y_string>$ = jump_to_dispatch;
 		EN node = evaluateExpression($<y_EN>3);
 		evaluateSingleNode(node);
-	}
+		if(getTypeTagFromExpression(node) != TYSIGNEDINT && getTypeTagFromExpression(node) != TYSIGNEDCHAR)
+				error("switch expression not of integral type");
+	}	
 	{   char *end_label = new_symbol(); $<y_string>$ = end_label; }
 	{   push(spgs, build_cond_stmt(SWITCH_COND, $<y_string>6, NULL));
 		b_jump($<y_string>5);
@@ -855,19 +867,17 @@ iteration_statement
 					$<y_string>$ = new_symbol(); /* end label is $6 */
 					//build_cond_stmt(WHILE_COND, $<y_string>$, NULL);
 					push(spgs, build_cond_stmt(WHILE_COND, $<y_string>$, NULL));
-					//push(sp, $<y_string>$); /* Store the label onto the global stack */
 					b_cond_jump(getTypeTagFromExpression($<y_EN>3), B_ZERO, $<y_string>$);
 	}
 	 statement {
 				b_jump( $<y_string>5); // return back to start
 				b_label($<y_string>6); // Label the End of while loop
 				//error("pop %s", pop(sp));
-				//error("pop the spgs %s", pop(spgs)->j_lbl);
+				pop(spgs);
 	}
 	| DO statement WHILE '(' expr ')' ';'
 	| FOR '(' expr_opt ';' expr_opt ';' expr_opt ')' 
 	{ 
-		error("in FOR");
 		if( $<y_EN>3 != NULL )
 			{
 				evaluateExpression($<y_EN>3); 
@@ -876,7 +886,6 @@ iteration_statement
 		char* start_label = new_symbol();
 		b_label(start_label);
 		$<y_string>$ = start_label;
-		error("in FOR 2");
 		if( $<y_EN>5 != NULL )
 			evaluateExpression($<y_EN>5);
 			// $9
@@ -885,12 +894,7 @@ iteration_statement
 		char* exit_label = new_symbol();
 		$<y_string>$ = exit_label;
 		push(spgs, build_cond_stmt(FOR_COND, $<y_string>$, NULL));
-	}
-       // expr_opt[0] = init, [1] = test, [2] = inc
-       // encode init 
-       // pop if not void
-       // encode test
-	     
+	}	     
 	     {
 		if( $<y_EN>5 != NULL )
 	       		b_cond_jump(getTypeTagFromExpression($<y_EN>5), B_ZERO, $<y_string>10);
@@ -898,20 +902,13 @@ iteration_statement
 	     }
 	      statement
 	     {
-		error("in FOR");
 		if( $<y_EN>7 != NULL )
 			{
 				evaluateExpression($<y_EN>7); 
 				b_pop();
 			}
-		error("in FOR2");
 		b_jump($<y_string>9);
 		b_label($<y_string>10);
-		//evaluateExpression($<y_EN>7)
-	       //eval inc expr
-	       //pop if non void
-	       //jump to test
-		error("in FOR3");
 	     }
 	;
 
@@ -922,17 +919,22 @@ jump_statement
 			 if(pop_label == NULL)
 				error("break not inside switch or loop");
 				else { b_jump(pop_label->j_lbl); push(spgs, pop_label);}}
-	| RETURN expr_opt ';' { $<y_EN>$ = evaluateExpression($<y_EN>2); 
-				
-				evaluateSingleNode($<y_EN>$);
+	| RETURN expr_opt ';' { 
 				//error("%d", getTypeTagFromExpression($<y_EN>2));
 				//b_encode_return(getTypeTagFromExpression($<y_EN>2));
 				char* f = pop(frt);
 				TYPETAG tag = funcNameReturnType(f);
+				if($<y_EN>2 == NULL)
+					b_encode_return(TYVOID);
+				else
+				{
+				$<y_EN>$ = evaluateExpression($<y_EN>2); 
+				evaluateSingleNode($<y_EN>$);
 				TYPETAG tag2= getTypeTagFromExpression($<y_EN>$);
 				if(tag != tag2)
 					b_convert(tag2, tag);
 				b_encode_return(tag);
+				}
 				push(frt,f);
 				}
 	;
