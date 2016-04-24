@@ -859,7 +859,22 @@ iteration_statement
 				//error("pop the spgs %s", pop(spgs)->j_lbl);
 	}
 	| DO statement WHILE '(' expr ')' ';'
-	| FOR '(' expr_opt ';' expr_opt ';' expr_opt ')' statement
+	| FOR '(' expr_opt ';' expr_opt ';' expr_opt ')' 
+    { 
+      // expr_opt[0] = init, [1] = test, [2] = inc
+      // encode init 
+      // pop if not void
+      // encode test
+    } 
+    {
+      //b_cond_jump(getTypeTagFromExpression(, B_ZEROR, $<y_string>$);
+    }
+      statement
+    {
+      //eval inc expr
+      //pop if non void
+      //jump to test
+    }
 	;
 
 jump_statement
