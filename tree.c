@@ -8,7 +8,7 @@
 // Pass the ST_ID that is created from an enrollment; returns a Declarator Type Node
 DN makeIdNode(ST_ID stid)
 {
-	//msg("making id node");
+	msg("making id node");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = ID;
@@ -20,7 +20,7 @@ DN makeIdNode(ST_ID stid)
 // Pass the dimension for array node, and any previous nodes, return new node
 DN makeArrayNode(DN dn, unsigned int dimension)
 {
-	//msg("making array node");
+	msg("making array node");
 	if(dn->tag == FUNC)
 		error("cannot have function returning array");
 	DN d;
@@ -34,7 +34,7 @@ DN makeArrayNode(DN dn, unsigned int dimension)
 // Pass the previous node, return new node
 DN makePtrNode(DN dn, BOOLEAN is_ref)
 {
-	//msg("making ptr node");
+	msg("making ptr node");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = PTR;
@@ -47,7 +47,7 @@ DN makePtrNode(DN dn, BOOLEAN is_ref)
 // Pass the previous node, return new node
 DN makeRefNode(DN dn)
 {
-	//msg("making ref node");
+	msg("making ref node");
 	DN d;
 	d = (DN)malloc(sizeof(DECL_NODE));
 	d->tag = REF;
@@ -59,7 +59,7 @@ DN makeRefNode(DN dn)
 // Is PARAM_LIST correct object for this? From types.h
 DN makeFnNode(DN dn, PARAM_LIST pl) 
 {
-	//msg("making fn node");
+	msg("making fn node");
 	if(dn->tag == FUNC)
 		error("cannot have function returning function");
 	if(dn->tag == ARRAY)
@@ -80,7 +80,7 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 	//BOOLEAN val_array = TRUE;
 	installSuccessful = FALSE;
 
-	//msg("building_derived_type");
+	msg("building_derived_type");
 	while(dn != NULL)
 	{
 		switch(dn->tag) {
@@ -107,7 +107,7 @@ TYPE building_derived_type_and_install_st(DN dn, TYPE initialType)
 				bug("Looking for REF \"stdr_dump\"");
 				break;
 			case ID: ;
-				//msg("Installing");
+				msg("Installing");
 				ST_DR dr = stdr_alloc(); // Allocate space for the symtab data record
 
 				dr->tag = GDECL;
@@ -321,10 +321,10 @@ ST_ID getSTID(DN dn)
 }
 
 void print_tree(DN dn) {
-	//msg("***PRINTING TREE***");
+	msg("***PRINTING TREE***");
 	int counter = 0;
 	while (dn != NULL) {
-		//msg("\t[%d]:\n\t\tTAG: %s",counter, tagToString(dn->tag));
+		msg("\t[%d]:\n\t\tTAG: %s",counter, tagToString(dn->tag));
 
 		counter += 1;
 		dn = dn->n_node;

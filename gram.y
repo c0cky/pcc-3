@@ -237,14 +237,22 @@ BOOLEAN setSwitchDefault(char* def_lbl)
   *******************************/
 
 primary_expr
-	: identifier { int b;
-			if(!st_lookup(getSTID($<y_DN>1), &b))
-			{//error("undefined"); 
-			
-			$<y_EN>$ = NULL;}
-			//else
-			$<y_EN>$ = createVariableExpression(getSTID($<y_DN>1)); }
+	: identifier { 
+		msg("Found primary_expr 1");
+		int b;
+		if(!st_lookup(getSTID($<y_DN>1), &b))
+		{//error("undefined"); 
+		
+		$<y_EN>$ = NULL;}
+		//else
+		if ($<y_DN>1->tag == PTR) {
+			msg("\t$1 is a y_DN with tag PTR");
+		}
+
+		$<y_EN>$ = createVariableExpression(getSTID($<y_DN>1)); 
+	}
 	| INT_CONSTANT { 
+		msg("Found primary_expr 2");
 		EN node = createConstantIntExpression($<y_int>1);
 		$<y_EN>$ = node;
 
@@ -253,6 +261,7 @@ primary_expr
 		// $<y_int>$ = $<y_int>1;
 	}
 	| DOUBLE_CONSTANT {
+		msg("Found primary_expr 3");
 		// msg("DOUBLE CONSTANT is %f", $<y_double>$1);
 		
 		EN node = createConstantDoubleExpression($<y_double>1);
@@ -263,12 +272,14 @@ primary_expr
 		// $<y_double>$ = $<y_double>1;
 	}
 	| STRING_LITERAL {
+		msg("Found primary_expr 4");
 		// msg("STRING LITERAL is %s", $<y_string>$1);
 		EN node = createStringExpression($<y_string>1);
 		$<y_EN>$ = node;
 		//$<y_string>$ = $<y_string>1;
 	}
 	| '(' expr ')' {
+		msg("Found primary_expr 5");
 		$<y_EN>$ = $<y_EN>2;
 	}
 	;
@@ -458,7 +469,7 @@ conditional_expr
 assignment_expr
 	: conditional_expr 
 	| unary_expr assignment_operator assignment_expr { 	
-		
+		msg("Found unary_expr assignment_operator assignment_expr");
 		$<y_EN>$ = createBinaryExpression($<y_binop>2, $<y_EN>1, $<y_EN>3);
 	}
 	;
@@ -514,7 +525,7 @@ declaration_specifiers
 
 init_declarator_list
 	: init_declarator { 
-		//msg("In init_declarator");
+		msg("In init_declarator");
 		// print_tree($<y_DN>1);
 
 		TYPE baseType = build_base($<y_bucketPtr>0);
@@ -522,7 +533,7 @@ init_declarator_list
 		GLD($<y_DN>1, baseType, derivedType, installSuccessful);
 	}
 	| init_declarator_list ',' init_declarator {
-		//msg("In init_declarator");
+		msg("In init_declarator");
 		// building_derived_type_and_install_st($<y_DN>3, build_base($<y_bucketPtr>0));
 		TYPE baseType = build_base($<y_bucketPtr>0);
 		TYPE derivedType = building_derived_type_and_install_st($<y_DN>3, baseType);
@@ -581,7 +592,7 @@ specifier_qualifier_list
 
 specifier_qualifier_list_opt
 	: /* null derive */ {
-		//msg("Found *");
+		msg("Found *");
 	}
 	| specifier_qualifier_list 
 	;
@@ -625,10 +636,13 @@ type_qualifier
 declarator
 	: direct_declarator
 	| pointer declarator {
-		//if($<y_ref>1 == TRUE)
-			//msg("Reference passed");
-		//else;
-			//msg("Found 'pointer declarator'");
+		msg("Found pointer declarator");
+		if($<y_ref>1 == TRUE) {
+			msg("\tIs a y_ref!");
+		}
+		else {
+			msg("\tNot a y_ref!");
+		}
 		$<y_DN>$ = makePtrNode($<y_DN>2, $<y_ref>1);
 		//}
 	}
@@ -657,9 +671,14 @@ direct_declarator
 	;
 
 pointer
-	: '*' specifier_qualifier_list_opt
-		  { $<y_ref>$ = FALSE; }
-   	| '&' { $<y_ref>$ = TRUE;}
+	: '*' specifier_qualifier_list_opt { 
+		$<y_ref>$ = FALSE; 
+		msg("found specifier_qualifier_list_opt. Setting y_ref to FALSE.");
+	}
+   	| '&' { 
+   		$<y_ref>$ = TRUE;
+   		msg("found '&'. Setting y_ref to TRUE.");
+   	}
 	;
 
 parameter_type_list
@@ -1039,7 +1058,7 @@ function_definition
 
 identifier
 	: IDENTIFIER { 
-		//msg("Found ID; Enrolling %s",$<y_string>1); 
+		msg("Found ID; Enrolling %s",$<y_string>1); 
 		
 		ST_ID varName = st_enter_id($<y_string>1);
 		$<y_DN>$ = makeIdNode(varName);
@@ -1227,6 +1246,7 @@ void globalDecl(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
 }
 void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
 {
+		msg("IN GLD!!!!");
 		if(!shouldDeclare)
 			return;
 		// if very last node is a pointer always will return align 4 size 4
@@ -1239,6 +1259,7 @@ void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
 		{
 			switch(dn->tag) {
 			case ARRAY:
+				msg("\tdn is ARRAY");
 				if(dn->u.array_dim.dim <= 0)
 				{
 					return;
@@ -1246,17 +1267,21 @@ void GLD(DN dn, TYPE baseType, TYPE derivedType, BOOLEAN shouldDeclare)
 				array_total *= dn->u.array_dim.dim;
 				break;
 			case PTR:
+			msg("\tdn is PTR");
 				align = 4;
 				size = 4;
 				array_total = 1;
 				break;
 			case FUNC:
+			msg("\tdn is FUNC");
 				if(dn->n_node->tag == ID)
 					funcFlag = TRUE;
 				break;
 			case REF:
+			msg("\tdn is REF");
 				break;
 			case ID:
+			msg("\tdn is ID");
 				if(funcFlag)
 					return;
 				else

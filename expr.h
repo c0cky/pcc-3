@@ -24,6 +24,8 @@ typedef enum
 	TAG_FUNCTION,		//Function Call f(3) returns 5
 	TAG_VARIABLE,
 
+	TAG_POINTER,
+
 	TAG_UNARY,
 	TAG_BINARY,
 	

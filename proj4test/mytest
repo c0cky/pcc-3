@@ -1,0 +1,7 @@
+int i, *pi, **ppi;
+
+main() {
+	i = 19;
+	pi = &i;
+        ppi = &pi;
+}

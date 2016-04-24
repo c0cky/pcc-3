@@ -1,0 +1,589 @@
+gram.y: warning: 1 shift/reduce conflict [-Wconflicts-sr]
+gram.y: In function ‘yyparse’:
+gram.y:277:13: warning: initialization makes pointer from integer without a cast [enabled by default]
+   EN node = createStringExpression($<y_string>1);
+             ^
+expr.c: In function ‘evalBinaryExpression’:
+expr.c:876:13: warning: comparison between pointer and integer [enabled by default]
+     if(type != NULL)
+             ^
+Found ID; Enrolling i
+making id node
+In init_declarator
+building_derived_type
+Installing
+IN GLD!!!!
+	dn is ID
+Found ID; Enrolling j
+making id node
+In init_declarator
+building_derived_type
+Installing
+IN GLD!!!!
+	dn is ID
+Found *
+found specifier_qualifier_list_opt. Setting y_ref to FALSE.
+Found ID; Enrolling pi
+making id node
+Found pointer declarator
+	Not a y_ref!
+making ptr node
+In init_declarator
+building_derived_type
+Installing
+IN GLD!!!!
+	dn is PTR
+	dn is ID
+Found *
+found specifier_qualifier_list_opt. Setting y_ref to FALSE.
+Found *
+found specifier_qualifier_list_opt. Setting y_ref to FALSE.
+Found ID; Enrolling ppi
+making id node
+Found pointer declarator
+	Not a y_ref!
+making ptr node
+Found pointer declarator
+	Not a y_ref!
+making ptr node
+In init_declarator
+building_derived_type
+Installing
+IN GLD!!!!
+	dn is PTR
+	dn is PTR
+	dn is ID
+Found ID; Enrolling f
+making id node
+In init_declarator
+building_derived_type
+Installing
+IN GLD!!!!
+	dn is ID
+Found *
+found specifier_qualifier_list_opt. Setting y_ref to FALSE.
+Found ID; Enrolling pf
+making id node
+Found pointer declarator
+	Not a y_ref!
+making ptr node
+In init_declarator
+building_derived_type
+Installing
+IN GLD!!!!
+	dn is PTR
+	dn is ID
+Found ID; Enrolling c
+making id node
+In init_declarator
+building_derived_type
+Installing
+IN GLD!!!!
+	dn is ID
+Found *
+found specifier_qualifier_list_opt. Setting y_ref to FALSE.
+Found ID; Enrolling s1
+making id node
+Found pointer declarator
+	Not a y_ref!
+making ptr node
+In init_declarator
+building_derived_type
+Installing
+IN GLD!!!!
+	dn is PTR
+	dn is ID
+Found *
+found specifier_qualifier_list_opt. Setting y_ref to FALSE.
+Found ID; Enrolling s2
+making id node
+Found pointer declarator
+	Not a y_ref!
+making ptr node
+In init_declarator
+building_derived_type
+Installing
+IN GLD!!!!
+	dn is PTR
+	dn is ID
+Found *
+found specifier_qualifier_list_opt. Setting y_ref to FALSE.
+Found *
+found specifier_qualifier_list_opt. Setting y_ref to FALSE.
+Found *
+found specifier_qualifier_list_opt. Setting y_ref to FALSE.
+Found ID; Enrolling pppi
+making id node
+Found pointer declarator
+	Not a y_ref!
+making ptr node
+Found pointer declarator
+	Not a y_ref!
+making ptr node
+Found pointer declarator
+	Not a y_ref!
+making ptr node
+In init_declarator
+building_derived_type
+Installing
+IN GLD!!!!
+	dn is PTR
+	dn is PTR
+	dn is PTR
+	dn is ID
+Found ID; Enrolling print_ints
+making id node
+making fn node
+In init_declarator
+building_derived_type
+Installing
+IN GLD!!!!
+	dn is FUNC
+	dn is ID
+Found ID; Enrolling print_floats
+making id node
+making fn node
+In init_declarator
+building_derived_type
+Installing
+IN GLD!!!!
+	dn is FUNC
+	dn is ID
+Found ID; Enrolling main
+making id node
+making fn node
+Found ID; Enrolling ppi
+making id node
+Found primary_expr 1
+Creating variable expr ppi
+In createVaraibleExpression, type is TYPTR
+Creating variable expr ppi
+Found ID; Enrolling pi
+making id node
+Found primary_expr 1
+Creating variable expr pi
+In createVaraibleExpression, type is TYPTR
+Creating variable expr pi
+Creating unary expr
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 7. TAG_BINARY: 9
+TAG_POINTER
+Found ID; Enrolling j
+making id node
+Found primary_expr 1
+Creating variable expr j
+Creating variable expr j
+Found ID; Enrolling i
+making id node
+Found primary_expr 1
+Creating variable expr i
+Creating variable expr i
+Found ID; Enrolling pi
+making id node
+Found primary_expr 1
+Creating variable expr pi
+In createVaraibleExpression, type is TYPTR
+Creating variable expr pi
+Creating unary expr
+Creating binary expr OP_BINARY: 4
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 0. TAG_BINARY: 9
+Found ID; Enrolling print_ints
+making id node
+Found primary_expr 1
+Creating variable expr print_ints
+Creating variable expr print_ints
+Creating function expr
+expr->tag: 5. TAG_BINARY: 9
+Found ID; Enrolling pi
+making id node
+Found primary_expr 1
+Creating variable expr pi
+In createVaraibleExpression, type is TYPTR
+Creating variable expr pi
+Creating unary expr
+Found ID; Enrolling j
+making id node
+Found primary_expr 1
+Creating variable expr j
+Creating variable expr j
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 8. TAG_BINARY: 9
+Found ID; Enrolling print_ints
+making id node
+Found primary_expr 1
+Creating variable expr print_ints
+Creating variable expr print_ints
+Creating function expr
+expr->tag: 5. TAG_BINARY: 9
+Found ID; Enrolling j
+making id node
+Found primary_expr 1
+Creating variable expr j
+Creating variable expr j
+Found ID; Enrolling pi
+making id node
+Found primary_expr 1
+Creating variable expr pi
+In createVaraibleExpression, type is TYPTR
+Creating variable expr pi
+Creating unary expr
+Found ID; Enrolling ppi
+making id node
+Found primary_expr 1
+Creating variable expr ppi
+In createVaraibleExpression, type is TYPTR
+Creating variable expr ppi
+Creating unary expr
+Creating unary expr
+Creating binary expr OP_BINARY: 1
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 0. TAG_BINARY: 9
+Found ID; Enrolling print_ints
+making id node
+Found primary_expr 1
+Creating variable expr print_ints
+Creating variable expr print_ints
+Creating function expr
+expr->tag: 5. TAG_BINARY: 9
+Found ID; Enrolling f
+making id node
+Found primary_expr 1
+Creating variable expr f
+Creating variable expr f
+Found primary_expr 2
+Creating const int expr: 199
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+line 25: ERROR -- Invalid types passed to resolveTypeBinaryExpression()
+expr->tag: 6. TAG_BINARY: 9
+in evalVariableExpression
+expr->tag: 0. TAG_BINARY: 9
+Found ID; Enrolling pf
+making id node
+Found primary_expr 1
+Creating variable expr pf
+In createVaraibleExpression, type is TYPTR
+Creating variable expr pf
+Found ID; Enrolling f
+making id node
+Found primary_expr 1
+Creating variable expr f
+Creating variable expr f
+Creating unary expr
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 7. TAG_BINARY: 9
+TAG_POINTER
+Found ID; Enrolling pf
+making id node
+Found primary_expr 1
+Creating variable expr pf
+In createVaraibleExpression, type is TYPTR
+Creating variable expr pf
+Creating unary expr
+Found ID; Enrolling pf
+making id node
+Found primary_expr 1
+Creating variable expr pf
+In createVaraibleExpression, type is TYPTR
+Creating variable expr pf
+Creating unary expr
+Found ID; Enrolling pf
+making id node
+Found primary_expr 1
+Creating variable expr pf
+In createVaraibleExpression, type is TYPTR
+Creating variable expr pf
+Creating unary expr
+Found primary_expr 2
+Creating const int expr: 1
+Creating binary expr OP_BINARY: 4
+Found primary_expr 5
+Creating binary expr OP_BINARY: 2
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 8. TAG_BINARY: 9
+Found ID; Enrolling print_floats
+making id node
+Found primary_expr 1
+Creating variable expr print_floats
+Creating variable expr print_floats
+Creating function expr
+expr->tag: 5. TAG_BINARY: 9
+Found ID; Enrolling i
+making id node
+Found primary_expr 1
+Creating variable expr i
+Creating variable expr i
+Creating unary expr
+Creating unary expr
+Found ID; Enrolling i
+making id node
+Found primary_expr 1
+Creating variable expr i
+Creating variable expr i
+Creating unary expr
+Creating unary expr
+Found primary_expr 2
+Creating const int expr: 1
+Creating binary expr OP_BINARY: 4
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 8. TAG_BINARY: 9
+Found ID; Enrolling print_ints
+making id node
+Found primary_expr 1
+Creating variable expr print_ints
+Creating variable expr print_ints
+Creating function expr
+expr->tag: 5. TAG_BINARY: 9
+Found ID; Enrolling c
+making id node
+Found primary_expr 1
+Creating variable expr c
+Creating variable expr c
+Found primary_expr 2
+Creating const int expr: 97
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 0. TAG_BINARY: 9
+Found ID; Enrolling s1
+making id node
+Found primary_expr 1
+Creating variable expr s1
+In createVaraibleExpression, type is TYPTR
+Creating variable expr s1
+Found ID; Enrolling c
+making id node
+Found primary_expr 1
+Creating variable expr c
+Creating variable expr c
+Creating unary expr
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 7. TAG_BINARY: 9
+TAG_POINTER
+Found ID; Enrolling s2
+making id node
+Found primary_expr 1
+Creating variable expr s2
+In createVaraibleExpression, type is TYPTR
+Creating variable expr s2
+Found ID; Enrolling s1
+making id node
+Found primary_expr 1
+Creating variable expr s1
+In createVaraibleExpression, type is TYPTR
+Creating variable expr s1
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 7. TAG_BINARY: 9
+TAG_POINTER
+Found ID; Enrolling i
+making id node
+Found primary_expr 1
+Creating variable expr i
+Creating variable expr i
+Found ID; Enrolling s1
+making id node
+Found primary_expr 1
+Creating variable expr s1
+In createVaraibleExpression, type is TYPTR
+Creating variable expr s1
+Creating unary expr
+Found ID; Enrolling s2
+making id node
+Found primary_expr 1
+Creating variable expr s2
+In createVaraibleExpression, type is TYPTR
+Creating variable expr s2
+Creating unary expr
+Creating binary expr OP_BINARY: 4
+Found ID; Enrolling pi
+making id node
+Found primary_expr 1
+Creating variable expr pi
+In createVaraibleExpression, type is TYPTR
+Creating variable expr pi
+Creating unary expr
+Creating binary expr OP_BINARY: 4
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 0. TAG_BINARY: 9
+Found ID; Enrolling print_ints
+making id node
+Found primary_expr 1
+Creating variable expr print_ints
+Creating variable expr print_ints
+Creating function expr
+expr->tag: 5. TAG_BINARY: 9
+Found ID; Enrolling s1
+making id node
+Found primary_expr 1
+Creating variable expr s1
+In createVaraibleExpression, type is TYPTR
+Creating variable expr s1
+Found primary_expr 2
+Creating const int expr: 0
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 7. TAG_BINARY: 9
+TAG_POINTER
+Found ID; Enrolling i
+making id node
+Found primary_expr 1
+Creating variable expr i
+Creating variable expr i
+Found ID; Enrolling s1
+making id node
+Found primary_expr 1
+Creating variable expr s1
+In createVaraibleExpression, type is TYPTR
+Creating variable expr s1
+Found ID; Enrolling s2
+making id node
+Found primary_expr 1
+Creating variable expr s2
+In createVaraibleExpression, type is TYPTR
+Creating variable expr s2
+Creating binary expr OP_BINARY: 9
+Found primary_expr 5
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 0. TAG_BINARY: 9
+Found ID; Enrolling j
+making id node
+Found primary_expr 1
+Creating variable expr j
+Creating variable expr j
+Found ID; Enrolling s1
+making id node
+Found primary_expr 1
+Creating variable expr s1
+In createVaraibleExpression, type is TYPTR
+Creating variable expr s1
+Found ID; Enrolling s2
+making id node
+Found primary_expr 1
+Creating variable expr s2
+In createVaraibleExpression, type is TYPTR
+Creating variable expr s2
+Creating binary expr OP_BINARY: 8
+Found primary_expr 5
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 0. TAG_BINARY: 9
+Found ID; Enrolling print_ints
+making id node
+Found primary_expr 1
+Creating variable expr print_ints
+Creating variable expr print_ints
+Creating function expr
+expr->tag: 5. TAG_BINARY: 9
+Found ID; Enrolling i
+making id node
+Found primary_expr 1
+Creating variable expr i
+Creating variable expr i
+Found ID; Enrolling s2
+making id node
+Found primary_expr 1
+Creating variable expr s2
+In createVaraibleExpression, type is TYPTR
+Creating variable expr s2
+Found primary_expr 2
+Creating const int expr: 0
+Creating binary expr OP_BINARY: 12
+Found primary_expr 5
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 0. TAG_BINARY: 9
+Found ID; Enrolling print_ints
+making id node
+Found primary_expr 1
+Creating variable expr print_ints
+Creating variable expr print_ints
+Creating function expr
+expr->tag: 5. TAG_BINARY: 9
+Found ID; Enrolling ppi
+making id node
+Found primary_expr 1
+Creating variable expr ppi
+In createVaraibleExpression, type is TYPTR
+Creating variable expr ppi
+Creating unary expr
+Creating unary expr
+Found primary_expr 2
+Creating const int expr: 123
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 8. TAG_BINARY: 9
+Found ID; Enrolling print_ints
+making id node
+Found primary_expr 1
+Creating variable expr print_ints
+Creating variable expr print_ints
+Creating function expr
+expr->tag: 5. TAG_BINARY: 9
+Found ID; Enrolling pppi
+making id node
+Found primary_expr 1
+Creating variable expr pppi
+In createVaraibleExpression, type is TYPTR
+Creating variable expr pppi
+Found ID; Enrolling ppi
+making id node
+Found primary_expr 1
+Creating variable expr ppi
+In createVaraibleExpression, type is TYPTR
+Creating variable expr ppi
+Creating unary expr
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 7. TAG_BINARY: 9
+TAG_POINTER
+Found ID; Enrolling pppi
+making id node
+Found primary_expr 1
+Creating variable expr pppi
+In createVaraibleExpression, type is TYPTR
+Creating variable expr pppi
+Creating unary expr
+Creating unary expr
+Creating unary expr
+Found primary_expr 2
+Creating const int expr: 257
+Found unary_expr assignment_operator assignment_expr
+Creating binary expr OP_BINARY: 0
+expr->tag: 9. TAG_BINARY: 9
+expr->tag: 8. TAG_BINARY: 9
+Found ID; Enrolling print_ints
+making id node
+Found primary_expr 1
+Creating variable expr print_ints
+Creating variable expr print_ints
+Creating function expr
+expr->tag: 5. TAG_BINARY: 9

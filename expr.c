@@ -4,7 +4,7 @@
 /***************** Create Functions ***************/
 EN createConstantIntExpression(int val)
 {
-	//msg("Creating const int expr: %d", val);
+	msg("Creating const int expr: %d", val);
 
 	EN expression = (EN)malloc(sizeof(EXPR_NODE));
 
@@ -27,7 +27,7 @@ EN createStringExpression(char* f)
 
 EN createConstantDoubleExpression(const double val)
 {
-	//msg("Creating const double expr: %f", val);
+	msg("Creating const double expr: %f", val);
 
 	EN expression = (EN)malloc(sizeof(EXPR_NODE));
 
@@ -45,22 +45,34 @@ EN createVariableExpression(ST_ID varStID)
 	EN expression = (EN)malloc(sizeof(EXPR_NODE));
 	ST_DR stdr = st_lookup(varStID, &b);
 	TYPETAG ty_tag = TYERROR;
-	if(stdr != NULL)
-	{	ty_tag = ty_query(stdr->u.decl.type);}
-	//msg("Creating variable expr %s", identifier);
+
+	if(stdr != NULL) {	
+		ty_tag = ty_query(stdr->u.decl.type);
+	}
+	
+	msg("Creating variable expr %s", identifier);
+
 	expression->tag = TAG_VARIABLE;
+
 	if(ty_tag == TYFLOAT || ty_tag == TYDOUBLE)
 		expression->isDouble = TRUE;
 	else
 		expression->isDouble = FALSE;
+
+	if (ty_tag == TYPTR) {
+		msg("In createVaraibleExpression, type is TYPTR");
+	}
+
 	expression->u.varStID = varStID;
-	//msg("Creating variable expr %s", identifier);
+
+	msg("Creating variable expr %s", identifier);
+
 	return expression;
 }
 
 EN createFunctionExpression(EN node, AL arg_l)
 {
-	//msg("Creating function expr");
+	msg("Creating function expr");
 
 	EN expression = (EN)malloc(sizeof(EXPR_NODE));
 
@@ -74,7 +86,7 @@ EN createFunctionExpression(EN node, AL arg_l)
 
 EN createUnaryExpression(OP_UNARY op, EN operand, BOOLEAN prefix)
 {
-	//msg("Creating unary expr");
+	msg("Creating unary expr");
 
 	EN expression = (EN)malloc(sizeof(EXPR_NODE));
 
@@ -90,7 +102,7 @@ EN createUnaryExpression(OP_UNARY op, EN operand, BOOLEAN prefix)
 
 EN createBinaryExpression(OP_BINARY op, EN left, EN right)
 {
-	//msg("Creating binary expr OP_BINARY: %d", op);
+	msg("Creating binary expr OP_BINARY: %d", op);
 
 	EN expression = (EN)malloc(sizeof(EXPR_NODE));
 
@@ -184,9 +196,7 @@ double evalDoubleExpression(EN node)
 
 EN evalVariableExpression(EN node)
 {
-	//TODO:
-	// int block;
-	// ST_DR dR = st_lookup(node->u.varStID, &block);
+	msg("in evalVariableExpression");
 	//Returns the char* of the id
 	char* identifier = st_get_id_str(node->u.varStID);
 	ST_DR stdr;
@@ -303,7 +313,10 @@ EN evalUnaryExpression(EN node)
 		//TODO:
 		case UNARY_DEREF: 		//*ptr
 			break;
-		case UNARY_REF:			//&identifier
+		case UNARY_REF:	;		//&identifier
+			char* identifier = st_get_id_str(node->u.unop.operand->u.varStID);
+			msg("In evalUnaryExpression UNARY_REF");
+			b_push_ext_addr(identifier);
 			break;
 
 		case UNARY_PLUS:		//+3
@@ -803,6 +816,7 @@ EN evalBinaryExpression(EN node)
 				evalLeft = evaluateExpression(node->u.binop.leftOperand);	
 				if(isVariableExpression(evalLeft))
 				{
+					msg("de-reffing in BINARY_ADD");
 					b_deref(getTypeTagFromExpression(evalLeft));
 				}
 				else if(isIntExpression(evalLeft))
@@ -817,7 +831,7 @@ EN evalBinaryExpression(EN node)
 				leftType = unaryConversion(evalLeft);
 				if(leftType != resolvedType)
 					{
-					//error("binary add push int eval left resolved type, %d", evalLeft->u.valInt );
+					error("binary add push int eval left resolved type, %d", evalLeft->u.valInt );
 					//b_convert(leftType, resolvedType);
 					}
 
@@ -1800,8 +1814,16 @@ TYPETAG resolveTypeBinaryExpression(TYPETAG leftType, TYPETAG rightType)
 		return TYDOUBLE;
 	else if(leftType == TYSIGNEDINT && rightType == TYDOUBLE)
 		return TYDOUBLE;
-	else //if(leftType == TYDOUBLE && rightType == TYSIGNEDINT)
+	else if(leftType == TYDOUBLE && rightType == TYSIGNEDINT)
 		return TYDOUBLE;
+	else if(leftType == TYPTR && rightType == TYSIGNEDINT || leftType == TYSIGNEDINT && rightType == TYPTR)
+		return TYSIGNEDINT;
+	else if(leftType == TYPTR && rightType == TYDOUBLE || leftType == TYDOUBLE && rightType == TYPTR)
+		return TYDOUBLE;
+	else if(leftType == rightType & leftType == TYPTR)
+		return TYPTR;
+	else 
+		error("Invalid types passed to resolveTypeBinaryExpression()");
 }
 
 int getIntFromExpression(EN node)
