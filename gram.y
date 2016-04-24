@@ -479,7 +479,7 @@ constant_expr
 	;
 
 expr_opt
-	: /* null derive */
+	: /* null derive */  { $<y_EN>$ = NULL; }
 	| expr
 	;
 
@@ -783,7 +783,13 @@ expression_statement
 		//error("in expression_statement");
 		$<y_EN>$ = evaluateExpression($<y_EN>1); 
 		//error("Done evaluating Expression");
-		//if($<y_EN>1->tag != TAG_FUNCTION)
+		if($<y_EN>1->tag == TAG_FUNCTION)
+			{ if(returnFuncTypeTag($<y_EN>1) == TYVOID)
+				;
+				else
+			b_pop();
+			}
+		else
 			b_pop();
 	}
 	;
@@ -860,21 +866,53 @@ iteration_statement
 	}
 	| DO statement WHILE '(' expr ')' ';'
 	| FOR '(' expr_opt ';' expr_opt ';' expr_opt ')' 
-    { 
-      // expr_opt[0] = init, [1] = test, [2] = inc
-      // encode init 
-      // pop if not void
-      // encode test
-    } 
-    {
-      //b_cond_jump(getTypeTagFromExpression(, B_ZEROR, $<y_string>$);
-    }
-      statement
-    {
-      //eval inc expr
-      //pop if non void
-      //jump to test
-    }
+	{ 
+		error("in FOR");
+		if( $<y_EN>3 != NULL )
+			{
+				evaluateExpression($<y_EN>3); 
+				b_pop();
+			}
+		char* start_label = new_symbol();
+		b_label(start_label);
+		$<y_string>$ = start_label;
+		error("in FOR 2");
+		if( $<y_EN>5 != NULL )
+			evaluateExpression($<y_EN>5);
+			// $9
+	}
+	{
+		char* exit_label = new_symbol();
+		$<y_string>$ = exit_label;
+		push(spgs, build_cond_stmt(FOR_COND, $<y_string>$, NULL));
+	}
+       // expr_opt[0] = init, [1] = test, [2] = inc
+       // encode init 
+       // pop if not void
+       // encode test
+	     
+	     {
+		if( $<y_EN>5 != NULL )
+	       		b_cond_jump(getTypeTagFromExpression($<y_EN>5), B_ZERO, $<y_string>10);
+		//else
+	     }
+	      statement
+	     {
+		error("in FOR");
+		if( $<y_EN>7 != NULL )
+			{
+				evaluateExpression($<y_EN>7); 
+				b_pop();
+			}
+		error("in FOR2");
+		b_jump($<y_string>9);
+		b_label($<y_string>10);
+		//evaluateExpression($<y_EN>7)
+	       //eval inc expr
+	       //pop if non void
+	       //jump to test
+		error("in FOR3");
+	     }
 	;
 
 jump_statement

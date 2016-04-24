@@ -818,7 +818,7 @@ EN evalBinaryExpression(EN node)
 				if(leftType != resolvedType)
 					{
 					//error("binary add push int eval left resolved type, %d", evalLeft->u.valInt );
-					b_convert(leftType, resolvedType);
+					//b_convert(leftType, resolvedType);
 					}
 
 				evalRight = evaluateExpression(node->u.binop.rightOperand);
@@ -1002,7 +1002,7 @@ EN evalBinaryExpression(EN node)
 				}
 				leftType = unaryConversion(evalLeft);
 				if(leftType != resolvedType)
-					b_convert(leftType, resolvedType);
+					;//b_convert(leftType, resolvedType);
 
 				evalRight = evaluateExpression(node->u.binop.rightOperand);
 				if(isVariableExpression(evalRight))
@@ -1019,7 +1019,7 @@ EN evalBinaryExpression(EN node)
 				}
 				rightType = unaryConversion(evalRight);
 				if(rightType != resolvedType)
-					b_convert(rightType, resolvedType);
+					;//b_convert(rightType, resolvedType); Found to be a DUPLICATE convert
 
 				TYPETAG type = convertExpression(evalLeft, evalRight);
 				b_arith_rel_op(B_LT, type);
