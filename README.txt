@@ -1,4 +1,3 @@
-part1done.
 perhaps useful http://www.cs.unh.edu/~pjh/courses/cs980/2007/proj1.html
 
 This directory contains the files comprising the skeleton of the C

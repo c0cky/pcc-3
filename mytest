@@ -1,0 +1,12 @@
+int i, j, *pi, **ppi;
+
+int print_ints();
+
+{
+	i = 19;
+	j = 28;
+	pi = &i;
+	ppi = &pi;
+	j = i + *pi;
+	print_ints();
+}

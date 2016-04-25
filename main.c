@@ -26,8 +26,8 @@ int main()
 	yydebug = 1;		/* DEBUG */
 #endif
 	status = yyparse();     /* Parse and translate the source */
-#if 1
-        if (status == 0)        /* If parse was successful */
+#if 0
+       if (status == 0)        /* If parse was successful */
             st_dump();          /* Dump the symbol table */
 #endif
 	return status;

@@ -7,18 +7,29 @@
 #include "symtab.h"
 #include "message.h"
 #include "backend-x86.h"
+
 // All the expression types we can have
 typedef enum 
 {
 	//All Expressions get typecasted to int or double
 	TAG_CONST_INTEGER,
 	TAG_CONST_DOUBLE,
+	
+	TAG_EVALUATED,
+
+	//Evaluated Expressions from Binary / Unary Operators Return value.
+	TAG_EVAL_INTEGER,
+	TAG_EVAL_DOUBLE,
 
 	TAG_FUNCTION,		//Function Call f(3) returns 5
 	TAG_VARIABLE,
 
+	TAG_POINTER,
+
 	TAG_UNARY,
-	TAG_BINARY
+	TAG_BINARY,
+	
+	TAG_STRING
 } EXPR_TAG;
 
 typedef enum
@@ -80,7 +91,8 @@ typedef enum
 typedef struct en 
 {
 	EXPR_TAG tag;	//Tag of the Union
-	
+	BOOLEAN evaluated;
+	BOOLEAN isDouble; // A tag to know if node is a Double
 	union
 	{
 		//Constants
@@ -113,12 +125,29 @@ typedef struct en
 		 //For Functions: TODO:
 		struct 
 		{
-			ST_ID id;
-			PARAM_LIST pl;
+			struct en* func_node;
+			struct al* arg_list;
 		} func;
+
+		struct
+		{
+			TYPETAG type;
+		} eval;
+		struct
+		{
+			char* s;
+		}str;
 	} u;
 } EXPR_NODE, *EN;
 
+// Aaron Add
+typedef struct al 
+{
+	int size;
+	struct en* arg;
+	struct al* prev;
+	struct al* next;
+} ARG_LIST, *AL;
 /***************** Create Functions ***************/
 EN createConstantIntExpression(const int val);
 
@@ -126,7 +155,9 @@ EN createConstantDoubleExpression(const double val);
 
 EN createVariableExpression(ST_ID varStID);
 
-EN createFunctionExpression(ST_ID funStID, PARAM_LIST pl);
+// AARON Change parameters of function to EN nodes
+// orig: EN createFunctionExpression(ST_ID, PARAM_LIST pl);
+EN createFunctionExpression(EN node, AL arg_l);
 
 EN createUnaryExpression(OP_UNARY op, EN operand, BOOLEAN prefix);
 
@@ -139,8 +170,8 @@ EN createBinaryExpression(OP_BINARY op, EN left, EN right);
 EN evaluateExpression(EN expr);
 
 //Helper Evaluating Functions
-EN evalIntExpression(EN node);
-EN evalDoubleExpression(EN node);
+int evalIntExpression(EN node);
+double evalDoubleExpression(EN node);
 //Return an EN that holds the Integer or Double from the variable's value.
 EN evalVariableExpression(EN node);
 EN evalFunctionExpression(EN node);
@@ -165,6 +196,29 @@ BOOLEAN isDoubleExpression(EN node);
 //Returns true if this expression is a variable expression
 BOOLEAN isVariableExpression(EN node);
 
+BOOLEAN isEvaluatedExpression(EN node);
+
 void printExpression(EN node);
+void evalArgList(AL arg_list);
+AL buildArg(EN node);
+AL linkArgList(AL current, AL new_al);
+TYPETAG getTypeTagFromExpression(EN node);
+TYPETAG ifDouble(BOOLEAN b);
+
+// Conversions
+TYPETAG unaryConversion(EN operand);	//char -> int, float -> double, input must be variable
+TYPETAG unaryConversionNoConversion(EN operand);
+TYPETAG convertExpression(EN leftOperand, EN rightOperand);
+
+TYPETAG evaluateUnaryConversion(TYPETAG type);
+TYPETAG evaluateTypeExpression(EN expr);
+
+//Return an EN that holds the Integer or Double from the variable's value.
+TYPETAG evalTypeVariableExpression(EN node);
+TYPETAG evalTypeFunctionExpression(EN node);
+TYPETAG evalTypeUnaryExpression(EN node);
+TYPETAG evalTypeBinaryExpression(EN node);
+TYPETAG resolveTypeBinaryExpression(TYPETAG leftType, TYPETAG rightType);
+
 
 #endif

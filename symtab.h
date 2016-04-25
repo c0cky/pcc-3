@@ -31,10 +31,10 @@ typedef struct st_dr {
             int binding;
             int regno;
       	    BOOLEAN is_ref;
-    	      union {   /* Pascal only */
-    		      int offset;
-    		      char *global_func_name;
-    	      } v;
+      	    union {   /* Pascal only */
+        		  int offset;
+        		  char *global_func_name;
+      	    } v;
             BOOLEAN err;
         } decl;
         struct {	/* stag: Struct/Union/Enum tag */

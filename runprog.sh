@@ -1,4 +1,4 @@
 #!/bin/bash
 make clean
 make
-./pcc3 < $1
+./pcc3 < $1 
