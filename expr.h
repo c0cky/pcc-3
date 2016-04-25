@@ -24,8 +24,6 @@ typedef enum
 	TAG_FUNCTION,		//Function Call f(3) returns 5
 	TAG_VARIABLE,
 
-	TAG_POINTER,
-
 	TAG_UNARY,
 	TAG_BINARY,
 	
@@ -92,7 +90,10 @@ typedef struct en
 {
 	EXPR_TAG tag;	//Tag of the Union
 	BOOLEAN evaluated;
+	BOOLEAN amp; // Boolean if it was a & reference
 	BOOLEAN isDouble; // A tag to know if node is a Double
+	BOOLEAN l_value;
+	BOOLEAN ptr;
 	union
 	{
 		//Constants
@@ -220,5 +221,6 @@ TYPETAG evalTypeUnaryExpression(EN node);
 TYPETAG evalTypeBinaryExpression(EN node);
 TYPETAG resolveTypeBinaryExpression(TYPETAG leftType, TYPETAG rightType);
 
+EN evalPTRarith(EN node);
 
 #endif
